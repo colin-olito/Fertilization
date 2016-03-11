@@ -1,140 +1,123 @@
-#*********************************************
-#*********************************************
-# Colin Olito. Created 21/10/2015.
-#
-# BODY MASS X SPERM MORPHOLOGY CORRELATION
-#
-# NOTES: 
-#          
-#
-#*********************************************
-#*********************************************
+#/* 
+# * Colin Olito. Created 21/10/2015.
+# * BODY MASS X SPERM MORPHOLOGY CORRELATION
+# * NOTES: 
+# *          
+# */
 
-#******************
+rm(list=ls())
+################
 # GLOBAL OPTIONS
 options("menu.graphics"=FALSE)
 
 #******************
 # DEPENDENCIES
-#install.packages("pbkrtest", loc="C:/R_home/R-3.1.2/library")
-#install.packages("AICcmodavg", loc="C:/R_home/R-3.1.2/library")
-#install.packages("LaplacesDemon", loc="C:/R_home/R-3.1.2/library")
-
-library(car, lib.loc="/usr/lib/R/library")
-library(ggplot2, lib.loc="/usr/lib/R/library")
-library(gridExtra, lib.loc="/usr/lib/R/library")
-library(contrast, lib.loc="/usr/lib/R/library")
-library(lubridate, lib.loc="/usr/lib/R/library")
-library(MASS, lib.loc="/usr/lib/R/library")
-library(plyr, lib.loc="/usr/lib/R/library")
-#library(nlme, lib.loc="/usr/lib/R/library")
-library(lme4, lib.loc="/usr/lib/R/library") # remember to detatch("package:nlme") because of conflicts
-library(boot, lib.loc="/usr/lib/R/library")
-library(multcomp, lib.loc="/usr/lib/R/library")
-library(MuMIn, lib.loc="/usr/lib/R/library")
-library(AICcmodavg, lib.loc="/usr/lib/R/library"
-library(rstan, lib.loc="/usr/lib/R/library")
-library(MCMCpack, lib.loc="/usr/lib/R/library")
-library(MCMCglmm, lib.loc="/usr/lib/R/library")
-library(lubridate, lib.loc="/usr/lib/R/library")
-library(pbkrtest, lib.loc="/usr/lib/R/library")
-
+source('R/dependencies_N_invest.R')
 
 #*******************
 # Import Data
-data <- read.csv("Ninvest_master.csv", header=TRUE, strip.white=TRUE)
+data <- read.csv('data/Ninvest_master.csv', header=TRUE, stringsAsFactors=FALSE)
 data <- data.frame(data)
 head(data)
-tail(data)
-data$Block <- factor(data$run)
-data$ind <- factor(data$chamb)
-data$Date <- as.Date(data$coll.date, format='%d/%m/%Y')
 
-# Make date variables useable as factors vs. continuous covariates
-data$c.date = factor(data$coll.date)
-data$m.date = factor(data$met.date)
-
-# Log transform mass variables
+# Convert grouping variables to factors; Correct Dates
+data$Run       <-  factor(data$Run)
+data$Colony    <-  factor(data$Colony)
+data$N         <-  factor(data$N)
+data$Lane      <-  factor(data$Lane)
+data$nSperm_c  <-  data$nSperm - mean(data$nSperm)
+data$Date      <-  dmy(data$Date)
 
 str(data)
 
-table(data$spawn,data$sex)
 
 #########################################
-# THE PRIMARY QUESTION OF INTEREST IS WHETHER
-# THERE IS A SIGNIFICANT DIFFERENCE  IN DELTA-VO2
-# MAX BETWEEN SPAWNING & NON-SPAWNING INDIVIDUALS
-# AFTER RECEIVING KCl INJECTIONS
+# A few exploratory plots
 #########################################
-p <- ggplot(data=data, aes(y=vo2max.before, x=twm, colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p
-
-p.gwm <- ggplot(data=data, aes(y=delta.vo2max, x=gwm, colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.gwm
+blue1  <- adjustcolor("dodgerblue3",  alpha.f=0.5)
+blue2  <- adjustcolor("dodgerblue6", alpha.f=1)
+red1  <- adjustcolor("orangered",  alpha.f=0.5)
+red2  <- adjustcolor("orangered3", alpha.f=1)
 
 
-p.lgwm <- ggplot(data=data, aes(y=delta.vo2max, x=log(gwm), colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.lgwm
+# plot of fertilization rate ~ sperm
+par(omi=rep(0.3, 4))
+plot((nFert/nEggs) ~ nSperm, data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(1)
+axis(2, las=1)
 
 
-p.twm <- ggplot(data=data, aes(y=delta.vo2max, x=twm, colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-#pdf(file='delta v TWM.pdf',width=12, height=7)
-p.twm
-#graphics.off()
 
-p.ltwm <- ggplot(data=data, aes(y=delta.vo2max, x=log(twm), colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.ltwm
+# plot of fertilization rate ~ sperm, grouped by run
+par(omi=rep(0.3, 4))
+plot((nFert[Run == 1]/nEggs[Run == 1]) ~ nSperm[Run == 1], data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert[data$Run == 1]/data$nEggs[data$Run == 1]) ~ data$nSperm[data$Run == 1], pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+for (i in 2:max(as.numeric(data$Run))){
+  points((data$nFert[data$Run == i]/data$nEggs[data$Run == i]) ~ data$nSperm[data$Run == i], pch=21, 
+          bg=transparentColor(i, 0.7),
+          col=transparentColor(i, 0.7), cex=1.1)
 
-
-p.diam <- ggplot(data=data, aes(y=delta.vo2max, x=diam.c, colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.diam
+}
+axis(1)
+axis(2, las=1)
 
 
-p.gm.bm <- ggplot(data=data, aes(y=log(gwm), x=log(twm), colour=spawn)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.gm.bm
 
-p.date <- ggplot(data=data, aes(y=delta.vo2max, x=m.date, fill=spawn)) +
-              geom_boxplot() +
-              stat_smooth(method='loess') +
-              theme_bw() +
-              facet_grid(~sex)
-p.date
+# plot of fertilization rate ~ Vol
+par(omi=rep(0.3, 4))
+plot((nFert/nEggs) ~ Vol, data=data, 
+    xlab=substitute('Volume O'[2]~' (mL)'), ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert/data$nEggs) ~ data$Vol, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(1)
+axis(2, las=1)
 
 
-p.run <- ggplot(data=data, aes(y=delta.vo2max, x=run, fill=spawn)) +
-              geom_boxplot() +
-              stat_smooth(method='loess') +
-              theme_bw() +
-              facet_grid(~sex)
-p.run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #########################################
