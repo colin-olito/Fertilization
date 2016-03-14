@@ -350,37 +350,6 @@ axis(1)
 
 
 
-head(mlLogistic4.summary)
-coefs <- mlLogistic4.summary$Mean[1:2]
-xs    <-  sort(seq(min(data$nSperm), max(data$nSperm), length=100))
-Xmat  <-  model.matrix(~data$nSperm, data=data.frame(nSperm=xs))
-head(Xmat)
-
-test  <-  coefs %*% t(Xmat)
-
-dim(pred)
-newdata <- plyr:::adply(pred, 2, function(x)
-{
-  data.frame(Mean=mean(x), Median=median(x), HPDinterval(as.mcmc(x)))
-}
-)
-newdata <- cbind(newdata, AREA=xs, area=exp(xs))
-head(newdata)
-
-
-coefs <- mlLogistic4.summary$Mean[1:2]
-xs <- seq(min(peake$LAREA), max(peake$LAREA), len=100)
-Xmat <- model.matrix(~AREA, data=data.frame(AREA=xs))
-head(Xmat)
-pred <- exp(coefs %*% t(Xmat))
-dim(pred)
-newdata <- adply(pred, 2, function(x)
-{
-  data.frame(Mean=mean(x), Median=median(x), HPDinterval(as.mcmc(x)))
-}
-)
-newdata <- cbind(newdata, AREA=xs, area=exp(xs))
-head(newdata)
 
 
 
@@ -388,15 +357,126 @@ head(newdata)
 
 
 
-# Call to STAN
-logitReg1 <- stan(data    =  data.list,
-                 file     =  './Stan/beta_binom_example.stan',
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+#  Logistic regression ~ nSperm. Random Intercept ~ Run. 
+#  Call to STAN:
+########################################################
+nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
+
+data.list  <-  list(N       =  nrow(data),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    Run     =  as.numeric(data$Run),
+                    nSperm  =  nSperm_z)
+
+#  Options for the analysis
+nChains        = 4
+burnInSteps    = 0
+thinSteps      = 5
+numSavedSteps  = 10000 #across all chains
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+mlLogistic5 <- stan(data    =  data.list,
+                 file     =  './Stan/logistic-reg-Run.stan',
                  chains   =  nChains,
                  iter     =  nIter,
-                 warmup   =  burnInSteps,
+#                 warmup   =  burnInSteps,
                  thin     =  thinSteps,
                  save_dso =  TRUE
                  )
+
+# Model Results
+print(mlLogistic5)
+print(mlLogistic5, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mlLogistic5.df    <-  as.data.frame(extract(mlLogistic5))
+mcmc.mlLogistic5  <-  as.mcmc(mlLogistic5)
+mlLogistic5.mcmc  <-  rstan:::as.mcmc.list.stanfit(mlLogistic5)
+
+
+# Simple Diagnostic Plots
+plot(mlLogistic5, pars="theta")
+par(mfrow=c(2,2))
+plot(mlLogistic5.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic5.mcmc, ask=TRUE)
+pairs(mlLogistic5, pars="a")
+mlLogistic5.summary <- plyr:::adply(as.matrix(mlLogistic5.df),2,MCMCsum)
+(mlLogistic5.summary)
+
+
+
+
+
+##  Plot predicted line etc.
+pred <- mlLogistic5.summary[c(61:108),]
+runs  <-  list(
+Run1  <- inv_logit(mlLogistic5.summary$Mean[1] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run2  <- inv_logit(mlLogistic5.summary$Mean[2] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run3  <- inv_logit(mlLogistic5.summary$Mean[3] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run4  <- inv_logit(mlLogistic5.summary$Mean[4] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run5  <- inv_logit(mlLogistic5.summary$Mean[5] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run6  <- inv_logit(mlLogistic5.summary$Mean[6] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run7  <- inv_logit(mlLogistic5.summary$Mean[7] + mlLogistic5.summary$Mean[9] * nSperm_z),
+Run8  <- inv_logit(mlLogistic5.summary$Mean[8] + mlLogistic5.summary$Mean[9] * nSperm_z)
+)
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+for(i in 1:8) {
+  lines(runs[[i]][order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col=Runcols[i], lwd=3)
+}
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        x[order(nSperm_z)], type='l')
+lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        x[order(nSperm_z)], type='l', lty=2)
+lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        x[order(nSperm_z)], type='l', lty=2)
+
+
+inv_logit(mlLogistic5.summary$Mean[9])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Call to STAN
@@ -404,11 +484,10 @@ PoiReg1 <- stan(data    =  data.list,
                  file     =  './Stan/poisson_offset.stan',
                  chains   =  nChains,
                  iter     =  nIter,
-                 warmup   =  burnInSteps,
+#                 warmup   =  burnInSteps,
                  thin     =  thinSteps,
                  save_dso =  TRUE
                  )
-
 
 
 

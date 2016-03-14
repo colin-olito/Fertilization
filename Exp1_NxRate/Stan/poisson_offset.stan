@@ -12,7 +12,7 @@ data {
 transformed data {
 	vector[N] log_nEggs;
 
-	log_nEggs <- log(nEggs);
+	log_nEggs  <-  log(nEggs);
 }
 
 parameters {

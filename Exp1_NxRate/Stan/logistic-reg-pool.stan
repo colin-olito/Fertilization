@@ -12,7 +12,7 @@ data {
 }
 
 parameters {
-vector<lower=0, upper=1>[2] theta;    // probability of fertilization for each individual
+vector<lower=0, upper=1>[2] theta;    // Coefficients for linear predictor
 }
 
 model {
