@@ -1,6 +1,7 @@
 /*
- * Simple Hierarchical Hierarchical Logistic Regression Model 
- * -- Linear predictor w/ nSperm
+ *  Hierarchical Logistic Regression Model 
+ *  -- Random intercept ~ Run
+ *  -- Linear predictor ~ nSperm
  *
  */
 
@@ -14,9 +15,8 @@ data {
 
 parameters {
   vector[8] a;
-  real<lower=0,upper=1> theta;
-  real<lower=0,upper=100> sigma_a;
-  real<lower=0,upper=100> sigma_y;
+  real theta;
+  real<lower=0> sigma_a;
   real mu_a;
 } 
 
@@ -28,9 +28,10 @@ transformed parameters {
 }
 
 model {
-	mu_a ~ normal(0, 1);                     // Hyperprior
-	a ~ normal (mu_a, sigma_a);              // Prior
-	nFert  ~  binomial_logit(nEggs, y_hat);  // Likelihood
+	mu_a         ~  normal(0, 1);                   // Hyperprior for among-intercept mean
+	sigma_a      ~  cauchy(0,5);                    // Hyperprior for among-intercept variance
+	a            ~  normal (mu_a, sigma_a);         // Prior
+	nFert        ~  binomial_logit(nEggs, y_hat);  // Likelihood
 }
 
 generated quantities {

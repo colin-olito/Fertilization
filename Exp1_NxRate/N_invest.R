@@ -130,9 +130,263 @@ axis(2, las=1)
 
 
 
+
+
+########################################################
+#  Simple Logistic regression ~ nSperm. Complete Pooling 
+#  Call to STAN:
+########################################################
+nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
+
+data.list  <-  list(N       =  nrow(data),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    nSperm  =  nSperm_z)
+
+#  Options for the analysis
+nChains        = 4
+burnInSteps    = 0
+thinSteps      = 5
+numSavedSteps  = 10000 #across all chains
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+Logistic1 <- stan(data    =  data.list,
+                 file     =  './Stan/logistic-reg-pool.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(Logistic1)
+print(Logistic1, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+Logistic1.df    <-  as.data.frame(extract(Logistic1))
+mcmc.Logistic1  <-  as.mcmc(Logistic1)
+Logistic1.mcmc  <-  rstan:::as.mcmc.list.stanfit(Logistic1)
+
+
+# Simple Diagnostic Plots
+plot(Logistic1, pars="theta")
+par(mfrow=c(2,2))
+plot(Logistic1.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(Logistic1.mcmc, ask=TRUE)
+pairs(Logistic1, pars="theta")
+Logistic1.summary <- plyr:::adply(as.matrix(Logistic1.df),2,MCMCsum)
+(Logistic1.summary)
+
+
+
+##  Plot predicted line etc.
+pred     <-  Logistic1.summary[-c(1,2,51),]
+RegLine  <-  inv_logit(Logistic1.summary$Mean[1] + Logistic1.summary$Mean[2] * nSperm_z)
+RegLow   <-  inv_logit(Logistic1.summary$lower[1] + Logistic1.summary$lower[2] * nSperm_z)
+RegHi    <-  inv_logit(Logistic1.summary$upper[1] + Logistic1.summary$upper[2] * nSperm_z)
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lwd=3)
+lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lty=2)
+lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lty=2)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+# RegLine matches pred !!!  YAY!!!
+# lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+#                   col='black', lwd=3)
+# lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+# lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+# cbind(RegHi[order(nSperm_z)], 
+#       RegLine[order(nSperm_z)],
+#       RegLow[order(nSperm_z)])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+#  Logistic regression ~ nSperm. Random Intercept ~ Run. 
+#  Call to STAN:
+########################################################
+nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
+
+data.list  <-  list(N       =  nrow(data),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    Run     =  as.numeric(data$Run),
+                    nSperm  =  nSperm_z)
+
+#  Options for the analysis
+nChains        = 4
+burnInSteps    = 0
+thinSteps      = 5
+numSavedSteps  = 10000 #across all chains
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+mlLogistic1 <- stan(data    =  data.list,
+                 file     =  './Stan/logistic-reg-Run.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(mlLogistic1)
+print(mlLogistic1, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mlLogistic1, c("a"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mlLogistic1.df    <-  as.data.frame(extract(mlLogistic1))
+mcmc.mlLogistic1  <-  as.mcmc(mlLogistic1)
+mlLogistic1.mcmc  <-  rstan:::as.mcmc.list.stanfit(mlLogistic1)
+
+
+# Simple Diagnostic Plots
+plot(mlLogistic1, pars="theta")
+par(mfrow=c(2,2))
+plot(mlLogistic1.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic1.mcmc, ask=TRUE)
+#pairs(mlLogistic1, pars="theta")
+pairs(mlLogistic1, pars="a")
+mlLogistic1.summary <- plyr:::adply(as.matrix(mlLogistic1.df),2,MCMCsum)
+(mlLogistic1.summary)
+
+
+
+
+
+##  Plot predicted line etc.
+pred <- mlLogistic1.summary[c(60:107),]
+runs  <-  list(
+               Run1  <- inv_logit(mlLogistic1.summary$Mean[1] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run2  <- inv_logit(mlLogistic1.summary$Mean[2] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run3  <- inv_logit(mlLogistic1.summary$Mean[3] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run4  <- inv_logit(mlLogistic1.summary$Mean[4] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run5  <- inv_logit(mlLogistic1.summary$Mean[5] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run6  <- inv_logit(mlLogistic1.summary$Mean[6] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run7  <- inv_logit(mlLogistic1.summary$Mean[7] + mlLogistic1.summary$Mean[9] * nSperm_z),
+               Run8  <- inv_logit(mlLogistic1.summary$Mean[8] + mlLogistic1.summary$Mean[9] * nSperm_z)
+              )
+
+mlLogistic1.summary[1:10,]
+RegHi    <-  inv_logit(mean(mlLogistic1.summary$upper[1:9]) + mlLogistic1.summary$upper[9] * nSperm_z)
+RegLine  <-  inv_logit(mean(mlLogistic1.summary$Mean[1:9]) + mlLogistic1.summary$Mean[9] * nSperm_z)
+RegLow   <-  inv_logit(mean(mlLogistic1.summary$lower[1:9]) + mlLogistic1.summary$lower[9] * nSperm_z)
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+for(i in 1:8) {
+  lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                  col='grey80', lwd=3)
+}
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+#lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+#lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+
+
+##  USING REPLICATED DRAWS FROM THE POSTERIOR 
+##  DOESN'T WORK SO WELL... WHAT AM I DOING WRONG HERE?
+lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lwd=3)
+lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lty=2)
+lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+        data$nSperm[order(nSperm_z)], type='l', lty=2)
+
+inv_logit(mlLogistic1.summary$Mean[9])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################
+#  TRAINER MODELS!!! 
 #########################################
 # Start with a simple logistic regression
-# model model.
+# models
 #########################################
 
 head(data)
@@ -274,201 +528,6 @@ points(y ~ x, data=df_bda3_fig_5_3,
        col=transparentColor('dodgerblue1', 0.3), cex=1.1)
 axis(1)
 axis(2, las=1)
-
-
-
-
-##################################################
-#  Logistic regression ~ nSperm. COMPLETE POOLING. 
-#  Call to STAN:
-##################################################
-nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
-
-data.list  <-  list(N       =  nrow(data),
-                    nFert   =  data$nFert, 
-                    nEggs   =  data$nEggs,
-                    nSperm  =  nSperm_z
-
-#  Options for the analysis
-nChains        = 4
-burnInSteps    = 0
-thinSteps      = 5
-numSavedSteps  = 10000 #across all chains
-nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
-mlLogistic4 <- stan(data    =  data.list,
-                 file     =  './Stan/logistic-reg-pool.stan',
-                 chains   =  nChains,
-                 iter     =  nIter,
-#                 warmup   =  burnInSteps,
-                 thin     =  thinSteps,
-                 save_dso =  TRUE
-                 )
-
-# Model Results
-print(mlLogistic4)
-print(mlLogistic4, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-mlLogistic4.df    <-  as.data.frame(extract(mlLogistic4))
-mcmc.mlLogistic4  <-  as.mcmc(mlLogistic4)
-mlLogistic4.mcmc  <-  rstan:::as.mcmc.list.stanfit(mlLogistic4)
-
-
-# Simple Diagnostic Plots
-plot(mlLogistic4, pars="theta")
-par(mfrow=c(2,2))
-plot(mlLogistic4.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(mlLogistic4.mcmc, ask=TRUE)
-pairs(mlLogistic4, pars="theta")
-mlLogistic4.summary <- plyr:::adply(as.matrix(mlLogistic4.df),2,MCMCsum)
-(mlLogistic4.summary)
-
-
-
-##  Plot predicted line etc.
-pred <- mlLogistic4.summary[-c(1,2,51),]
-
-par(omi=rep(0.3, 4))
-plot((data$nFert/data$nEggs) ~ nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
-usr  <-  par('usr')
-rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-whiteGrid()
-box()
-lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l')
-lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l', lty=2)
-lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l', lty=2)
-points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-axis(2, las=1)
-axis(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-########################################################
-#  Logistic regression ~ nSperm. Random Intercept ~ Run. 
-#  Call to STAN:
-########################################################
-nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
-
-data.list  <-  list(N       =  nrow(data),
-                    nFert   =  data$nFert, 
-                    nEggs   =  data$nEggs,
-                    Run     =  as.numeric(data$Run),
-                    nSperm  =  nSperm_z)
-
-#  Options for the analysis
-nChains        = 4
-burnInSteps    = 0
-thinSteps      = 5
-numSavedSteps  = 10000 #across all chains
-nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
-mlLogistic5 <- stan(data    =  data.list,
-                 file     =  './Stan/logistic-reg-Run.stan',
-                 chains   =  nChains,
-                 iter     =  nIter,
-#                 warmup   =  burnInSteps,
-                 thin     =  thinSteps,
-                 save_dso =  TRUE
-                 )
-
-# Model Results
-print(mlLogistic5)
-print(mlLogistic5, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-mlLogistic5.df    <-  as.data.frame(extract(mlLogistic5))
-mcmc.mlLogistic5  <-  as.mcmc(mlLogistic5)
-mlLogistic5.mcmc  <-  rstan:::as.mcmc.list.stanfit(mlLogistic5)
-
-
-# Simple Diagnostic Plots
-plot(mlLogistic5, pars="theta")
-par(mfrow=c(2,2))
-plot(mlLogistic5.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(mlLogistic5.mcmc, ask=TRUE)
-pairs(mlLogistic5, pars="a")
-mlLogistic5.summary <- plyr:::adply(as.matrix(mlLogistic5.df),2,MCMCsum)
-(mlLogistic5.summary)
-
-
-
-
-
-##  Plot predicted line etc.
-pred <- mlLogistic5.summary[c(61:108),]
-runs  <-  list(
-Run1  <- inv_logit(mlLogistic5.summary$Mean[1] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run2  <- inv_logit(mlLogistic5.summary$Mean[2] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run3  <- inv_logit(mlLogistic5.summary$Mean[3] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run4  <- inv_logit(mlLogistic5.summary$Mean[4] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run5  <- inv_logit(mlLogistic5.summary$Mean[5] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run6  <- inv_logit(mlLogistic5.summary$Mean[6] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run7  <- inv_logit(mlLogistic5.summary$Mean[7] + mlLogistic5.summary$Mean[9] * nSperm_z),
-Run8  <- inv_logit(mlLogistic5.summary$Mean[8] + mlLogistic5.summary$Mean[9] * nSperm_z)
-)
-
-
-par(omi=rep(0.3, 4))
-plot((data$nFert/data$nEggs) ~ nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
-usr  <-  par('usr')
-rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-whiteGrid()
-box()
-for(i in 1:8) {
-  lines(runs[[i]][order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
-                  col=Runcols[i], lwd=3)
-}
-points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-axis(2, las=1)
-axis(1)
-
-lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l')
-lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l', lty=2)
-lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        x[order(nSperm_z)], type='l', lty=2)
-
-
-inv_logit(mlLogistic5.summary$Mean[9])
-
-
-
-
-
-
-
-
-
 
 
 

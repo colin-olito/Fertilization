@@ -12,7 +12,7 @@ data {
 }
 
 parameters {
-vector<lower=0, upper=1>[2] theta;    // Coefficients for linear predictor
+vector[2] theta;    // Coefficients for linear predictor
 }
 
 model {

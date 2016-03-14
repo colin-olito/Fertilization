@@ -22,10 +22,16 @@ library(lme4) # remember to detatch("package:nlme") because of conflicts
 ########################
 # SUMMARIZE MCMC RESULTS
 ########################
-
-# Summary statistics for MCMC output
 MCMCsum <- function(x) {
    data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,na.rm=TRUE)), HPDinterval(as.mcmc(x)))
+}
+
+
+########################
+# INVERSE LOGIT FUNCTION
+########################
+inv_logit <- function(u) {
+    1 / (1 + exp(-u)); 
 }
 
 ####################
