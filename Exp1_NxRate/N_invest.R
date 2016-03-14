@@ -236,6 +236,8 @@ print(mlLogistic3)
 mlLogistic3.df <-as.data.frame(extract(mlLogistic3))
 mcmc.mlLogistic3 <- as.mcmc(mlLogistic3)
 mlLogistic3.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic3)
+#print(mlLogistic3, c("theta", "kappa", "phi"), probs=c(0.1, 0.5, 0.9));
+ss_hier  <-  extract(mlLogistic3);
 
 # Simple Diagnostic Plots
 plot(mlLogistic3)
@@ -246,6 +248,32 @@ traceplot(mlLogistic3.mcmc, ask=TRUE)
 mlLogistic3.summary <- plyr:::adply(as.matrix(mlLogistic3.df),2,MCMCsum)
 (mlLogistic3.summary)
 
+
+##  Figure from Ben Carpenters vignette showing the fitted
+##  values for ϕ and κ on the unconstrained scale, which is
+##  the space over which Stan is sampling.
+df_bda3_fig_5_3 <- with(ss_hier,
+                        data.frame(x = log(phi / (1 - phi)),
+                                   y = log(kappa)));
+phi_sim <- ss_hier$phi;
+kappa_sim <- ss_hier$kappa;
+df_bda3_fig_5_3 <- data.frame(x = log(phi_sim / (1 - phi_sim)),
+                              y = log(kappa_sim));
+
+plot(y ~ x, data=df_bda3_fig_5_3, 
+    xlab='logit(phi) = log(alpha / beta)', 
+    ylab='log(kappa) = log(alpha + beta)', 
+    type='n', axes=FALSE)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y ~ x, data=df_bda3_fig_5_3,
+       pch=21, 
+       bg=transparentColor('dodgerblue3', 0.3),
+       col=transparentColor('dodgerblue1', 0.3), cex=1.1)
+axis(1)
+axis(2, las=1)
 
 
 
@@ -256,9 +284,9 @@ mlLogistic3.summary <- plyr:::adply(as.matrix(mlLogistic3.df),2,MCMCsum)
 data.list  <-  list(N       =  nrow(data),
                     nFert   =  data$nFert, 
                     nEggs   =  data$nEggs,
-                    nSperm  =  log(data$nSperm))
+                    nSperm  =  data$nSperm)
 
-mlLogistic3 <- stan(data    =  data.list,
+mlLogistic4 <- stan(data    =  data.list,
                  file     =  './Stan/logistic-reg-pool.stan',
                  chains   =  nChains,
                  iter     =  nIter,
@@ -268,19 +296,21 @@ mlLogistic3 <- stan(data    =  data.list,
                  )
 
 # Model Results
-print(mlLogistic3)
-mlLogistic3.df <-as.data.frame(extract(mlLogistic3))
-mcmc.mlLogistic3 <- as.mcmc(mlLogistic3)
-mlLogistic3.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic3)
+print(mlLogistic4)
+print(mlLogistic4, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+mlLogistic4.df <-as.data.frame(extract(mlLogistic4))
+mcmc.mlLogistic4 <- as.mcmc(mlLogistic4)
+mlLogistic4.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic4)
 
 # Simple Diagnostic Plots
-plot(mlLogistic3)
+plot(mlLogistic4)
 par(mfrow=c(2,2))
-plot(mlLogistic3.mcmc, ask=TRUE)
+plot(mlLogistic4.mcmc, ask=TRUE)
 par(mfrow=c(3,2))
-traceplot(mlLogistic3.mcmc, ask=TRUE)
-mlLogistic3.summary <- plyr:::adply(as.matrix(mlLogistic3.df),2,MCMCsum)
-(mlLogistic3.summary)
+traceplot(mlLogistic4.mcmc, ask=TRUE)
+mlLogistic4.summary <- plyr:::adply(as.matrix(mlLogistic4.df),2,MCMCsum)
+(mlLogistic4.summary)
 
 
 

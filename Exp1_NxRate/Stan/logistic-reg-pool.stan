@@ -13,5 +13,5 @@ parameters {
 vector<lower=0, upper=1>[2] theta;    // probability of fertilization for each individual
 }
 model {
-	nFert  ~  binomial(nEggs, theta[1] + theta[2] * nSperm);  // Likelihood
+	nFert  ~  binomial_logit(nEggs, theta[1] + theta[2] * nSperm);  // Likelihood
 }
