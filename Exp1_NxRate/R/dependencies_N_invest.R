@@ -15,9 +15,18 @@ library(MASS)
 library(coda)
 library(MCMCpack)
 library(MCMCglmm)
-#library(lme4) # remember to detatch("package:nlme") because of conflicts
+library(lme4) # remember to detatch("package:nlme") because of conflicts
 #library(boot)
 
+
+########################
+# SUMMARIZE MCMC RESULTS
+########################
+
+# Summary statistics for MCMC output
+MCMCsum <- function(x) {
+   data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,na.rm=TRUE)), HPDinterval(as.mcmc(x)))
+}
 
 ####################
 # PLOTTING FUNCTIONS

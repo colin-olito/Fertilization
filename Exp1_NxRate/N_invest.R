@@ -34,17 +34,27 @@ str(data)
 #########################################
 # A few exploratory plots
 #########################################
-blue1  <- adjustcolor("dodgerblue3",  alpha.f=0.5)
-blue2  <- adjustcolor("dodgerblue6", alpha.f=1)
-red1  <- adjustcolor("orangered",  alpha.f=0.5)
-red2  <- adjustcolor("orangered3", alpha.f=1)
 
+blue1  <-  adjustcolor("dodgerblue3",  alpha.f=0.5)
+blue2  <-  adjustcolor("dodgerblue6", alpha.f=1)
+red1   <-  adjustcolor("orangered",  alpha.f=0.5)
+red2   <-  adjustcolor("orangered3", alpha.f=1)
+
+Runcols   <-  c(blue1, 
+                red1,
+                adjustcolor("darkolivegreen", alpha.f=1),
+                adjustcolor("salmon1", alpha.f=1),
+                adjustcolor("purple2", alpha.f=1),
+                adjustcolor("magenta", alpha.f=1),
+                adjustcolor("grey70", alpha.f=1),
+                adjustcolor("orangered3", alpha.f=1)
+            ) 
 
 # plot of fertilization rate ~ sperm
 par(omi=rep(0.3, 4))
 plot((nFert/nEggs) ~ nSperm, data=data, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE)
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -61,7 +71,7 @@ axis(2, las=1)
 par(omi=rep(0.3, 4))
 plot((nFert[Run == 1]/nEggs[Run == 1]) ~ nSperm[Run == 1], data=data, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1))
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -71,9 +81,31 @@ points((data$nFert[data$Run == 1]/data$nEggs[data$Run == 1]) ~ data$nSperm[data$
         col=transparentColor('dodgerblue1', 0.7), cex=1.1)
 for (i in 2:max(as.numeric(data$Run))){
   points((data$nFert[data$Run == i]/data$nEggs[data$Run == i]) ~ data$nSperm[data$Run == i], pch=21, 
-          bg=transparentColor(i, 0.7),
-          col=transparentColor(i, 0.7), cex=1.1)
+          bg=Runcols[i],
+          col=Runcols[i], cex=1.1)
+}
+axis(1)
+axis(2, las=1)
 
+
+
+
+# plot of fertilization rate ~ sperm, grouped by colony
+par(omi=rep(0.3, 4))
+plot((nFert[Colony == 1]/nEggs[Colony == 1]) ~ nSperm[Colony == 1], data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert[data$Colony == 1]/data$nEggs[data$Colony == 1]) ~ data$nSperm[data$Colony == 1], pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+for (i in 2:max(as.numeric(data$Colony))){
+  points((data$nFert[data$Colony == i]/data$nEggs[data$Colony == i]) ~ data$nSperm[data$Colony == i], pch=21, 
+          bg=Runcols[i],
+          col=Runcols[i], cex=1.1)
 }
 axis(1)
 axis(2, las=1)
@@ -83,8 +115,8 @@ axis(2, las=1)
 # plot of fertilization rate ~ Vol
 par(omi=rep(0.3, 4))
 plot((nFert/nEggs) ~ Vol, data=data, 
-    xlab=substitute('Volume O'[2]~' (mL)'), ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE)
+    xlab=substitute('Volume sperm (mL)'), ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$Vol),max(data$Vol)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -98,6 +130,157 @@ axis(2, las=1)
 
 
 
+#########################################
+# Start with a simple logistic regression
+# model model.
+#########################################
+
+head(data)
+glmfit1  <-  glm(cbind(nFert, (nEggs-nFert)) ~ log(nSperm), data=data, 
+                 family='binomial')
+summary(glmfit1)
+
+# Input variables for STAN
+
+
+data.list  <-  list(N       =  nrow(data),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    nSperm  =  data$nSperm)
+
+# OPTIONS FOR THE ANALYSES
+nChains        = 3
+burnInSteps    = 500
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+
+
+
+#  Grand Mean - complete pooling. 
+#  Call to STAN:
+mlLogistic1 <- stan(data    =  data.list,
+                 file     =  './Stan/hier-logistic-pool.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(mlLogistic1)
+mlLogistic1.df <-as.data.frame(extract(mlLogistic1))
+mcmc.mlLogistic1 <- as.mcmc(mlLogistic1)
+mlLogistic1.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic1)
+
+# Simple Diagnostic Plots
+plot(mlLogistic1)
+par(mfrow=c(2,2))
+plot(mlLogistic1.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic1.mcmc, ask=TRUE)
+mlLogistic1.summary <- plyr:::adply(as.matrix(mlLogistic1.df),2,MCMCsum)
+(mlLogistic1.summary)
+
+
+
+
+
+#  subject-specific means. NO POOLING. 
+#  Call to STAN:
+mlLogistic2 <- stan(data    =  data.list,
+                 file     =  './Stan/hier-logistic-nopool.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(mlLogistic2)
+mlLogistic2.df <-as.data.frame(extract(mlLogistic2))
+mcmc.mlLogistic2 <- as.mcmc(mlLogistic2)
+mlLogistic2.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic2)
+
+# Simple Diagnostic Plots
+plot(mlLogistic2)
+par(mfrow=c(2,2))
+plot(mlLogistic2.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic2.mcmc, ask=TRUE)
+mlLogistic2.summary <- plyr:::adply(as.matrix(mlLogistic2.df),2,MCMCsum)
+(mlLogistic2.summary)
+
+
+
+
+
+
+#  subject-specific means. Partial POOLING. 
+#  Using Beta-Binomial parameterization
+#  Call to STAN:
+mlLogistic3 <- stan(data    =  data.list,
+                 file     =  './Stan/hier-logistic.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(mlLogistic3)
+mlLogistic3.df <-as.data.frame(extract(mlLogistic3))
+mcmc.mlLogistic3 <- as.mcmc(mlLogistic3)
+mlLogistic3.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic3)
+
+# Simple Diagnostic Plots
+plot(mlLogistic3)
+par(mfrow=c(2,2))
+plot(mlLogistic3.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic3.mcmc, ask=TRUE)
+mlLogistic3.summary <- plyr:::adply(as.matrix(mlLogistic3.df),2,MCMCsum)
+(mlLogistic3.summary)
+
+
+
+
+
+
+#  Logistic regression ~ nSperm. COMPLETE POOLING. 
+#  Call to STAN:
+data.list  <-  list(N       =  nrow(data),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    nSperm  =  log(data$nSperm))
+
+mlLogistic3 <- stan(data    =  data.list,
+                 file     =  './Stan/logistic-reg-pool.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+# Model Results
+print(mlLogistic3)
+mlLogistic3.df <-as.data.frame(extract(mlLogistic3))
+mcmc.mlLogistic3 <- as.mcmc(mlLogistic3)
+mlLogistic3.mcmc<-rstan:::as.mcmc.list.stanfit(mlLogistic3)
+
+# Simple Diagnostic Plots
+plot(mlLogistic3)
+par(mfrow=c(2,2))
+plot(mlLogistic3.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(mlLogistic3.mcmc, ask=TRUE)
+mlLogistic3.summary <- plyr:::adply(as.matrix(mlLogistic3.df),2,MCMCsum)
+(mlLogistic3.summary)
 
 
 
@@ -112,6 +295,65 @@ axis(2, las=1)
 
 
 
+
+# Call to STAN
+logitReg1 <- stan(data    =  data.list,
+                 file     =  './Stan/beta_binom_example.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+
+# Call to STAN
+PoiReg1 <- stan(data    =  data.list,
+                 file     =  './Stan/poisson_offset.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 warmup   =  burnInSteps,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                 )
+
+
+
+
+# Model Results
+print(PoiReg1)
+PoiReg1.df <-as.data.frame(extract(PoiReg1))
+mcmc.PoiReg1 <- as.mcmc(PoiReg1)
+PoiReg1.mcmc<-rstan:::as.mcmc.list.stanfit(PoiReg1)
+
+
+# Simple Diagnostic Plots
+plot(PoiReg1)
+par(mfrow=c(2,2))
+plot(PoiReg1.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(PoiReg1.mcmc, ask=TRUE)
+PoiReg1.summary <- plyr:::adply(as.matrix(PoiReg1.df),2,MCMCsum)
+(PoiReg1.summary)
+
+
+
+##  make data for Diego
+test = cbind(nFert=data$nFert, nEggs=data$nEggs, nSperm=data$nSperm)
+write.csv(data.frame(test), file="dat.csv")
+
+N          <-  nrow(data)
+data.list  <-  list(N       =  N,
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    nSperm  =  data$nSperm)
+
+# OPTIONS FOR THE ANALYSIS
+nChains = 3
+burnInSteps = 500
+thinSteps = 5
+numSavedSteps = 5000 #across all chains
+nIter = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 
 
