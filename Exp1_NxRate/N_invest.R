@@ -164,7 +164,8 @@ print(Logistic1, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 Logistic1.df    <-  as.data.frame(extract(Logistic1))
 mcmc.Logistic1  <-  as.mcmc(Logistic1)
 Logistic1.mcmc  <-  rstan:::as.mcmc.list.stanfit(Logistic1)
-
+Logistic1.summary <- plyr:::adply(as.matrix(Logistic1.df),2,MCMCsum)
+(Logistic1.summary)
 
 # Simple Diagnostic Plots
 plot(Logistic1, pars="theta")
@@ -173,8 +174,7 @@ plot(Logistic1.mcmc, ask=TRUE)
 par(mfrow=c(3,2))
 traceplot(Logistic1.mcmc, ask=TRUE)
 pairs(Logistic1, pars="theta")
-Logistic1.summary <- plyr:::adply(as.matrix(Logistic1.df),2,MCMCsum)
-(Logistic1.summary)
+
 
 
 
@@ -229,8 +229,6 @@ axis(1)
 
 
 
-
-
 ########################################################
 #  Logistic regression ~ nSperm. Random Intercept ~ Run. 
 #  Call to STAN:
@@ -245,15 +243,16 @@ data.list  <-  list(N       =  nrow(data),
 
 #  Options for the analysis
 nChains        = 4
-burnInSteps    = 0
 thinSteps      = 5
 numSavedSteps  = 10000 #across all chains
+burnInSteps    = numSavedSteps / 2
 nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 mlLogistic1 <- stan(data    =  data.list,
                  file     =  './Stan/logistic-reg-Run.stan',
                  chains   =  nChains,
                  iter     =  nIter,
+                 warmup   =  burnInSteps,
                  thin     =  thinSteps,
                  save_dso =  TRUE
                  )
@@ -265,7 +264,10 @@ print(mlLogistic1, c("a"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 mlLogistic1.df    <-  as.data.frame(extract(mlLogistic1))
 mcmc.mlLogistic1  <-  as.mcmc(mlLogistic1)
 mlLogistic1.mcmc  <-  rstan:::as.mcmc.list.stanfit(mlLogistic1)
-
+mlLogistic1.summary <- plyr:::adply(as.matrix(mlLogistic1.df),2,MCMCsum)
+(mlLogistic1.summary)
+head(mlLogistic1.df)
+dim(mlLogistic1.df)
 
 # Simple Diagnostic Plots
 plot(mlLogistic1, pars="theta")
@@ -275,15 +277,12 @@ par(mfrow=c(3,2))
 traceplot(mlLogistic1.mcmc, ask=TRUE)
 #pairs(mlLogistic1, pars="theta")
 pairs(mlLogistic1, pars="a")
-mlLogistic1.summary <- plyr:::adply(as.matrix(mlLogistic1.df),2,MCMCsum)
-(mlLogistic1.summary)
 
 
 
 
 
 ##  Plot predicted line etc.
-pred <- mlLogistic1.summary[c(60:107),]
 runs  <-  list(
                Run1  <- inv_logit(mlLogistic1.summary$Mean[1] + mlLogistic1.summary$Mean[9] * nSperm_z),
                Run2  <- inv_logit(mlLogistic1.summary$Mean[2] + mlLogistic1.summary$Mean[9] * nSperm_z),
@@ -294,12 +293,20 @@ runs  <-  list(
                Run7  <- inv_logit(mlLogistic1.summary$Mean[7] + mlLogistic1.summary$Mean[9] * nSperm_z),
                Run8  <- inv_logit(mlLogistic1.summary$Mean[8] + mlLogistic1.summary$Mean[9] * nSperm_z)
               )
+runDiff  <-  inv_logit(mlLogistic1.summary$Mean[1:9]) - inv_logit(mean(mlLogistic1.summary$Mean[1:9]))
 
+sum(rnorm(10))
 mlLogistic1.summary[1:10,]
 RegHi    <-  inv_logit(mean(mlLogistic1.summary$upper[1:9]) + mlLogistic1.summary$upper[9] * nSperm_z)
 RegLine  <-  inv_logit(mean(mlLogistic1.summary$Mean[1:9]) + mlLogistic1.summary$Mean[9] * nSperm_z)
 RegLow   <-  inv_logit(mean(mlLogistic1.summary$lower[1:9]) + mlLogistic1.summary$lower[9] * nSperm_z)
 
+
+
+
+pred   <- mlLogistic1.summary[c(60:107),]
+pred2  <- mlLogistic1.summary[c(12:59),]
+pl  <-  inv_logit(pred2$Mean)
 
 par(omi=rep(0.3, 4))
 plot((data$nFert/data$nEggs) ~ nSperm_z, 
@@ -315,8 +322,8 @@ for(i in 1:8) {
 }
 lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='black', lwd=3)
-#lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
-#lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
 points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
         bg=transparentColor('dodgerblue3', 0.7),
         col=transparentColor('dodgerblue1', 0.7), cex=1.1)
@@ -324,18 +331,24 @@ axis(2, las=1)
 axis(1)
 
 
-
 ##  USING REPLICATED DRAWS FROM THE POSTERIOR 
 ##  DOESN'T WORK SO WELL... WHAT AM I DOING WRONG HERE?
-lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        data$nSperm[order(nSperm_z)], type='l', lwd=3)
-lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        data$nSperm[order(nSperm_z)], type='l', lty=2)
-lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
-        data$nSperm[order(nSperm_z)], type='l', lty=2)
+# lines(((pred$Mean / data$nEggs)- runDiff[data$Run])[order(nSperm_z)] ~ 
+#         data$nSperm[order(nSperm_z)], type='l', lwd=3)
+# lines(((pred$upper / data$nEggs)- runDiff[data$Run])[order(nSperm_z)] ~ 
+#         data$nSperm[order(nSperm_z)], type='l', lty=2)
+# lines(((pred$lower / data$nEggs)- runDiff[data$Run])[order(nSperm_z)] ~ 
+#         data$nSperm[order(nSperm_z)], type='l', lty=2)
 
-inv_logit(mlLogistic1.summary$Mean[9])
-
+##  Try plotting entire cloud of posterior draws
+# head(mlLogistic1.df)
+# dat  <- mlLogistic1.df[,60:107]
+# 
+# for(i in 1:ncol(dat)) {
+# points( (dat[,i]/ data$nEggs[1])  ~ 
+#        rep(data$nSperm[i], times=nrow(dat)),
+#        pch=21, col=NA, bg=transparentColor('dodgerblue1',0.01))
+# }
 
 
 
