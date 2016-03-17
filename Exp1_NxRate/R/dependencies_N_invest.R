@@ -1,5 +1,5 @@
 #/*
-# * Dependencies and functions for Ninvest.R analysis
+# * Dependencies and functions for N_invest.R analysis
 # *
 # *
 # */
