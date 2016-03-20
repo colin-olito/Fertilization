@@ -705,6 +705,7 @@ axis(1)
 #  Logistic regression ~ nSperm. Random Intercept ~ Run. 
 #  Call to STAN:
 ########################################################
+
 nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
 data.list  <-  list(N       =  nrow(data),
@@ -796,6 +797,179 @@ axis(1)
 
 
 
+########################################################
+#  Logistic regression ~ nSperm. Random Intercept ~ Run. 
+#  -- Estimate covariance matrix for a x theta
+#  Call to STAN:
+########################################################
+
+
+
+
+
+
+
+
+
+
+########################################################
+#  Logistic regression ~ nSperm. 
+#  -- Nested random effects:  Run/Colony
+#  -- Random intercept only.
+#  Call to STAN:
+########################################################
+
+colIndex <- unique(data[c("Run","Colony")])[,"Colony"]
+runIndex <- unique(data[c("Run","Colony")])[,"Run"]
+
+model.matrix(~Run/Colony, data=data)
+
+nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
+
+data.list  <-  list(N       =  nrow(data),
+                    Nr      =  max(unique(as.numeric(data$Run))),
+                    Nc      =  max(unique(as.numeric(data$Colony))),
+                    nFert   =  data$nFert, 
+                    nEggs   =  data$nEggs,
+                    Run     =  as.numeric(data$Run),
+                    Colony  =  as.numeric(colIndex),
+                    nSperm  =  nSperm_z)
+
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+nestInt1 <- stan(data    =  data.list,
+                 file     =  './Stan/logistic-reg-nest-Run-Colony-int.stan',
+                 chains   =  nChains,
+                 iter     =  nIter,
+                 thin     =  thinSteps,
+                 save_dso =  TRUE
+                )
+
+# Model Results
+print(nestInt1)
+print(nestInt1, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(nestInt1, c("a"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(nestInt1, c("b"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+nestInt1.df    <-  as.data.frame(extract(nestInt1))
+mcmc.nestInt1  <-  as.mcmc(nestInt1)
+nestInt1.mcmc  <-  rstan:::as.mcmc.list.stanfit(nestInt1)
+nestInt1.summ <- plyr:::adply(as.matrix(nestInt1.df),2,MCMCsum)
+(nestInt1.summ)
+head(nestInt1.df)
+dim(nestInt1.df)
+
+# Simple Diagnostic Plots
+plot(nestInt1, pars="theta")
+par(mfrow=c(2,2))
+plot(nestInt1.mcmc, ask=TRUE)
+ par(mfrow=c(3,2))
+traceplot(nestInt1.mcmc, ask=TRUE)
+#pairs(nestInt1, pars="theta")
+pairs(nestInt1, pars="a")
+
+
+
+##  MAYBE MAKE A PLOT WITH COLONY-SPECIFIC P
+
+##  Plot predicted line etc.
+Colonys  <-  list(
+               Colony1  <- inv_logit(nestInt1.summ$Mean[9]  + nestInt1.summ$Mean[12] * nSperm_z),
+               Colony2  <- inv_logit(nestInt1.summ$Mean[10] + nestInt1.summ$Mean[12] * nSperm_z),
+               Colony3  <- inv_logit(nestInt1.summ$Mean[11] + nestInt1.summ$Mean[12] * nSperm_z)
+              )
+RegLine  <-  inv_logit(nestInt1.summ$Mean[13] + nestInt1.summ$Mean[12] * nSperm_z)
+
+
+
+
+ + nestInt1.summ$Mean[9]
+ + nestInt1.summ$Mean[10]
+ + nestInt1.summ$Mean[10]
+ + nestInt1.summ$Mean[10]
+ + nestInt1.summ$Mean[10]
+ + nestInt1.summ$Mean[10]
+ + nestInt1.summ$Mean[11]
+ + nestInt1.summ$Mean[11]
+
+ + nestInt1.summ$Mean[15]
+
+##  Plot predicted line etc.
+runs  <-  list(
+               Run1  <- inv_logit(nestInt1.summ$Mean[1] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run2  <- inv_logit(nestInt1.summ$Mean[2] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run3  <- inv_logit(nestInt1.summ$Mean[3] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run4  <- inv_logit(nestInt1.summ$Mean[4] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run5  <- inv_logit(nestInt1.summ$Mean[5] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run6  <- inv_logit(nestInt1.summ$Mean[6] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run7  <- inv_logit(nestInt1.summ$Mean[7] + nestInt1.summ$Mean[12] * nSperm_z),
+               Run8  <- inv_logit(nestInt1.summ$Mean[8] + nestInt1.summ$Mean[12] * nSperm_z)
+              )
+
+RegLine  <-  inv_logit(nestInt1.summ$Mean[13] + nestInt1.summ$Mean[12] * nSperm_z)
+
+
+##  Plot showing uncertainty from Run-specific intercepts
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+ apply(nestInt1.df, 1, function(x, data, nSperm_z){
+     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+     lines(xrange, inv_logit(x['mu_run'] + x['theta'] * xrange2), col=transparentColor('grey68',0.01))
+ }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+# for(i in 1:8) {
+#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+#                   col='grey75', lwd=3)
+# }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+##  Plot showing uncertainty from Colony-specific intercepts
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+ apply(nestInt1.df, 1, function(x, data, nSperm_z){
+     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+     lines(xrange, inv_logit(x['mu_col'] + x['theta'] * xrange2), col=transparentColor('grey68',0.03))
+ }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+# for(i in 1:3) {
+#   lines(Colonys[[i]][data$Colony == i][order(nSperm_z[data$Colony == i])] ~ data$nSperm[data$Colony == i][order(nSperm_z[data$Colony == i])],
+#                   col='grey75', lwd=3)
+# }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
 
 
 

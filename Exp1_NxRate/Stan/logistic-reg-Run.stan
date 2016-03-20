@@ -31,11 +31,5 @@ model {
 	mu_a         ~  normal(0, 1);                   // Hyperprior for among-intercept mean
 	sigma_a      ~  cauchy(0,5);                    // Hyperprior for among-intercept variance
 	a            ~  normal (mu_a, sigma_a);         // Prior
-	nFert        ~  binomial_logit(nEggs, y_hat);  // Likelihood
-}
-
-generated quantities {
-	int<lower=0> nFert_rep[N];      // Posterior draws for prediction
-	for (i in 1:N) 
-    	nFert_rep[i] <- binomial_rng(nEggs[i], inv_logit(a[Run[i]] + theta * nSperm[i])); 
+	nFert        ~  binomial_logit(nEggs, y_hat);   // Likelihood
 }
