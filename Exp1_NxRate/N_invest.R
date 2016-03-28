@@ -1639,41 +1639,49 @@ axis(1)
 ## -- Estimate covariance matrix
 ####################################
 
+
 head(data)
 
-Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
-attr(Z0,"assign") <- NULL
-str(Z0)
-head(Z0)
+X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
+attr(X,"assign") <- NULL
+str(X)
+head(X)
 
-Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:8)]
-attr(Z1,"assign") <- NULL
-str(Z1)
-Z1[7:nrow(Z1),1]  <-  0
-Z1[1:20,]
+Z  <-  unname(model.matrix(~ data$Run *nSperm_z -1, data=data))
+attr(Z,"assign") <- NULL
+str(Z)
+Z[1:20,]
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K0  =  ncol(Z0),
-                    K1  =  ncol(Z1),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert,
-                    Z0  =  Z0,
-                    Z1  =  Z1
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(data$Run)),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(data$Run),
+                    nT   =  data$nEggs,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 #  Options for the analysis
 nChains        = 4
 thinSteps      = 5
-numSavedSteps  = 5000 #across all chains
+numSavedSteps  = 2000 #across all chains
 burnInSteps    = numSavedSteps / 2
 nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
+# inits  <-  list(
+#   list(L_run    =  matrix(runif(16^2,-0.5,0.5), nrow=16,ncol=16)),
+#   list(tau_run  =  runif(16,0.1,2)),
+#   list(u        =  matrix(runif((8*16),-1,1),nrow=8,ncol=16)),
+#   list(beta     =  runif(2,-1,1)),
+#   list(sigma_y  =  runif(1,0.1,2))
+#   )
 
 ## Call to STAN
-mat3 <- stan(data     =  data.list,
-             file     =  './Stan/mat-logistic-allZ.stan',
+mat4b <- stan(data     =  data.list,
+             file     =  './Stan/mat-logistic-1Z-cov.stan',
              chains   =  nChains,
              iter     =  numSavedSteps,
              thin     =  thinSteps,
@@ -1682,74 +1690,40 @@ mat3 <- stan(data     =  data.list,
 
 
 # Model Results
-print(mat3)
-print(mat3, c("gamma0", "mu_gamma0", "sigma_gamma0"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(mat3, c("gamma1", "mu_gamma1", "sigma_gamma1"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-mat3.df    <-  as.data.frame(extract(mat3))
-mcmc.mat3  <-  as.mcmc(mat3)
-mat3.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat3)
-mat3.summ  <-  plyr:::adply(as.matrix(mat3.df),2,MCMCsum)
-(mat3.summ)
+#print(mat4)
+print(mat4, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat4.df    <-  as.data.frame(extract(mat4))
+mcmc.mat4  <-  as.mcmc(mat4)
+mat4.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat4)
+mat4.summ  <-  plyr:::adply(as.matrix(mat4.df),2,MCMCsum)
+(mat4.summ)
+
+# Explore Correlation structure
+corrMat  <-  matrix(mat4.summ[404:659,2], ncol=16,nrow=16)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=8.5)
+abline(h=8.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  }
+}
+
+corrplot(corrMat * 15, method='circle', type='upper')
+abline(v=8.5)
+abline(h=8.5)
 
 # Simple Diagnostic Plots
-plot(mat3, pars="gamma0")
-plot(mat3, pars="gamma1")
-plot(mat3.mcmc, ask=TRUE)
-pairs(mat3, pars="gamma0")
-pairs(mat3, pars="gamma1")
+plot(mat4, pars="beta")
+pairs(mat4, pars="beta")
 
 
 #  LOO Log-likelihood for model selection
-mat3LL  <-  extract_log_lik(mat3, parameter_name = "log_lik")
-mat3Loo    <-  loo(mat3LL)
-mat3WAIC   <-  waic(mat3LL)
-
-
-##  Plot predicted line etc.
-runs  <-  list(
-               Run1  <- inv_logit(mat3.summ$Mean[1] + mat3.summ$Mean[9] * nSperm_z),
-               Run2  <- inv_logit(mat3.summ$Mean[2] + mat3.summ$Mean[10] * nSperm_z),
-               Run3  <- inv_logit(mat3.summ$Mean[3] + mat3.summ$Mean[11] * nSperm_z),
-               Run4  <- inv_logit(mat3.summ$Mean[4] + mat3.summ$Mean[12] * nSperm_z),
-               Run5  <- inv_logit(mat3.summ$Mean[5] + mat3.summ$Mean[13] * nSperm_z),
-               Run6  <- inv_logit(mat3.summ$Mean[6] + mat3.summ$Mean[14] * nSperm_z),
-               Run7  <- inv_logit(mat3.summ$Mean[7] + mat3.summ$Mean[15] * nSperm_z),
-               Run8  <- inv_logit(mat3.summ$Mean[8] + mat3.summ$Mean[16] * nSperm_z)
-              )
-
-RegLine  <-  inv_logit(mat3.summ$Mean[17] + mat3.summ$Mean[18] * nSperm_z)
-
-
-
-par(omi=rep(0.3, 4))
-plot((data$nFert/data$nEggs) ~ nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
-usr  <-  par('usr')
-rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-whiteGrid()
-box()
-# plot all regression lines from MCMC chains
-# apply(mat3.df, 1, function(x, data, nSperm_z){
-#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
-#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-#     lines(xrange, inv_logit(x['mu_gamma0'] + x['mu_gamma1'] * xrange2), col=transparentColor('grey68',0.1))
-# }, data=data, nSperm_z=nSperm_z)
-# plot run-specific regression lines
- for(i in 1:8) {
-   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
-                   col='grey75', lwd=3)
- }
-# plot main regression line
-lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
-                  col='black', lwd=3)
-points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-axis(2, las=1)
-axis(1)
-
-
+mat4LL  <-  extract_log_lik(mat4, parameter_name = "log_lik")
+mat4Loo    <-  loo(mat4LL)
+mat4WAIC   <-  waic(mat4LL)
 
 
 
@@ -1765,8 +1739,8 @@ axis(1)
 #######################
 
 str(mat1Loo)
-looDiff   <-  compare(mat1Loo, mat2Loo, mat2bLoo, mat3Loo)
-waicDiff  <-  compare(mat1WAIC, mat2WAIC, mat2bWAIC, mat3WAIC)
+looDiff   <-  compare(mat1Loo, mat2Loo, mat2bLoo, mat3Loo, mat4Loo)
+waicDiff  <-  compare(mat1WAIC, mat2WAIC, mat2bWAIC, mat3WAIC, mat4WAIC)
 
 print(looDiff, digits=4)
 print(waicDiff, digits=4)
@@ -1774,41 +1748,66 @@ print(waicDiff, digits=4)
 print(compare(mat1Loo, mat2Loo), digits=6)
 print(compare(mat1Loo, mat2bLoo), digits=6)
 print(compare(mat1Loo, mat3Loo), digits=6)
+print(compare(mat1Loo, mat4Loo), digits=6)
 print(compare(mat2Loo, mat2bLoo), digits=6)
 print(compare(mat2Loo, mat3Loo), digits=6)
+print(compare(mat2Loo, mat4Loo), digits=6)
 print(compare(mat2bLoo, mat3Loo), digits=6)
+print(compare(mat2bLoo, mat4Loo), digits=6)
+print(compare(mat3Loo, mat4Loo), digits=6)
 
-looDiff32   <-  looDiff[1,3] - looDiff[2,3]
-looDiff32b  <-  looDiff[1,3] - looDiff[3,3]
-looDiff31   <-  looDiff[1,3] - looDiff[4,3]
-looDiff22b  <-  looDiff[2,3] - looDiff[3,3]
-looDiff21   <-  looDiff[2,3] - looDiff[4,3]
-looDiff2b1  <-  looDiff[3,3] - looDiff[4,3]
+looDiff34   <-  looDiff[1,3] - looDiff[2,3]
+looDiff32   <-  looDiff[1,3] - looDiff[3,3]
+looDiff32b  <-  looDiff[1,3] - looDiff[4,3]
+looDiff31   <-  looDiff[1,3] - looDiff[5,3]
+looDiff42   <-  looDiff[2,3] - looDiff[3,3]
+looDiff42b  <-  looDiff[2,3] - looDiff[4,3]
+looDiff41   <-  looDiff[2,3] - looDiff[5,3]
+looDiff22b  <-  looDiff[3,3] - looDiff[4,3]
+looDiff21   <-  looDiff[3,3] - looDiff[5,3]
+looDiff2b1  <-  looDiff[4,3] - looDiff[5,3]
 
 n  <-  length(mat1Loo$pointwise[,"elpd_loo"])
+selooDiff34   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat4Loo$pointwise[,"elpd_loo"]))
 selooDiff32   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"]))
 selooDiff32b  <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
 selooDiff31   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
+selooDiff42   <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"]))
+selooDiff42b  <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
+selooDiff41   <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
 selooDiff22b  <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
 selooDiff21   <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
 selooDiff2b1  <-  sqrt(n * var(mat2bLoo$pointwise[,"elpd_loo"] - mat1Loo$pointwise[,"elpd_loo"]))
 
 
-LooDiff  <-  cbind(c(looDiff32,looDiff32b,looDiff31,looDiff22b,looDiff21,looDiff2b1),
-                   c(selooDiff32,selooDiff32b,selooDiff31,selooDiff22b,selooDiff21,selooDiff2b1))
 
-pDiff32   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
-pDiff32b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
-pDiff31   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[3,1] - 0)/LooDiff[3,2])), 3))
-pDiff22b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[4,1] - 0)/LooDiff[4,2])), 3))
-pDiff21   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[5,1] - 0)/LooDiff[5,2])), 3))
-pDiff2b1  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[6,1] - 0)/LooDiff[6,2])), 3))
 
-LooDiff  <-  cbind(LooDiff, c(pDiff32,pDiff32b,pDiff31,pDiff22b,pDiff21,pDiff2b1))
 
-row.names(LooDiff)  <-  c("mat3 - mat2",
+
+
+LooDiff  <-  cbind(c(looDiff34,looDiff32,looDiff32b,looDiff31,looDiff42,looDiff42b,looDiff41,looDiff22b,looDiff21,looDiff2b1),
+                   c(selooDiff34,selooDiff32,selooDiff32b,selooDiff31,selooDiff42,selooDiff42b,selooDiff41,selooDiff22b,selooDiff21,selooDiff2b1))
+
+pDiff34   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
+pDiff32   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
+pDiff32b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[3,1] - 0)/LooDiff[3,2])), 3))
+pDiff31   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[4,1] - 0)/LooDiff[4,2])), 3))
+pDiff42   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[5,1] - 0)/LooDiff[5,2])), 3))
+pDiff42b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[6,1] - 0)/LooDiff[6,2])), 3))
+pDiff41   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[7,1] - 0)/LooDiff[7,2])), 3))
+pDiff22b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[8,1] - 0)/LooDiff[8,2])), 3))
+pDiff21   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[9,1] - 0)/LooDiff[9,2])), 3))
+pDiff2b1  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[10,1] - 0)/LooDiff[10,2])),3))
+
+LooDiff  <-  cbind(LooDiff, c(pDiff34,pDiff32,pDiff32b,pDiff31,pDiff42,pDiff42b,pDiff41,pDiff22b,pDiff21,pDiff2b1))
+
+row.names(LooDiff)  <-  c("mat3 - mat4",
+                          "mat3 - mat2",
                           "mat3 - mat2b",
                           "mat3 - mat1",
+                          "mat4 - mat2",
+                          "mat4 - mat2b",
+                          "mat4 - mat1",
                           "mat2 - mat2b",
                           "mat2 - mat1",
                           "mat2b - mat1")
@@ -1819,12 +1818,13 @@ LooDiff
 str(mat3Loo)
 
 ##  Plot differences 
-m3m2   <-  density(mat3Loo$pointwise[,"looic"]  - mat2Loo$pointwise[,"looic"])
-m3m2b  <-  density(mat3Loo$pointwise[,"looic"]  - mat2bLoo$pointwise[,"looic"])
-m3m1   <-  density(mat3Loo$pointwise[,"looic"]  - mat1Loo$pointwise[,"looic"])
+m3m4   <-  density(mat3Loo$pointwise[,"elpd_loo"] - mat4Loo$pointwise[,"elpd_loo"])
+m3m2   <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"])
+m3m2b  <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"])
+m3m1   <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"])
 
-allx   <-  c(m3m2$x,m3m2b$x,m3m1$x)
-ally   <-  c(m3m2$y,m3m2b$y,m3m1$y)
+allx   <-  c(m3m4$x,m3m2$x,m3m2b$x,m3m1$x)
+ally   <-  c(m3m4$y,m3m2$y,m3m2b$y,m3m1$y)
 
 
 
@@ -1836,6 +1836,8 @@ usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
+polygon(c(m3m4$x), c(m3m4$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
+
 polygon(c(m3m2$x), c(m3m2$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
 polygon(c(m3m2b$x), c(m3m2b$y), col=transparentColor('dodgerblue2', 0.5), border='dodgerblue1')
 polygon(c(m3m1$x), c(m3m1$y),   col=transparentColor('dodgerblue3', 0.5), border='dodgerblue1')
@@ -1849,7 +1851,31 @@ axis(2, cex.axis=0.9, las=1)
 
 
 
+m3  <-  density(mat3Loo$pointwise[,"looic"])
+m4  <-  density(mat4Loo$pointwise[,"looic"])
+m2  <-  density(mat2Loo$pointwise[,"looic"])
+m2b  <-  density(mat2bLoo$pointwise[,"looic"])
+m1  <-  density(mat1Loo$pointwise[,"looic"])
 
+allx   <-  c(m3$x,m4$x,m2$x,m2b$x,m1$x)
+ally   <-  c(m3$y,m4$y,m2$y,m2b$y,m1$y)
+
+plot(NA, xlab=expression(paste(Delta[LOOic])), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, 
+     xlim=c(min(allx), (max(allx)+0.4*(max(allx) - min(allx, allx)))), 
+     ylim=c(0, (max(ally, ally)+0.05*(max(ally, ally) - min(ally, ally)))), yaxs='i')
+proportionalLabel(0.5, 1.1, expression(paste('Distribution of', Delta[elpd-loo])), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.2)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+polygon(c(m3$x), c(m3$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
+polygon(c(m4$x), c(m4$y),   col=transparentColor('dodgerblue4', 0.5), border='dodgerblue1')
+polygon(c(m2$x), c(m2$y),   col=transparentColor('dodgerblue4', 0.5), border='dodgerblue1')
+polygon(c(m2b$x), c(m2b$y),   col=transparentColor('dodgerblue4', 0.5), border='dodgerblue1')
+polygon(c(m1$x), c(m1$y),   col=transparentColor('dodgerblue4', 0.5), border='dodgerblue1')
+abline(v=0, col=transparentColor('red', 0.7), lwd=3)
+axis(1, cex.axis=0.9)
+axis(2, cex.axis=0.9, las=1)
 
 
 
