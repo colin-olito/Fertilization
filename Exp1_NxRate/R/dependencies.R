@@ -10,6 +10,8 @@
 # REQUIRED LIBRARIES
 ####################
 library(rstan)
+library(loo)
+library(corrplot)
 library(lubridate)
 library(MASS)
 library(coda)
@@ -18,6 +20,11 @@ library(MCMCglmm)
 library(lme4) # remember to detatch("package:nlme") because of conflicts
 #library(boot)
 
+################
+# STAN OPTIONS
+################
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
 
 ########################
 # SUMMARIZE MCMC RESULTS

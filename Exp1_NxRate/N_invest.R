@@ -12,7 +12,7 @@ options("menu.graphics"=FALSE)
 
 #******************
 # DEPENDENCIES
-source('R/dependencies_N_invest.R')
+source('R/dependencies.R')
 
 #*******************
 # Import Data
@@ -35,10 +35,10 @@ str(data)
 # A few exploratory plots
 #########################################
 
-blue1  <-  adjustcolor("dodgerblue3",  alpha.f=0.5)
-blue2  <-  adjustcolor("dodgerblue6", alpha.f=1)
-red1   <-  adjustcolor("orangered",  alpha.f=0.5)
-red2   <-  adjustcolor("orangered3", alpha.f=1)
+blue1  <-  adjustcolor("dodgerblue4",  alpha.f=0.5)
+blue2  <-  adjustcolor("dodgerblue4", alpha.f=0.8)
+red1   <-  adjustcolor("orangered3",  alpha.f=0.5)
+red2   <-  adjustcolor("orangered3", alpha.f=0.8)
 
 Runcols   <-  c(blue1, 
                 red1,
@@ -1146,53 +1146,112 @@ axis(2, las=1)
 
 
 
-# Call to STAN
-PoiReg1 <- stan(data    =  data.list,
-                 file     =  './Stan/poisson_offset.stan',
+
+
+
+
+
+
+
+
+
+##################################################################
+##################################################################
+##  SAME ANALYSES, USING MATRIX NOTATION MODELS.
+##  ALSO INCLUDING THE MAXIMAL MODEL ESTIMATING COVARIANCE MATRIX. 
+##################################################################
+##################################################################
+
+# Centered and rescaled nsperm variable for easier estimation
+
+nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
+
+
+#############################
+## Simple Logistic Regression
+#############################
+
+head(data)
+
+X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
+attr(X,"assign") <- NULL
+str(X)
+head(X)
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    X   =  X
+                   )
+
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+
+## Call to STAN
+mat1 <- stan(data     =  data.list,
+                 file     =  './Stan/mat-logistic-reg.stan',
                  chains   =  nChains,
-                 iter     =  nIter,
-#                 warmup   =  burnInSteps,
+                 iter     =  numSavedSteps,
                  thin     =  thinSteps,
                  save_dso =  TRUE
-                 )
-
+                )
 
 
 # Model Results
-print(PoiReg1)
-PoiReg1.df <-as.data.frame(extract(PoiReg1))
-mcmc.PoiReg1 <- as.mcmc(PoiReg1)
-PoiReg1.mcmc<-rstan:::as.mcmc.list.stanfit(PoiReg1)
-
+print(mat1)
+print(mat1, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat1.df    <-  as.data.frame(extract(mat1))
+mcmc.mat1  <-  as.mcmc(mat1)
+mat1.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat1)
+mat1.summ  <-  plyr:::adply(as.matrix(mat1.df),2,MCMCsum)
+(mat1.summ)
 
 # Simple Diagnostic Plots
-plot(PoiReg1)
-par(mfrow=c(2,2))
-plot(PoiReg1.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(PoiReg1.mcmc, ask=TRUE)
-PoiReg1.summary <- plyr:::adply(as.matrix(PoiReg1.df),2,MCMCsum)
-(PoiReg1.summary)
+plot(mat1, pars="beta")
+plot(mat1.mcmc, ask=TRUE)
+pairs(mat1, pars="beta")
 
 
+#  LOO Log-likelihood for model selection
+mat1LL  <-  extract_log_lik(mat1, parameter_name = "log_lik")
+mat1Loo    <-  loo(mat1LL)
+mat1WAIC   <-  waic(mat1LL)
 
-##  make data for Diego
-test = cbind(nFert=data$nFert, nEggs=data$nEggs, nSperm=data$nSperm)
-write.csv(data.frame(test), file="dat.csv")
 
-N          <-  nrow(data)
-data.list  <-  list(N       =  N,
-                    nFert   =  data$nFert, 
-                    nEggs   =  data$nEggs,
-                    nSperm  =  data$nSperm)
+##  Plot predicted line etc.
+RegLine  <-  inv_logit(mat1.summ$Mean[1] + mat1.summ$Mean[2] * nSperm_z)
 
-# OPTIONS FOR THE ANALYSIS
-nChains = 3
-burnInSteps = 500
-thinSteps = 5
-numSavedSteps = 5000 #across all chains
-nIter = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
+##  Plot showing uncertainty from Run-specific intercepts
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+ apply(mat1.df, 1, function(x, data, nSperm_z){
+     xrange   <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
+ }, data=data, nSperm_z=nSperm_z)
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
 
 
 
@@ -1200,686 +1259,603 @@ nIter = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 
 
-#########################################
-# THE PRIMARY QUESTION OF INTEREST IS WHETHER
-# THERE IS A SIGNIFICANT DIFFERENCE  IN DELTA-VO2
-# MAX BETWEEN SPAWNING & NON-SPAWNING INDIVIDUALS
-# AFTER RECEIVING KCl INJECTIONS
-#########################################
 
-#### Start with a naive ANOVA model for reference ####
-fm1 <- lm(delta.vo2max ~ sex*spawn, data=data)
 
-par(mfrow=c(2,2))
-plot(fm1)
-summary(fm1)
+####################################
+## Logistic Mixed Effects Regression
+## -- random intercept for RUN
+####################################
 
-
-# Planned contrast of interest
-# A) Spawn vs NoSpawn for each sex
-lsex=levels(data$sex)
-cc <- contrast(fm1,
-         a = list(spawn = "N", sex = lsex),
-         b = list(spawn = "Y", sex = lsex)
-         )
-print(cc,X=TRUE)
-cc$X
-summary(glht(fm1, linfct=cc$X))
-
-
-# PLOTTING
-newdata = expand.grid(SEX=levels(data$sex), SPAWN=levels(data$spawn))
-coefs = coef(fm1)
-Xmat <- model.matrix(~SEX*SPAWN , data=newdata)
-fit = t(coefs %*% t(Xmat))
-fit
-SE = sqrt(diag(Xmat %*% vcov(fm1) %*% t(Xmat)))
-CI = qt(0.975, length(data$sex) - 2)*SE
-CI
-newdata = cbind(newdata, data.frame(fit=fit, se=SE, lower=fit-CI, upper=fit+CI))
-newdata
-
-p_naive_anova <-  ggplot(data=newdata, aes(y=fit, x=as.numeric(SPAWN)+c(-0.05,0.05))) +
-  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.05) +
-#  geom_linerange(aes(ymin=lower, ymax=upper)) +
-  geom_line(aes(linetype=SEX)) +
-  geom_point(aes(shape=SEX, fill=SEX), size=4) +
-  scale_fill_manual('Sex', values=c('grey','black')) +
-  scale_shape_manual('Sex', values=c(21,21,21)) +
-  scale_linetype_discrete('Sex') +
-  scale_y_continuous(expression(Delta~VO[2]~max)) +
-  scale_x_continuous('Spawn', breaks=c(1,2), labels=c('No','Yes'), limits=c(0.5,2.5)) +
-  theme_bw() +
-  theme(
-    text=element_text(size=10),
-    axis.title.y=element_text(vjust=2, size=rel(2)),
-    axis.title.x=element_text(vjust=-1, size=rel(2)),
-    legend.position=c(1,0), legend.justification=c(1,0))
-p_naive_anova
-
-
-
-
-
-
-
-
-
-
-########################################
-#### Mixed Effects Models ####
-# Exploring interactions between sex,spawn, met.date/run
-# use lme4, remember to detatch("package:nlme") because of conflicts
-
-
-# All random effects
-fmm1 <- lmer(delta.vo2max ~ sex*spawn +
-                  (1|sex:m.date) +
-                  (1|spawn:m.date) +
-                  (1|sex:spawn:m.date) +
-                  (1|m.date/run),
-                      data=data)
-plot(fmm1)
-
-fmm1.prof <- profile(fmm1)
-xyplot(fmm1.prof, aspect=1.3)
-confint(fmm1.prof)
-splom(fmm1.prof)
-
-summary(fmm1)
-
-# No sex*spawn*met.date interaction
-fmm2 <- lmer(delta.vo2max ~ sex*spawn +
-                  (1|sex:met.date) +
-                  (1|spawn:met.date) +
-                  (1|met.date/run),
-                      data=data)
-plot(fmm2)
-
-fmm2.prof <- profile(fmm2)
-xyplot(fmm2.prof, aspect=1.3)
-confint(fmm2.prof)
-splom(fmm2.prof)
-
-summary(fmm2)
-
-# Sex*met.date random effect only
-fmm3 <- lmer(delta.vo2max ~ sex*spawn +
-                  (1|sex:m.date) +
-                  (1|m.date/run),
-                      data=data)
-plot(fmm3)
-
-fmm3.prof <- profile(fmm3)
-xyplot(fmm3.prof, aspect=1.3)
-confint(fmm3.prof)
-splom(fmm3.prof)
-
-summary(fmm3)
-
-# Spawn*met.date random effect only
-fmm4 <- lmer(delta.vo2max ~ sex*spawn +
-                  (1|spawn:m.date) +
-                  (1|m.date/run),
-                      data=data)
-plot(fmm4)
-
-fmm4.prof <- profile(fmm4)
-xyplot(fmm4.prof, aspect=1.3)
-confint(fmm4.prof)
-splom(fmm4.prof)
-
-summary(fmm4)
-
-
-# met.date/run random effect only
-fmm5 <- lmer(delta.vo2max ~ sex*spawn +
-                  (1|m.date/run),
-                      data=data)
-plot(fmm5)
-
-fmm5.prof <- profile(fmm5)
-xyplot(fmm5.prof, aspect=1.3)
-confint(fmm5.prof)
-splom(fmm5.prof)
-
-summary(fmm5)
-
-####
-#### Model Comparison to determine usefulness of random effects
-#### Using AICc
-#library(AICcmodavg, lib.loc="C:/R_home/R-3.1.2/library")
-
-aictab(list(fmm1,fmm2,fmm3,fmm4,fmm5),
-       modnames=c("fmm1","fmm2","fmm3","fmm4","fmm5"),
-       sort=TRUE
-       )
-
-anova(fmm1,fmm2,fmm3,fmm4,fmm5)
-
-# Using parametric bootstrapping
-PBmodcomp(fmm1,fmm2)
-PBmodcomp(fmm2,fmm3)
-PBmodcomp(fmm2,fmm4)
-PBmodcomp(fmm3,fmm5)
-PBmodcomp(fmm4,fmm5)
-
-
-
-
-
-# met.date/run random effect only
-fmm6 <- lmer(delta.vo2max ~ sex*spawn +
-                 (1|m.date) +
-                     (1|m.date:run),
-                      data=data)
-
-
-
-
-#### A look at the Best Fitting Model... re-fit using REML ####
-
-fmm.Best <- fmm5
-
-# Diagnostic plots
-plot(fmm.Best)
-fmm.Best.prof <- profile(fmm.Best)
-xyplot(fmm.Best.prof, aspect=1.3)
-confint(fmm.Best.prof, method="boot")
-splom(fmm.Best.prof)
-dotplot(ranef(fmm.Best, condVar=TRUE))
-qqmath(ranef(fmm.Best, condVar=TRUE))
-
-# Summary
-summary(fmm.Best)
-
-# Proportion of variation attributable to between vs. within run effects
-(VC <- VarCorr(fmm.Best))
-v1 <- as.numeric(attr(VC$'m.date','stddev'))
-v2 <- as.numeric(attr(VC$'run:m.date','stddev'))
-r <- as.numeric(attr(VC,'sc'))
-varattr <- c(v1,v2,r)/ sum(c(v1,v2,r))
-names(varattr) <- c("m.date","among run/m.date", "within run")
-varattr
-
-# Planned contrast of interest
-# A) Spawn vs NoSpawn for each sex
-lm1 <- lm(delta.vo2max ~ sex*spawn, data=data)
-head(model.matrix(lm1))
-
-# Had trouble getting glht to work with covariate, so used resulting
-# contrast matrix to construct my own for the comparison of interest
-# (sex*spawn simple effect)
-lsex=levels(data$sex)
-cc <- contrast(lm1,
-         a = list(spawn = "N", sex = lsex),
-         b = list(spawn = "Y", sex = lsex)
-         )
-print(cc,X=TRUE)
-cc$X
-summary(glht(fmm.Best, linfct=cc$X))
-
-
-
-# PLOTTING
-newdata = expand.grid(SEX=levels(data$sex), SPAWN=levels(data$spawn))#, coll.date=unique(data$coll.date))
-coefs = fixef(fmm.Best)
-Xmat <- model.matrix(~SEX*SPAWN , data=newdata)
-fit = t(coefs %*% t(Xmat))
-fit
-SE = sqrt(diag(Xmat %*% vcov(fmm.Best) %*% t(Xmat)))
-CI = qt(0.975, length(data$sex) - 2)*SE
-CI
-newdata = cbind(newdata, data.frame(fit=fit, se=SE, lower=fit-CI, upper=fit+CI))
-newdata
-
-p_fmm.Best<-  ggplot(data=newdata, aes(y=fit, x=as.numeric(SPAWN)+c(-0.05,0.05))) +
-  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.05) +
-#  geom_linerange(aes(ymin=lower, ymax=upper)) +
-  geom_hline(aes(intercept=0),size=0.75,lty=2) +
-  geom_line(aes(linetype=SEX)) +
-  geom_point(aes(shape=SEX, fill=SEX), size=4) +
-  scale_fill_manual('Sex', values=c('grey','black')) +
-  scale_shape_manual('Sex', values=c(21,21,21)) +
-  scale_linetype_discrete('Sex') +
-  scale_y_continuous(expression(Delta~VO[2]~max)) +
-  scale_x_continuous('Spawn', breaks=c(1,2), labels=c('No','Yes'), limits=c(0.5,2.5)) +
-  theme_bw() +
-  theme(
-    text=element_text(size=10),
-    axis.title.y=element_text(vjust=1.5, size=rel(2)),
-    axis.title.x=element_text(vjust=0, size=rel(2)),
-    legend.position=c(1,0), legend.justification=c(1,0))
-p_fmm.Best
-
-pdf(file="lmer.spawn.pdf",width=7,height=5)
-p_fmm.Best
-graphics.off()
-
-
-
-
-
-
-
-
-
-
-#### A NOTE ON TWO ALTERNATIVE MODELING APPROACHES ####
-#
-# i) Instead of focusing on the variance structure
-#    arising from m.date, instead mean-adjust
-#    sex*spawn interactions by including m.date as
-#    a fixed effect, but keep m.date:run variance
-#    structure
-#
-# ii) Same as above, but include m.date as a
-#     continuous covariate instead of as a factor.
-#
-# These alternative modeling approaches did not qualitatively
-# alter the outcome of the models. Consequently, I have opted
-# for the simpler model above primarily because it requires far
-# fewer paramters to be estimated.
-#
-# See preliminary analyses for full exploration of these models
-
-
-
-
-#### Including GWM as a covariate??? ####
-
-
-# met.date/run random effect only
-fmm10 <- lmer(delta.vo2max ~ sex*spawn*twm +
-                  (1|m.date/run),
-                      data=data)
-plot(fmm10)
-
-fmm10.prof <- profile(fmm10)
-xyplot(fmm10.prof, aspect=1.3)
-confint(fmm10.prof)
-splom(fmm10.prof)
-
-summary(fmm10)
-
-
-# Planned contrast of interest
-# A) Spawn vs NoSpawn for each sex
-lm1 <- lm(delta.vo2max ~ sex*spawn*twm, data=data)
-head(model.matrix(lm1))
-
-# Had trouble getting glht to work with covariate, so used resulting
-# contrast matrix to construct my own for the comparison of interest
-# (sex*spawn simple effect)
-lsex=levels(data$sex)
-ltwm=mean(data$twm)
-cc <- contrast(lm1,
-         a = list(spawn = "N", sex = lsex, twm=ltwm),
-         b = list(spawn = "Y", sex = lsex, twm=ltwm)
-         )
-print(cc,X=TRUE)
-cc$X
-summary(glht(fmm10, linfct=cc$X))
-
-
-
-
-vcov(fmm10)
-
-K=rbind("F: Y v N cat"=c(0,0,1,0,0,0,0,0),
-         "M: Y v N cat"=c(0,1,0,0,1,0,0,0),
-         "F: Y v N"=c(0,0,0,0,0,0,1,0),
-         "M: Y v N"=c(0,0,0,0,0,1,0,1),
-         "F: twm=0"=c(0,0,0,1,0,0,0.5,0),
-         "M: twm=0"=c(0,0,0,1,0,1,0.5,0.5),
-         "Overall twm=0"=c(0,0,0,1,0,0.5,0.5,0.5))
-summary(glht(fmm10,linfct=K))
-
-
-
-lm1 <- lm(delta.vo2max ~ twm, data=data)
-lm1 <- lmer(delta.vo2max ~ twm + (1|m.date/run), data=data)
-summary(lm1)
-
-
-cc <- cbind("F: Y v N"=c(0,0,0,0,0,0,1,0),
-             "M: Y v N"=c(0,0,0,0,0,1,0,1),
-             "Overall twm=0"=c(1,0,0,1,0,0.5,0.5,0.5))
-
-cbind(0,t(cc) %*% contr.treatment(8))
-
-
-
-
-
-
-# PLOTTING
-newdata = expand.grid(SEX=levels(data$sex), SPAWN=levels(data$spawn))#, coll.date=unique(data$coll.date))
-coefs = fixef(fmm10)[c(1,2,3,5)]
-Xmat <- model.matrix(~SEX*SPAWN , data=newdata)
-fit = t(coefs %*% t(Xmat))
-fit
-SE = sqrt(diag(Xmat %*% vcov(fmm10)[c(1:3,5),c(1:3,5)] %*% t(Xmat)))
-CI = qt(0.975, length(data$sex) - 2)*SE
-CI
-newdata = cbind(newdata, data.frame(fit=fit, se=SE, lower=fit-CI, upper=fit+CI))
-newdata
-
-p_fmm.10 <-  ggplot(data=newdata, aes(y=fit, x=as.numeric(SPAWN)+c(-0.05,0.05))) +
-  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.05) +
-#  geom_linerange(aes(ymin=lower, ymax=upper)) +
-  geom_line(aes(linetype=SEX)) +
-  geom_point(aes(shape=SEX, fill=SEX), size=4) +
-  scale_fill_manual('Sex', values=c('grey','black')) +
-  scale_shape_manual('Sex', values=c(21,21,21)) +
-  scale_linetype_discrete('Sex') +
-  scale_y_continuous(expression(Delta~VO[2]~max)) +
-  scale_x_continuous('Spawn', breaks=c(1,2), labels=c('No','Yes'), limits=c(0.5,2.5)) +
-  theme_bw() +
-  theme(
-    text=element_text(size=10),
-    axis.title.y=element_text(vjust=2, size=rel(2)),
-    axis.title.x=element_text(vjust=-1, size=rel(2)),
-    legend.position=c(1,0), legend.justification=c(1,0))
-p_fmm.10
-
-
-
-
-
-
-
-
-
-#*********************************************
-#*********************************************
-#*********************************************
-#*********************************************
-#  PER-GAMETE DELTA VO2 ANALYSES
-
-names(data)
 head(data)
-subdata = subset(data, data$no.gametes != 'NA')
-head(subdata)
 
-subdata$pergamete <- subdata$delta.vo2max / subdata$no.gametes
-mdat <- subset(subdata, subdata$sex == 'M')
-# Remove a couple outlier males
-mdat <- mdat[mdat$ind != 54,]
-mdat <- mdat[mdat$ind != 59,]
+X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
+attr(X,"assign") <- NULL
+str(X)
+head(X)
+
+Z  <-  unname(model.matrix(~ data$Run -1, data=data))
+attr(Z,"assign") <- NULL
+str(Z)
+head(Z)
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+
+## Call to STAN
+mat2 <- stan(data     =  data.list,
+             file     =  './Stan/mat-logistic-1Z.stan',
+             chains   =  nChains,
+             iter     =  numSavedSteps,
+             thin     =  thinSteps,
+             save_dso =  TRUE
+                )
+
+
+# Model Results
+print(mat2)
+print(mat2, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mat2, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat2.df    <-  as.data.frame(extract(mat2))
+mcmc.mat2  <-  as.mcmc(mat2)
+mat2.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat2)
+mat2.summ  <-  plyr:::adply(as.matrix(mat2.df),2,MCMCsum)
+(mat2.summ)
+
+# Simple Diagnostic Plots
+plot(mat2, pars="beta")
+plot(mat2, pars="gamma")
+plot(mat2.mcmc, ask=TRUE)
+pairs(mat2, pars="beta")
+pairs(mat2, pars="gamma")
+
+
+#  LOO Log-likelihood for model selection
+mat2LL  <-  extract_log_lik(mat2, parameter_name = "log_lik")
+mat2Loo    <-  loo(mat2LL)
+mat2WAIC   <-  waic(mat2LL)
+
+
+##  Plot predicted line etc.
+runs  <-  list(
+               Run1  <- inv_logit(mat2.summ$Mean[3]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run2  <- inv_logit(mat2.summ$Mean[4]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run3  <- inv_logit(mat2.summ$Mean[5]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run4  <- inv_logit(mat2.summ$Mean[6]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run5  <- inv_logit(mat2.summ$Mean[7]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run6  <- inv_logit(mat2.summ$Mean[8]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run7  <- inv_logit(mat2.summ$Mean[9]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+               Run8  <- inv_logit(mat2.summ$Mean[10]  + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
+              )
+
+RegLine  <-  inv_logit(mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
+
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+ apply(mat2.df, 1, function(x, data, nSperm_z){
+     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
+ }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+# for(i in 1:8) {
+#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+#                   col='grey75', lwd=3)
+# }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+
+
+
+
+####################################
+## Logistic Mixed Effects Regression
+## -- alternative cell mean specification
+## -- random intercept for RUN
+####################################
+
+head(data)
+
+X  <-  unname(model.matrix(~ nSperm_z -1, data=data))
+attr(X,"assign") <- NULL
+str(X)
+head(X)
+
+Z  <-  unname(model.matrix(~ data$Run -1, data=data))
+attr(Z,"assign") <- NULL
+str(Z)
+head(Z)
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
 
-fdat <- subset(subdata, subdata$sex == 'F')
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 
+## Call to STAN
+mat2b <- stan(data     =  data.list,
+              file     =  './Stan/mat-logistic-1Z-cellmean.stan',
+              chains   =  nChains,
+              iter     =  numSavedSteps,
+              thin     =  thinSteps,
+              save_dso =  TRUE
+              )
 
-# Some exploratory plots
 
-# delta.VO2 x no.gamete
-p.no_dv02<- ggplot(data=subdata, aes(y = delta.vo2max, x=no.gametes)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.no_dv02
+# Model Results
+print(mat2b)
+print(mat2b, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mat2b, c("gamma", "mu_gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat2b.df    <-  as.data.frame(extract(mat2b))
+mcmc.mat2b  <-  as.mcmc(mat2b)
+mat2b.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat2b)
+mat2b.summ  <-  plyr:::adply(as.matrix(mat2b.df),2,MCMCsum)
+(mat2b.summ)
+
+# Simple Diagnostic Plots
+plot(mat2b, pars="beta")
+plot(mat2b, pars="gamma")
+plot(mat2b.mcmc, ask=TRUE)
+pairs(mat2b, pars="beta")
+pairs(mat2b, pars="gamma")
+
+
+#  LOO Log-likelihood for model selection
+mat2bLL  <-  extract_log_lik(mat2b, parameter_name = "log_lik")
+mat2bLoo    <-  loo(mat2bLL)
+mat2bWAIC   <-  waic(mat2bLL)
+
+
+##  Plot predicted line etc.
+runs  <-  list(
+               Run1  <- inv_logit(mat2b.summ$Mean[2] + mat2b.summ$Mean[1] * nSperm_z),
+               Run2  <- inv_logit(mat2b.summ$Mean[3] + mat2b.summ$Mean[1] * nSperm_z),
+               Run3  <- inv_logit(mat2b.summ$Mean[4] + mat2b.summ$Mean[1] * nSperm_z),
+               Run4  <- inv_logit(mat2b.summ$Mean[5] + mat2b.summ$Mean[1] * nSperm_z),
+               Run5  <- inv_logit(mat2b.summ$Mean[6] + mat2b.summ$Mean[1] * nSperm_z),
+               Run6  <- inv_logit(mat2b.summ$Mean[7] + mat2b.summ$Mean[1] * nSperm_z),
+               Run7  <- inv_logit(mat2b.summ$Mean[8] + mat2b.summ$Mean[1] * nSperm_z),
+               Run8  <- inv_logit(mat2b.summ$Mean[9] + mat2b.summ$Mean[1] * nSperm_z)
+              )
+
+RegLine  <-  inv_logit(mat2b.summ$Mean[10] + mat2b.summ$Mean[1] * nSperm_z)
+
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+ apply(mat2b.df, 1, function(x, data, nSperm_z){
+     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+     lines(xrange, inv_logit(x['mu_gamma'] + x['beta'] * xrange2), col=transparentColor('grey68',0.1))
+ }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+# for(i in 1:8) {
+#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+#                   col='grey75', lwd=3)
+# }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################
+## Logistic Mixed Effects Regression
+## -- random intercept for RUN
+## -- random slopes for Run x nSperm
+####################################
+
+head(data)
+
+Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
+attr(Z0,"assign") <- NULL
+str(Z0)
+head(Z0)
+
+Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:8)]
+attr(Z1,"assign") <- NULL
+str(Z1)
+Z1[7:nrow(Z1),1]  <-  0
+Z1[1:20,]
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K0  =  ncol(Z0),
+                    K1  =  ncol(Z1),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    Z0  =  Z0,
+                    Z1  =  Z1
+                   )
 
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
 
+## Call to STAN
+mat3 <- stan(data     =  data.list,
+             file     =  './Stan/mat-logistic-allZ.stan',
+             chains   =  nChains,
+             iter     =  numSavedSteps,
+             thin     =  thinSteps,
+             save_dso =  TRUE
+             )
+
+
+# Model Results
+print(mat3)
+print(mat3, c("gamma0", "mu_gamma0", "sigma_gamma0"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mat3, c("gamma1", "mu_gamma1", "sigma_gamma1"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat3.df    <-  as.data.frame(extract(mat3))
+mcmc.mat3  <-  as.mcmc(mat3)
+mat3.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat3)
+mat3.summ  <-  plyr:::adply(as.matrix(mat3.df),2,MCMCsum)
+(mat3.summ)
+
+# Simple Diagnostic Plots
+plot(mat3, pars="gamma0")
+plot(mat3, pars="gamma1")
+plot(mat3.mcmc, ask=TRUE)
+pairs(mat3, pars="gamma0")
+pairs(mat3, pars="gamma1")
+
+
+#  LOO Log-likelihood for model selection
+mat3LL  <-  extract_log_lik(mat3, parameter_name = "log_lik")
+mat3Loo    <-  loo(mat3LL)
+mat3WAIC   <-  waic(mat3LL)
+
+
+##  Plot predicted line etc.
+runs  <-  list(
+               Run1  <- inv_logit(mat3.summ$Mean[1] + mat3.summ$Mean[9] * nSperm_z),
+               Run2  <- inv_logit(mat3.summ$Mean[2] + mat3.summ$Mean[10] * nSperm_z),
+               Run3  <- inv_logit(mat3.summ$Mean[3] + mat3.summ$Mean[11] * nSperm_z),
+               Run4  <- inv_logit(mat3.summ$Mean[4] + mat3.summ$Mean[12] * nSperm_z),
+               Run5  <- inv_logit(mat3.summ$Mean[5] + mat3.summ$Mean[13] * nSperm_z),
+               Run6  <- inv_logit(mat3.summ$Mean[6] + mat3.summ$Mean[14] * nSperm_z),
+               Run7  <- inv_logit(mat3.summ$Mean[7] + mat3.summ$Mean[15] * nSperm_z),
+               Run8  <- inv_logit(mat3.summ$Mean[8] + mat3.summ$Mean[16] * nSperm_z)
+              )
+
+RegLine  <-  inv_logit(mat3.summ$Mean[17] + mat3.summ$Mean[18] * nSperm_z)
+
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+# apply(mat3.df, 1, function(x, data, nSperm_z){
+#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit(x['mu_gamma0'] + x['mu_gamma1'] * xrange2), col=transparentColor('grey68',0.1))
+# }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+ for(i in 1:8) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################
+## Logistic Mixed Effects Regression
+## -- random intercept for RUN
+## -- random slopes for Run x nSperm
+## -- Estimate covariance matrix
+####################################
+
+head(data)
+
+Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
+attr(Z0,"assign") <- NULL
+str(Z0)
+head(Z0)
+
+Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:8)]
+attr(Z1,"assign") <- NULL
+str(Z1)
+Z1[7:nrow(Z1),1]  <-  0
+Z1[1:20,]
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K0  =  ncol(Z0),
+                    K1  =  ncol(Z1),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    Z0  =  Z0,
+                    Z1  =  Z1
+                   )
+
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+
+## Call to STAN
+mat3 <- stan(data     =  data.list,
+             file     =  './Stan/mat-logistic-allZ.stan',
+             chains   =  nChains,
+             iter     =  numSavedSteps,
+             thin     =  thinSteps,
+             save_dso =  TRUE
+             )
+
+
+# Model Results
+print(mat3)
+print(mat3, c("gamma0", "mu_gamma0", "sigma_gamma0"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mat3, c("gamma1", "mu_gamma1", "sigma_gamma1"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat3.df    <-  as.data.frame(extract(mat3))
+mcmc.mat3  <-  as.mcmc(mat3)
+mat3.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat3)
+mat3.summ  <-  plyr:::adply(as.matrix(mat3.df),2,MCMCsum)
+(mat3.summ)
+
+# Simple Diagnostic Plots
+plot(mat3, pars="gamma0")
+plot(mat3, pars="gamma1")
+plot(mat3.mcmc, ask=TRUE)
+pairs(mat3, pars="gamma0")
+pairs(mat3, pars="gamma1")
+
+
+#  LOO Log-likelihood for model selection
+mat3LL  <-  extract_log_lik(mat3, parameter_name = "log_lik")
+mat3Loo    <-  loo(mat3LL)
+mat3WAIC   <-  waic(mat3LL)
+
+
+##  Plot predicted line etc.
+runs  <-  list(
+               Run1  <- inv_logit(mat3.summ$Mean[1] + mat3.summ$Mean[9] * nSperm_z),
+               Run2  <- inv_logit(mat3.summ$Mean[2] + mat3.summ$Mean[10] * nSperm_z),
+               Run3  <- inv_logit(mat3.summ$Mean[3] + mat3.summ$Mean[11] * nSperm_z),
+               Run4  <- inv_logit(mat3.summ$Mean[4] + mat3.summ$Mean[12] * nSperm_z),
+               Run5  <- inv_logit(mat3.summ$Mean[5] + mat3.summ$Mean[13] * nSperm_z),
+               Run6  <- inv_logit(mat3.summ$Mean[6] + mat3.summ$Mean[14] * nSperm_z),
+               Run7  <- inv_logit(mat3.summ$Mean[7] + mat3.summ$Mean[15] * nSperm_z),
+               Run8  <- inv_logit(mat3.summ$Mean[8] + mat3.summ$Mean[16] * nSperm_z)
+              )
+
+RegLine  <-  inv_logit(mat3.summ$Mean[17] + mat3.summ$Mean[18] * nSperm_z)
+
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+# apply(mat3.df, 1, function(x, data, nSperm_z){
+#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit(x['mu_gamma0'] + x['mu_gamma1'] * xrange2), col=transparentColor('grey68',0.1))
+# }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+ for(i in 1:8) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
+# plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
 
-p.Mno_dv02<- ggplot(data=mdat, aes(y = delta.vo2max, x=no.gametes)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw()
 
-#pdf(file="maledv02.ng.pdf",width=7,height=5)
-p.Mno_dv02
-#graphics.off()
 
-p.Fno_dv02<- ggplot(data=fdat, aes(y = delta.vo2max, x=no.gametes)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw()
 
-#pdf(file="femaledv02.ng.pdf",width=7,height=5)
-p.Fno_dv02
-#graphics.off()
 
 
-# Per-Gamete cost x Total Wet Mass
 
-p.Mpg_twm<- ggplot(data=mdat, aes(y = pergamete, x=twm)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Mpg_twm
 
-p.Fpg_twm <- ggplot(data=fdat, aes(y = pergamete, x=twm)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Fpg_twm
 
-# Per-Gamete cost x Gonad Wet Mass
-p.Mpg_gwm<- ggplot(data=mdat, aes(y = pergamete, x=log(gwm))) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Mpg_gwm
 
-p.Fpg_gwm <- ggplot(data=fdat, aes(y = pergamete, x=log(gwm))) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Fpg_gwm
 
+#######################
+##  MODEL COMPARISONS
+#######################
 
+str(mat1Loo)
+looDiff   <-  compare(mat1Loo, mat2Loo, mat2bLoo, mat3Loo)
+waicDiff  <-  compare(mat1WAIC, mat2WAIC, mat2bWAIC, mat3WAIC)
 
-# Per-Gamete cost x Test Diameter
-p.Mpg_daim<- ggplot(data=mdat, aes(y = pergamete, x=diam.c)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Mpg_daim
+print(looDiff, digits=4)
+print(waicDiff, digits=4)
 
-p.Fpg_daim <- ggplot(data=fdat, aes(y = pergamete, x=diam.c)) +
-              geom_point() +
-              stat_smooth(method='lm') +
-              theme_bw() +
-              facet_grid(~sex)
-p.Fpg_daim
+print(compare(mat1Loo, mat2Loo), digits=6)
+print(compare(mat1Loo, mat2bLoo), digits=6)
+print(compare(mat1Loo, mat3Loo), digits=6)
+print(compare(mat2Loo, mat2bLoo), digits=6)
+print(compare(mat2Loo, mat3Loo), digits=6)
+print(compare(mat2bLoo, mat3Loo), digits=6)
 
+looDiff32   <-  looDiff[1,3] - looDiff[2,3]
+looDiff32b  <-  looDiff[1,3] - looDiff[3,3]
+looDiff31   <-  looDiff[1,3] - looDiff[4,3]
+looDiff22b  <-  looDiff[2,3] - looDiff[3,3]
+looDiff21   <-  looDiff[2,3] - looDiff[4,3]
+looDiff2b1  <-  looDiff[3,3] - looDiff[4,3]
 
-# a few preliminary analyses
-lm.mtwm <- lm(pergamete ~ twm, data=mdat)
-summary(lm.mtwm)
+n  <-  length(mat1Loo$pointwise[,"elpd_loo"])
+selooDiff32   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"]))
+selooDiff32b  <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
+selooDiff31   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
+selooDiff22b  <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
+selooDiff21   <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
+selooDiff2b1  <-  sqrt(n * var(mat2bLoo$pointwise[,"elpd_loo"] - mat1Loo$pointwise[,"elpd_loo"]))
 
-lm.ftwm <- lm(pergamete ~ twm, data=fdat)
-summary(lm.ftwm)
 
-lm.mgwm <- lm(pergamete ~ gwm, data=mdat)
-summary(lm.mgwm)
+LooDiff  <-  cbind(c(looDiff32,looDiff32b,looDiff31,looDiff22b,looDiff21,looDiff2b1),
+                   c(selooDiff32,selooDiff32b,selooDiff31,selooDiff22b,selooDiff21,selooDiff2b1))
 
-lm.fgwm <- lm(pergamete ~ gwm, data=fdat)
-summary(lm.fgwm)
+pDiff32   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
+pDiff32b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
+pDiff31   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[3,1] - 0)/LooDiff[3,2])), 3))
+pDiff22b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[4,1] - 0)/LooDiff[4,2])), 3))
+pDiff21   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[5,1] - 0)/LooDiff[5,2])), 3))
+pDiff2b1  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[6,1] - 0)/LooDiff[6,2])), 3))
 
-lm.mdiam <- lm(pergamete ~ diam.c, data=mdat)
-summary(lm.mdiam)
+LooDiff  <-  cbind(LooDiff, c(pDiff32,pDiff32b,pDiff31,pDiff22b,pDiff21,pDiff2b1))
 
-lm.fdiam <- lm(pergamete ~ diam.c, data=fdat)
-summary(lm.fdiam)
+row.names(LooDiff)  <-  c("mat3 - mat2",
+                          "mat3 - mat2b",
+                          "mat3 - mat1",
+                          "mat2 - mat2b",
+                          "mat2 - mat1",
+                          "mat2b - mat1")
+colnames(LooDiff)   <-  c("diff", "se", "p.value")
+LooDiff
 
 
+str(mat3Loo)
 
+##  Plot differences 
+m3m2   <-  density(mat3Loo$pointwise[,"looic"]  - mat2Loo$pointwise[,"looic"])
+m3m2b  <-  density(mat3Loo$pointwise[,"looic"]  - mat2bLoo$pointwise[,"looic"])
+m3m1   <-  density(mat3Loo$pointwise[,"looic"]  - mat1Loo$pointwise[,"looic"])
 
+allx   <-  c(m3m2$x,m3m2b$x,m3m1$x)
+ally   <-  c(m3m2$y,m3m2b$y,m3m1$y)
 
 
 
+plot(NA, xlab=expression(paste(Delta[LOOic])), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, 
+     xlim=c(min(allx), (max(allx)+0.4*(max(allx) - min(allx, allx)))), 
+     ylim=c(0, (max(ally, ally)+0.05*(max(ally, ally) - min(ally, ally)))), yaxs='i')
+proportionalLabel(0.5, 1.1, expression(paste('Distribution of', Delta[elpd-loo])), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.2)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+polygon(c(m3m2$x), c(m3m2$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
+polygon(c(m3m2b$x), c(m3m2b$y), col=transparentColor('dodgerblue2', 0.5), border='dodgerblue1')
+polygon(c(m3m1$x), c(m3m1$y),   col=transparentColor('dodgerblue3', 0.5), border='dodgerblue1')
+abline(v=0, col=transparentColor('red', 0.7), lwd=3)
+axis(1, cex.axis=0.9)
+axis(2, cex.axis=0.9, las=1)
 
-# A COMPARABLE MIXED EFFECTS MODEL FOR THESE DATA
-# met.date/run random effect only
 
 
-# SEX x TOTAL WET MASS
-fmm.pg1 <- lmer(pergamete ~ sex * twm +
-                  (1|m.date/run),
-                      data=subdata)
-plot(fmm.pg1)
 
-# Diagnostic Plots
-fmm.pg1.prof <- profile(fmm.pg1)
-xyplot(fmm5.prof, aspect=1.3)
-confint(fmm.pg1.prof)
-splom(fmm.pg1.prof)
-dotplot(ranef(fmm.pg1, condVar=TRUE))
-qqmath(ranef(fmm.pg1, condVar=TRUE))
 
-# Summary
-summary(fmm.pg1)
 
 
-# Proportion of variation attributable to between vs. within run effects
-(VC <- VarCorr(fmm.pg1))
-v1 <- as.numeric(attr(VC$'m.date','stddev'))
-v2 <- as.numeric(attr(VC$'run:m.date','stddev'))
-r <- as.numeric(attr(VC,'sc'))
-varattr <- c(v1,v2,r)/ sum(c(v1,v2,r))
-names(varattr) <- c("m.date","among run/m.date", "within run")
-varattr
 
-# Planned contrast of interest
-# A) twm Slope = 0 for each sex
-summary(fmm.pg1)
 
-K <- rbind("F: twm coefficient" = c(0,0,1,0),
-            "M: twm coefficient" = c(0,0,0,1))
-summary(glht(fmm.pg1, linfct=K))
 
 
 
 
-# SEX x GWM WET MASS
-fmm.pg2 <- lmer(pergamete ~ sex * log(gwm) +
-                  (1|m.date/run),
-                      data=subdata)
-plot(fmm.pg2)
 
-# Diagnostic Plots
-fmm.pg2.prof <- profile(fmm.pg2)
-xyplot(fmm.pg2.prof, aspect=1.3)
-confint(fmm.pg2.prof)
-splom(fmm.pg2.prof)
-dotplot(ranef(fmm.pg2, condVar=TRUE))
-qqmath(ranef(fmm.pg2, condVar=TRUE))
 
-# Summary
-summary(fmm.pg2)
 
 
-# Proportion of variation attributable to between vs. within run effects
-(VC <- VarCorr(fmm.pg2))
-v1 <- as.numeric(attr(VC$'m.date','stddev'))
-v2 <- as.numeric(attr(VC$'run:m.date','stddev'))
-r <- as.numeric(attr(VC,'sc'))
-varattr <- c(v1,v2,r)/ sum(c(v1,v2,r))
-names(varattr) <- c("m.date","among run/m.date", "within run")
-varattr
-
-# Planned contrast of interest
-# A) twm Slope = 0 for each sex
-summary(fmm.pg2)
-
-K <- rbind("F: twm coefficient" = c(0,0,1,0),
-            "M: twm coefficient" = c(0,0,0,1))
-summary(glht(fmm.pg2, linfct=K))
-
-
-
-
-
-
-
-
-
-
-# ????????????????????????????????????????????????
-# PLOTTING
-newdata = expand.grid(SEX=levels(data$sex))#, coll.date=unique(data$coll.date))
-coefs = fixef(fmm.pg1)
-Xmat <- model.matrix(~SEX*TWM , data=newdata)
-fit = t(coefs %*% t(Xmat))
-fit
-SE = sqrt(diag(Xmat %*% vcov(fmm.Best) %*% t(Xmat)))
-CI = qt(0.975, length(data$sex) - 2)*SE
-CI
-newdata = cbind(newdata, data.frame(fit=fit, se=SE, lower=fit-CI, upper=fit+CI))
-newdata
-
-p_fmm.Best<-  ggplot(data=newdata, aes(y=fit, x=as.numeric(SPAWN)+c(-0.05,0.05))) +
-  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.05) +
-#  geom_linerange(aes(ymin=lower, ymax=upper)) +
-  geom_hline(aes(intercept=0),size=0.75,lty=2) +
-  geom_line(aes(linetype=SEX)) +
-  geom_point(aes(shape=SEX, fill=SEX), size=4) +
-  scale_fill_manual('Sex', values=c('grey','black')) +
-  scale_shape_manual('Sex', values=c(21,21,21)) +
-  scale_linetype_discrete('Sex') +
-  scale_y_continuous(expression(Delta~VO[2]~max)) +
-  scale_x_continuous('Spawn', breaks=c(1,2), labels=c('No','Yes'), limits=c(0.5,2.5)) +
-  theme_bw() +
-  theme(
-    text=element_text(size=10),
-    axis.title.y=element_text(vjust=1.5, size=rel(2)),
-    axis.title.x=element_text(vjust=0, size=rel(2)),
-    legend.position=c(1,0), legend.justification=c(1,0))
-p_fmm.Best
-
-
-
-
-
-
-head(subdata)
-table(subdata$sex)
-
-# DELTA.VO2MAX X NO.GAMETES
-fmm.Mng <- lmer(delta.vo2max ~ no.gametes +
-                  (1|m.date/run),
-                      data=mdat)
-plot(fmm.Mng)
-
-# Diagnostic Plots
-fmm.ng.prof <- profile(fmm.ng)
-xyplot(fmm.ng.prof, aspect=1.3)
-confint(fmm.ng.prof)
-splom(fmm.ng.prof)
-dotplot(ranef(fmm.ng, condVar=TRUE))
-qqmath(ranef(fmm.ng, condVar=TRUE))
-
-# Summary
-summary(fmm.Mng)
-
-
-# Proportion of variation attributable to between vs. within run effects
-(VC <- VarCorr(fmm.ng))
-v1 <- as.numeric(attr(VC$'m.date','stddev'))
-v2 <- as.numeric(attr(VC$'run:m.date','stddev'))
-r <- as.numeric(attr(VC,'sc'))
-varattr <- c(v1,v2,r)/ sum(c(v1,v2,r))
-names(varattr) <- c("m.date","among run/m.date", "within run")
-varattr
-
-# Planned contrast of interest
-# A) twm Slope = 0 for each sex
-summary(fmm.ng)
-
-K <- rbind("F: twm coefficient" = c(0,0,1,0),
-            "M: twm coefficient" = c(0,0,0,1))
-summary(glht(fmm.ng, linfct=K))
-
-
-
-k <- rbind("coef"=c(0,1))
-summary(glht(fmm.Mng, linfct=k))
