@@ -1819,15 +1819,18 @@ str(mat3Loo)
 
 ##  Plot differences 
 m3m4   <-  density(mat3Loo$pointwise[,"elpd_loo"] - mat4Loo$pointwise[,"elpd_loo"])
-m3m2   <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"])
-m3m2b  <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"])
-m3m1   <-  density(mat3Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"])
+m3m2   <-  density(mat3Loo$pointwise[,"elpd_loo"] - mat2Loo$pointwise[,"elpd_loo"])
+m3m2b  <-  density(mat3Loo$pointwise[,"elpd_loo"] - mat2bLoo$pointwise[,"elpd_loo"])
+m3m1   <-  density(mat3Loo$pointwise[,"elpd_loo"] - mat1Loo$pointwise[,"elpd_loo"])
 
 allx   <-  c(m3m4$x,m3m2$x,m3m2b$x,m3m1$x)
 ally   <-  c(m3m4$y,m3m2$y,m3m2b$y,m3m1$y)
 
 
 
+##  Not really sure what's going on here... I don't think these 
+##  Density plots should look the way they do... should be more 
+##  spread out... right?
 plot(NA, xlab=expression(paste(Delta[LOOic])), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, 
      xlim=c(min(allx), (max(allx)+0.4*(max(allx) - min(allx, allx)))), 
      ylim=c(0, (max(ally, ally)+0.05*(max(ally, ally) - min(ally, ally)))), yaxs='i')
@@ -1837,7 +1840,6 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 polygon(c(m3m4$x), c(m3m4$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
-
 polygon(c(m3m2$x), c(m3m2$y),   col=transparentColor('dodgerblue1', 0.5), border='dodgerblue1')
 polygon(c(m3m2b$x), c(m3m2b$y), col=transparentColor('dodgerblue2', 0.5), border='dodgerblue1')
 polygon(c(m3m1$x), c(m3m1$y),   col=transparentColor('dodgerblue3', 0.5), border='dodgerblue1')
