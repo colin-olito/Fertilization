@@ -61,23 +61,110 @@ Lanecols   <-  c(adjustcolor("dodgerblue", alpha.f=1),
                  adjustcolor("red", alpha.f=1)
             ) 
 
-# plot of fertilization rate ~ N x Rate x EggPos
+
+# plot of fertilization rate ~ sperm
 par(omi=rep(0.3, 4))
-plot(NA, data=data, 
+plot((nFert/nEggs) ~ nSperm, data=data, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(0,5))
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
-points((data$nFert/data$nEggs) ~ data$N, pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-points((data$nFert/data$nEggs) ~ data$Rate, pch=21, 
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
         bg=transparentColor('dodgerblue3', 0.7),
         col=transparentColor('dodgerblue1', 0.7), cex=1.1)
 axis(1, las=1)
 axis(2, las=1)
+
+
+
+# plot of fertilization rate ~ sperm X Rate
+par(omi=rep(0.3, 4))
+plot((nFert/nEggs) ~ nSperm, data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Fast'] ~ data$nSperm[data$Rate == 'Fast'], pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Slow'] ~ data$nSperm[data$Rate == 'Slow'], pch=21, 
+        bg=transparentColor('OrangeRed3', 0.7),
+        col=transparentColor('OrangeRed1', 0.7), cex=1.1)
+axis(1, las=1)
+axis(2, las=1)
+
+
+
+# plot of fertilization rate ~ sperm X Rate x EggPos
+par(omi=rep(0.3, 4))
+plot((nFert/nEggs) ~ nSperm, data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Fast' & data$EggPos == 5] ~ data$nSperm[data$Rate == 'Fast' & data$EggPos == 5], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue3', 0.7), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Slow' & data$EggPos == 5] ~ data$nSperm[data$Rate == 'Slow' & data$EggPos == 5], pch=21, 
+        bg=transparentColor('OrangeRed1', 0.7),
+        col=transparentColor('OrangeRed3', 0.7), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Fast' & data$EggPos == 55] ~ data$nSperm[data$Rate == 'Fast' & data$EggPos == 55], pch=21, 
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Slow' & data$EggPos == 55] ~ data$nSperm[data$Rate == 'Slow' & data$EggPos == 55], pch=21, 
+        col=transparentColor('OrangeRed1', 0.7), cex=1.1)
+axis(1, las=1)
+axis(2, las=1)
+
+
+# plot of fertilization rate ~ sperm, grouped by run
+par(omi=rep(0.3, 4))
+plot((nFert[Run == 1]/nEggs[Run == 1]) ~ nSperm[Run == 1], data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert[data$Run == 1]/data$nEggs[data$Run == 1]) ~ data$nSperm[data$Run == 1], pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+for (i in 2:max(as.numeric(data$Run))){
+  points((data$nFert[data$Run == i]/data$nEggs[data$Run == i]) ~ data$nSperm[data$Run == i], pch=21, 
+          bg=Runcols[i],
+          col=Runcols[i], cex=1.1)
+}
+axis(1)
+axis(2, las=1)
+
+
+
+
+# plot of fertilization rate ~ sperm, grouped by lane
+par(omi=rep(0.3, 4))
+plot((nFert[Lane == 1]/nEggs[Lane == 1]) ~ nSperm[Lane == 1], data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points((data$nFert[data$Lane == 1]/data$nEggs[data$Lane == 1]) ~ data$nSperm[data$Lane == 1], pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+for (i in 2:max(as.numeric(data$Lane))){
+  points((data$nFert[data$Lane == i]/data$nEggs[data$Lane == i]) ~ data$nSperm[data$Lane == i], pch=21, 
+          bg=Lanecols[i],
+          col=Lanecols[i], cex=1.1)
+}
+axis(1)
+axis(2, las=1)
+
 
 
 ########   START EDITING FOR NEW ANALYSIS HERE   ########
