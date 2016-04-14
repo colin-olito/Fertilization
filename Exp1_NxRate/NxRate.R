@@ -72,8 +72,8 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.7), cex=1.1)
 axis(1, las=1)
 axis(2, las=1)
 
