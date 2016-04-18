@@ -89,13 +89,27 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Fast'] ~ data$nSperm[data$Rate == 'Fast'], pch=21, 
-        bg=transparentColor('dodgerblue3', 0.7),
-        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.7), cex=1.1)
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Slow'] ~ data$nSperm[data$Rate == 'Slow'], pch=21, 
-        bg=transparentColor('OrangeRed3', 0.7),
-        col=transparentColor('OrangeRed1', 0.7), cex=1.1)
+        bg=transparentColor('orangeRed1', 0.7),
+        col=transparentColor('orangeRed3', 0.7), cex=1.1)
 axis(1, las=1)
 axis(2, las=1)
+    legend(
+          x       =  usr[2]*0.2,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Fast)),
+                      expression(paste(Slow))),
+          pch     =  16,
+          col     =  c('dodgerblue1', 'orangered1'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
 
 
 
@@ -120,6 +134,22 @@ points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == 'Slow' & data$Eg
         col=transparentColor('OrangeRed1', 0.7), cex=1.1)
 axis(1, las=1)
 axis(2, las=1)
+    legend(
+          x       =  usr[2]*0.3,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(5~cm:~Fast)),
+                      expression(paste(55~cm:~Fast)),
+                      expression(paste(5~cm:~Slow)),
+                      expression(paste(55~cm:~Slow))),
+          pch     =  c(16,21,16,21),
+          col     =  c('dodgerblue1','dodgerblue1','orangered1','orangered1'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
 
 
 # plot of fertilization rate ~ sperm, grouped by run
@@ -218,7 +248,7 @@ pairs(Logistic1, pars="theta")
 
 
 ##  Plot predicted line etc.
-pred     <-  Logistic1.summary[-c(1,2,51),]
+pred     <-  Logistic1.summary[-c(1,2,75),]
 RegLine  <-  inv_logit(Logistic1.summary$Mean[1] + Logistic1.summary$Mean[2] * nSperm_z)
 RegLow   <-  inv_logit(Logistic1.summary$lower[1] + Logistic1.summary$lower[2] * nSperm_z)
 RegHi    <-  inv_logit(Logistic1.summary$upper[1] + Logistic1.summary$upper[2] * nSperm_z)
@@ -233,9 +263,9 @@ whiteGrid()
 box()
 lines((pred$Mean[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
         data$nSperm[order(nSperm_z)], type='l', lwd=3)
-lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+#lines((pred$upper[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
         data$nSperm[order(nSperm_z)], type='l', lty=2)
-lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
+#lines((pred$lower[order(nSperm_z)] / data$nEggs[order(nSperm_z)]) ~ 
         data$nSperm[order(nSperm_z)], type='l', lty=2)
 points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
         bg=transparentColor('dodgerblue3', 0.7),
@@ -244,13 +274,13 @@ axis(2, las=1)
 axis(1)
 
 # RegLine matches pred !!!  YAY!!!
-# lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
-#                   col='black', lwd=3)
-# lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
-# lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
-# cbind(RegHi[order(nSperm_z)], 
-#       RegLine[order(nSperm_z)],
-#       RegLow[order(nSperm_z)])
+ lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                   col='black', lwd=3)
+ lines(RegHi[order(nSperm_z)]   ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+ lines(RegLow[order(nSperm_z)]  ~ data$nSperm[order(nSperm_z)], type='l', lty=2)
+ cbind(RegHi[order(nSperm_z)], 
+       RegLine[order(nSperm_z)],
+       RegLow[order(nSperm_z)])
 
 
 
@@ -274,7 +304,7 @@ nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 data.list  <-  list(N       =  nrow(data),
                     nFert   =  data$nFert, 
                     nEggs   =  data$nEggs,
-                    Run     =  as.numeric(data$Run),
+                    Run     =  as.numeric(as.factor(data$Run)),
                     nSperm  =  nSperm_z)
 
 #  Options for the analysis
@@ -325,9 +355,9 @@ runs  <-  list(
                Run3  <- inv_logit(mlLogistic1.summary$Mean[3] + mlLogistic1.summary$Mean[9] * nSperm_z),
                Run4  <- inv_logit(mlLogistic1.summary$Mean[4] + mlLogistic1.summary$Mean[9] * nSperm_z),
                Run5  <- inv_logit(mlLogistic1.summary$Mean[5] + mlLogistic1.summary$Mean[9] * nSperm_z),
-               Run6  <- inv_logit(mlLogistic1.summary$Mean[6] + mlLogistic1.summary$Mean[9] * nSperm_z),
-               Run7  <- inv_logit(mlLogistic1.summary$Mean[7] + mlLogistic1.summary$Mean[9] * nSperm_z),
-               Run8  <- inv_logit(mlLogistic1.summary$Mean[8] + mlLogistic1.summary$Mean[9] * nSperm_z)
+               Run6  <- inv_logit(mlLogistic1.summary$Mean[6] + mlLogistic1.summary$Mean[9] * nSperm_z)
+#               Run7  <- inv_logit(mlLogistic1.summary$Mean[7] + mlLogistic1.summary$Mean[9] * nSperm_z),
+#               Run8  <- inv_logit(mlLogistic1.summary$Mean[8] + mlLogistic1.summary$Mean[9] * nSperm_z)
               )
 
 RegLine  <-  inv_logit(mlLogistic1.summary$Mean[11] + mlLogistic1.summary$Mean[9] * nSperm_z)
@@ -349,10 +379,10 @@ box()
      lines(xrange, inv_logit(x['mu_a'] + x['theta'] * xrange2), col=transparentColor('grey68',0.01))
  }, data=data, nSperm_z=nSperm_z)
 # plot run-specific regression lines
-# for(i in 1:8) {
-#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
-#                   col='grey75', lwd=3)
-# }
+ for(i in 1:6) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
 # plot main regression line
 lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='black', lwd=3)
@@ -1349,9 +1379,9 @@ runs  <-  list(
                Run3  <- inv_logit(mat2.summ$Mean[5]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
                Run4  <- inv_logit(mat2.summ$Mean[6]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
                Run5  <- inv_logit(mat2.summ$Mean[7]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run6  <- inv_logit(mat2.summ$Mean[8]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run7  <- inv_logit(mat2.summ$Mean[9]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run8  <- inv_logit(mat2.summ$Mean[10]  + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
+               Run6  <- inv_logit(mat2.summ$Mean[8]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
+#               Run7  <- inv_logit(mat2.summ$Mean[9]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
+#               Run8  <- inv_logit(mat2.summ$Mean[10]  + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
               )
 
 RegLine  <-  inv_logit(mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
@@ -1524,15 +1554,15 @@ axis(1)
 
 head(data)
 
-Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
+Z0  <-  unname(model.matrix(~ data$Run -1, data=data))
 attr(Z0,"assign") <- NULL
 str(Z0)
 head(Z0)
 
-Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:8)]
+Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:6)]
 attr(Z1,"assign") <- NULL
 str(Z1)
-Z1[7:nrow(Z1),1]  <-  0
+Z1[13:nrow(Z1),1]  <-  0
 Z1[1:20,]
 
 ##  Assemble data for stan
@@ -1590,17 +1620,17 @@ mat3WAIC   <-  waic(mat3LL)
 
 ##  Plot predicted line etc.
 runs  <-  list(
-               Run1  <- inv_logit(mat3.summ$Mean[1] + mat3.summ$Mean[9] * nSperm_z),
-               Run2  <- inv_logit(mat3.summ$Mean[2] + mat3.summ$Mean[10] * nSperm_z),
-               Run3  <- inv_logit(mat3.summ$Mean[3] + mat3.summ$Mean[11] * nSperm_z),
-               Run4  <- inv_logit(mat3.summ$Mean[4] + mat3.summ$Mean[12] * nSperm_z),
-               Run5  <- inv_logit(mat3.summ$Mean[5] + mat3.summ$Mean[13] * nSperm_z),
-               Run6  <- inv_logit(mat3.summ$Mean[6] + mat3.summ$Mean[14] * nSperm_z),
-               Run7  <- inv_logit(mat3.summ$Mean[7] + mat3.summ$Mean[15] * nSperm_z),
-               Run8  <- inv_logit(mat3.summ$Mean[8] + mat3.summ$Mean[16] * nSperm_z)
+               Run1  <- inv_logit(mat3.summ$Mean[1] + mat3.summ$Mean[7] * nSperm_z),
+               Run2  <- inv_logit(mat3.summ$Mean[2] + mat3.summ$Mean[8] * nSperm_z),
+               Run3  <- inv_logit(mat3.summ$Mean[3] + mat3.summ$Mean[9] * nSperm_z),
+               Run4  <- inv_logit(mat3.summ$Mean[4] + mat3.summ$Mean[10] * nSperm_z),
+               Run5  <- inv_logit(mat3.summ$Mean[5] + mat3.summ$Mean[11] * nSperm_z),
+               Run6  <- inv_logit(mat3.summ$Mean[6] + mat3.summ$Mean[12] * nSperm_z)
+#               Run7  <- inv_logit(mat3.summ$Mean[7] + mat3.summ$Mean[15] * nSperm_z),
+#               Run8  <- inv_logit(mat3.summ$Mean[8] + mat3.summ$Mean[16] * nSperm_z)
               )
 
-RegLine  <-  inv_logit(mat3.summ$Mean[17] + mat3.summ$Mean[18] * nSperm_z)
+RegLine  <-  inv_logit(mat3.summ$Mean[13] + mat3.summ$Mean[14] * nSperm_z)
 
 
 
@@ -1619,7 +1649,9 @@ box()
 #     lines(xrange, inv_logit(x['mu_gamma0'] + x['mu_gamma1'] * xrange2), col=transparentColor('grey68',0.1))
 # }, data=data, nSperm_z=nSperm_z)
 # plot run-specific regression lines
- for(i in 1:8) {
+
+i=i+1
+ for(i in 1:6) {
    lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
                    col='grey75', lwd=3)
  }
