@@ -102,7 +102,8 @@ axis(2, las=1)
           legend  =  c(
                       expression(paste(Fast)),
                       expression(paste(Slow))),
-          pch     =  16,
+          pch     =  21,
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7), transparentColor('orangered1',0.7)),
           col     =  c('dodgerblue1', 'orangered1'),
           cex     =  1,
           xjust   =  1,
@@ -142,8 +143,9 @@ axis(2, las=1)
                       expression(paste(55~cm:~Fast)),
                       expression(paste(5~cm:~Slow)),
                       expression(paste(55~cm:~Slow))),
-          pch     =  c(16,21,16,21),
-          col     =  c('dodgerblue1','dodgerblue1','orangered1','orangered1'),
+          pch     =  c(21,21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),NA,transparentColor('orangered1',0.7),NA),
+          col     =  c('dodgerblue3','dodgerblue3','orangered3','orangered3'),
           cex     =  1,
           xjust   =  1,
           yjust   =  1,
@@ -384,10 +386,6 @@ axis(1)
 
 
 
-#########################################################
-########   START EDITING FOR NEW ANALYSIS HERE   ########
-
-
 ####################################
 ## Logistic Mixed Effects Regression
 ##  -- nSperm_z x Rate x eggPos
@@ -621,7 +619,7 @@ str(Z0)
 head(Z0)
 
 ##  Random Intercepts Model Matrix
-Z1  <-  model.matrix(~ -1 +  data$Run * nSperm_z , data=data)[,-c(1:7)]
+Z1  <-  model.matrix(~ -1 +  data$Run * nSperm_z , data=data)[,-c(1:8)]
 head(Z1)
 Z1names  <-  dimnames(Z1)[[2]]
 Z1       <-  unname(Z1)
@@ -633,7 +631,7 @@ Z1[1:20,]
 ##  Assemble data for stan
 data.list  <-  list(N   =  nrow(data),
                     P   =  ncol(X), 
-                    K  =  ncol(Z0),
+                    K   =  ncol(Z0),
                     nT  =  data$nEggs,
                     nS  =  data$nFert,
                     Z0  =  Z0,
@@ -812,12 +810,114 @@ axis(1)
 
 
 
+####################################
+## Logistic Mixed Effects Regression
+##    * alternative parameterization
+##    * using 1 Z matrix, with both 
+##    * intercepts and slopes together;
+##    * Check for equivalence with the 
+##    * 2 Z matrix version (mat3)
+## -- random intercept for RUN
+## -- random slopes for Run x nSperm
+####################################
+
+
+head(data)
+
+X       <-  model.matrix(~ 1 + nSperm_z*Rate*EggPos, data=data)
+Xnames  <-  dimnames(X)[[2]]
+X       <-  unname(X)
+attr(X,"assign") <- NULL
+str(X)
+head(X)
+
+Z       <-  model.matrix(~ -1 + data$Run*nSperm_z, data=data)
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+str(Z)
+head(Z)
+Z[13:nrow(Z1),9]  <-  0
+Z[1:20,]
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+#  Options for the analysis
+nChains        = 4
+thinSteps      = 5
+numSavedSteps  = 5000 #across all chains
+burnInSteps    = numSavedSteps / 2
+nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
+
+
+## Call to STAN
+mat3b <- stan(data     =  data.list,
+             file     =  './Stan/mat-logistic-1Z-int-slope.stan',
+             chains   =  nChains,
+             iter     =  numSavedSteps,
+             thin     =  thinSteps,
+             save_dso =  TRUE
+                )
+
+
+# Model Results
+print(mat3b)
+print(mat3b, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(mat3b, c("gamma", "sigma_gamma0", "sigma_gamma1"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+mat3b.df    <-  as.data.frame(extract(mat3b))
+mcmc.mat3b  <-  as.mcmc(mat3b)
+mat3b.mcmc  <-  rstan:::as.mcmc.list.stanfit(mat3b)
+mat3b.summ  <-  plyr:::adply(as.matrix(mat3b.df),2,MCMCsum)
+(mat3b.summ)
+
+# Simple Diagnostic Plots
+plot(mat3b, pars="beta")
+plot(mat3b, pars="gamma")
+plot(mat3b.mcmc, ask=TRUE)
+pairs(mat3b, pars="beta")
+pairs(mat3b, pars="gamma")
+
+
+#  LOO Log-likelihood for model selection
+mat3bLL  <-  extract_log_lik(mat3b, parameter_name = "log_lik")
+mat3bLoo    <-  loo(mat3bLL)
+mat3bWAIC   <-  waic(mat3bLL)
+
+
+##  Plot predicted line etc.
+mat3b.summ[1:16,1:2]
+mat3b.summ[1:16,1:2]
+Xnames
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################
+########   START EDITING FOR NEW ANALYSIS HERE   ########
 
 
 ####################################
@@ -927,45 +1027,27 @@ mat4WAIC   <-  waic(mat4LL)
 #######################
 
 str(mat1Loo)
-looDiff   <-  compare(mat1Loo, mat2Loo, mat2bLoo, mat3Loo, mat4Loo)
-waicDiff  <-  compare(mat1WAIC, mat2WAIC, mat2bWAIC, mat3WAIC, mat4WAIC)
+looDiff   <-  compare(mat1Loo, mat2Loo, mat3Loo), mat4Loo)
+waicDiff  <-  compare(mat1WAIC, mat2WAIC, mat3WAIC), mat4WAIC)
 
 print(looDiff, digits=4)
 print(waicDiff, digits=4)
 
 print(compare(mat1Loo, mat2Loo), digits=6)
-print(compare(mat1Loo, mat2bLoo), digits=6)
 print(compare(mat1Loo, mat3Loo), digits=6)
-print(compare(mat1Loo, mat4Loo), digits=6)
-print(compare(mat2Loo, mat2bLoo), digits=6)
+#print(compare(mat1Loo, mat4Loo), digits=6)
 print(compare(mat2Loo, mat3Loo), digits=6)
 print(compare(mat2Loo, mat4Loo), digits=6)
-print(compare(mat2bLoo, mat3Loo), digits=6)
-print(compare(mat2bLoo, mat4Loo), digits=6)
-print(compare(mat3Loo, mat4Loo), digits=6)
+#print(compare(mat3Loo, mat4Loo), digits=6)
 
-looDiff34   <-  looDiff[1,3] - looDiff[2,3]
-looDiff32   <-  looDiff[1,3] - looDiff[3,3]
-looDiff32b  <-  looDiff[1,3] - looDiff[4,3]
-looDiff31   <-  looDiff[1,3] - looDiff[5,3]
-looDiff42   <-  looDiff[2,3] - looDiff[3,3]
-looDiff42b  <-  looDiff[2,3] - looDiff[4,3]
-looDiff41   <-  looDiff[2,3] - looDiff[5,3]
-looDiff22b  <-  looDiff[3,3] - looDiff[4,3]
-looDiff21   <-  looDiff[3,3] - looDiff[5,3]
-looDiff2b1  <-  looDiff[4,3] - looDiff[5,3]
+looDiff32   <-  looDiff[1,3] - looDiff[2,3]
+looDiff31   <-  looDiff[1,3] - looDiff[3,3]
+looDiff21   <-  looDiff[2,3] - looDiff[3,3]
 
 n  <-  length(mat1Loo$pointwise[,"elpd_loo"])
-selooDiff34   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat4Loo$pointwise[,"elpd_loo"]))
 selooDiff32   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"]))
-selooDiff32b  <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
 selooDiff31   <-  sqrt(n * var(mat3Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
-selooDiff42   <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat2Loo$pointwise[,"elpd_loo"]))
-selooDiff42b  <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
-selooDiff41   <-  sqrt(n * var(mat4Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
-selooDiff22b  <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat2bLoo$pointwise[,"elpd_loo"]))
 selooDiff21   <-  sqrt(n * var(mat2Loo$pointwise[,"elpd_loo"]  - mat1Loo$pointwise[,"elpd_loo"]))
-selooDiff2b1  <-  sqrt(n * var(mat2bLoo$pointwise[,"elpd_loo"] - mat1Loo$pointwise[,"elpd_loo"]))
 
 
 
@@ -973,32 +1055,18 @@ selooDiff2b1  <-  sqrt(n * var(mat2bLoo$pointwise[,"elpd_loo"] - mat1Loo$pointwi
 
 
 
-LooDiff  <-  cbind(c(looDiff34,looDiff32,looDiff32b,looDiff31,looDiff42,looDiff42b,looDiff41,looDiff22b,looDiff21,looDiff2b1),
-                   c(selooDiff34,selooDiff32,selooDiff32b,selooDiff31,selooDiff42,selooDiff42b,selooDiff41,selooDiff22b,selooDiff21,selooDiff2b1))
+LooDiff  <-  cbind(c(looDiff32,looDiff31,looDiff21),
+                   c(selooDiff32,selooDiff31,selooDiff21))
 
-pDiff34   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
-pDiff32   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
-pDiff32b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[3,1] - 0)/LooDiff[3,2])), 3))
-pDiff31   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[4,1] - 0)/LooDiff[4,2])), 3))
-pDiff42   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[5,1] - 0)/LooDiff[5,2])), 3))
-pDiff42b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[6,1] - 0)/LooDiff[6,2])), 3))
-pDiff41   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[7,1] - 0)/LooDiff[7,2])), 3))
-pDiff22b  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[8,1] - 0)/LooDiff[8,2])), 3))
-pDiff21   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[9,1] - 0)/LooDiff[9,2])), 3))
-pDiff2b1  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[10,1] - 0)/LooDiff[10,2])),3))
+pDiff32   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
+pDiff31   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
+pDiff21   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
 
-LooDiff  <-  cbind(LooDiff, c(pDiff34,pDiff32,pDiff32b,pDiff31,pDiff42,pDiff42b,pDiff41,pDiff22b,pDiff21,pDiff2b1))
+LooDiff  <-  cbind(LooDiff, c(pDiff32,pDiff31,pDiff21))
 
-row.names(LooDiff)  <-  c("mat3 - mat4",
-                          "mat3 - mat2",
-                          "mat3 - mat2b",
+row.names(LooDiff)  <-  c("mat3 - mat2",
                           "mat3 - mat1",
-                          "mat4 - mat2",
-                          "mat4 - mat2b",
-                          "mat4 - mat1",
-                          "mat2 - mat2b",
-                          "mat2 - mat1",
-                          "mat2b - mat1")
+                          "mat2 - mat1")
 colnames(LooDiff)   <-  c("diff", "se", "p.value")
 LooDiff
 
