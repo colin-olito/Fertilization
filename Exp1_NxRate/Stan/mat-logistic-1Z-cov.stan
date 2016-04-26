@@ -42,10 +42,11 @@ transformed parameters {
 model {
   tau_run  ~  cauchy(0,5);          // Priors for covariance matrix
   L_run    ~  lkj_corr_cholesky(2);
+//  u        ~  normal(u_mu,u_sd);
   for (i in 1:J)
     u[i] ~ normal(0,1);
 
-  beta     ~  normal(0,3);          // Priors on fixed effects
+  beta     ~  normal(0,5);          // Priors on fixed effects
   sigma_y  ~  cauchy(0,5);          // Prior on error scale
 
   nS  ~  binomial_logit(nT, mu);    // Likelihood
@@ -55,6 +56,6 @@ generated quantities {
   vector[N] log_lik;  // Log-likelihood
 
   for (i in 1:N) {
-    log_lik[i]  <-  binomial_logit_log(nS[i], nT[i], X[i]*beta + Z[i]*gamma[grp[i]]);
+    log_lik[i]  <-  binomial_logit_log(nS[i], nT[i], mu[i]);
   }
 }
