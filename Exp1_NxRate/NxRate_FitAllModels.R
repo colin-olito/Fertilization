@@ -94,7 +94,7 @@ data.list  <-  list(N    =  nrow(data),
 ## Call to STAN
 m1 <- stan(data     =  data.list,
              file     =  './Stan/mat-logistic-1Z-cov.stan',
-             chains   =  nChains,
+             chains   =  3,
              iter     =  numSavedSteps,
              thin     =  thinSteps,
              save_dso =  TRUE

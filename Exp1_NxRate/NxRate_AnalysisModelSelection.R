@@ -252,6 +252,8 @@ m3aSlow    <-  inv_logit((m3a.coef[1] + m3a.coef[3] + (0.5*(m3a.coef[7]))) + (m3
 
 ##  MODEL 3
 ##  Plot of all 4 regression lines for Rate x EggPos
+
+#pdf(file="./output/NxRatexEggPos_prelim_m3.pdf", height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -300,7 +302,7 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-
+#dev.off()
 
 
 ##  MODEL 3a
@@ -357,7 +359,7 @@ axis(1)
 
 ##  look at residuals for m3
 m3yhat  <-  inv_logit(m3.summ$Mean[1030:1149])
-m3.resids  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sqrt(m3yhat)
+m3.resids  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd(m3yhat)
 m3.resids_z  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m3yhat))
 
 ##  Model 3 Residual Plots
@@ -409,6 +411,8 @@ qqline(m3a.resids_z, col = 2)
 
 
 ##  Plot of Rate x nSperm effect.
+
+#pdf(file="./output/NxRate_prelim_m3.pdf", height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -421,8 +425,10 @@ box()
 # apply(m3.df, 1, function(x, data, nSperm_z){
 #     xrange   <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
 #     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-#     lines(xrange, inv_logit((x['beta.1'] + (x['beta.4'])/2) + (x['beta.2'] + (x['beta.6'])/2) * xrange2), col=transparentColor('dodgerblue1',0.01))
-#     lines(xrange, inv_logit((x['beta.1'] + x['beta.3'] + (0.5*(x['beta.7']))) + (x['beta.2'] + x['beta.5'] + (0.5*(x['beta.8']))) * xrange2), col=transparentColor('orangered1',0.01))
+#     lines(xrange, inv_logit((x['beta.1'] + (x['beta.4'])/2) + (x['beta.2'] + (x['beta.6'])/2) * xrange2), 
+#     	   col=transparentColor('dodgerblue1',0.05))
+#     lines(xrange, inv_logit((x['beta.1'] + x['beta.3'] + (0.5*(x['beta.7']))) + (x['beta.2'] + x['beta.5'] + (0.5*(x['beta.8']))) * xrange2), 
+#     	   col=transparentColor('orangered1',0.05))
 # }, data=data, nSperm_z=nSperm_z)
 lines(m3Fast[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='dodgerblue3', lwd=3)
@@ -450,6 +456,8 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
+#dev.off()
+
 
 ##  Plot of Rate x nSperm effect.
 par(omi=rep(0.3, 4))
@@ -597,6 +605,13 @@ m3Slow55.neg1  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.bet
 m3Fast.neg1    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (-1))
 m3Slow.neg1    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (-1))
 
+m3Fast5.0   <-  inv_logit(m3.betas[1] + m3.betas[2] * (0))
+m3Fast55.0  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (0))
+m3Slow5.0   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (0))
+m3Slow55.0  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (0))
+m3Fast.0    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (0))
+m3Slow.0    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (0))
+
 m3Fast5.1   <-  inv_logit(m3.betas[1] + m3.betas[2] * (1))
 m3Fast55.1  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (1))
 m3Slow5.1   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (1))
@@ -611,64 +626,52 @@ m3Slow55.2  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[
 m3Fast.2    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (2))
 m3Slow.2    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (2))
 
-cSimp1   <-  m3Fast5.neg2[,1] - m3Fast55.neg2[,1]
-cSimp2   <-  m3Slow5.neg2[,1] - m3Slow55.neg2[,1]
-cSimp3   <-  m3Fast5.neg2[,1] - m3Slow5.neg2[,1]
-cSimp4   <-  m3Fast55.neg2[,1] - m3Slow55.neg2[,1]
-cSimp5   <-  m3Fast.neg2[,1] - m3Slow.neg2[,1]
-pval(cSimp1)
-pval(cSimp2)
-pval(cSimp3)
-pval(cSimp4)
-pval(cSimp5)
 
-cSimp6   <-  m3Fast5.neg1[,1] - m3Fast55.neg1[,1]
-cSimp7   <-  m3Slow5.neg1[,1] - m3Slow55.neg1[,1]
-cSimp8   <-  m3Fast5.neg1[,1] - m3Slow5.neg1[,1]
-cSimp9   <-  m3Fast55.neg1[,1] - m3Slow55.neg1[,1]
-cSimp10  <-  m3Fast.neg1[,1] - m3Slow.neg1[,1]
-pval(cSimp6)
-pval(cSimp7)
-pval(cSimp8)
-pval(cSimp9)
-pval(cSimp10)
-
-cSimp11   <-  m3Fast5.1[,1] - m3Fast55.1[,1]
-cSimp12   <-  m3Slow5.1[,1] - m3Slow55.1[,1]
-cSimp13   <-  m3Fast5.1[,1] - m3Slow5.1[,1]
-cSimp14   <-  m3Fast55.1[,1] - m3Slow55.1[,1]
-cSimp15   <-  m3Fast.1[,1] - m3Slow.1[,1]
-pval(cSimp11)
-pval(cSimp12)
-pval(cSimp13)
-pval(cSimp14)
-pval(cSimp15)
-
-cSimp16   <-  m3Fast5.2[,1] - m3Fast55.2[,1]
-cSimp17   <-  m3Slow5.2[,1] - m3Slow55.2[,1]
-cSimp18   <-  m3Fast5.2[,1] - m3Slow5.2[,1]
-cSimp19   <-  m3Fast55.2[,1] - m3Slow55.2[,1]
-cSimp20   <-  m3Fast.2[,1] - m3Slow.2[,1]
-pval(cSimp16)
-pval(cSimp17)
-pval(cSimp18)
-pval(cSimp19)
-pval(cSimp20)
+simpContr  <-  list(
+	cSimp1   =  m3Fast5.neg2[,1] - m3Fast55.neg2[,1],
+	cSimp2   =  m3Slow5.neg2[,1] - m3Slow55.neg2[,1],
+	cSimp3   =  m3Fast5.neg2[,1] - m3Slow5.neg2[,1],
+	cSimp4   =  m3Fast55.neg2[,1] - m3Slow55.neg2[,1],
+	cSimp5   =  m3Fast.neg2[,1] - m3Slow.neg2[,1],
+	cSimp6   =  m3Fast5.neg1[,1] - m3Fast55.neg1[,1],
+	cSimp7   =  m3Slow5.neg1[,1] - m3Slow55.neg1[,1],
+	cSimp8   =  m3Fast5.neg1[,1] - m3Slow5.neg1[,1],
+	cSimp9   =  m3Fast55.neg1[,1] - m3Slow55.neg1[,1],
+	cSimp10  =  m3Fast.neg1[,1] - m3Slow.neg1[,1],
+	cSimp11  =  m3Fast5.0[,1] - m3Fast55.0[,1],
+	cSimp12  =  m3Slow5.0[,1] - m3Slow55.0[,1],
+	cSimp13  =  m3Fast5.0[,1] - m3Slow5.0[,1],
+	cSimp14  =  m3Fast55.0[,1] - m3Slow55.0[,1],
+	cSimp15  =  m3Fast.0[,1] - m3Slow.0[,1],
+	cSimp16  =  m3Fast5.1[,1] - m3Fast55.1[,1],
+	cSimp17  =  m3Slow5.1[,1] - m3Slow55.1[,1],
+	cSimp18  =  m3Fast5.1[,1] - m3Slow5.1[,1],
+	cSimp19  =  m3Fast55.1[,1] - m3Slow55.1[,1],
+	cSimp20  =  m3Fast.1[,1] - m3Slow.1[,1],
+	cSimp21  =  m3Fast5.2[,1] - m3Fast55.2[,1],
+	cSimp22  =  m3Slow5.2[,1] - m3Slow55.2[,1],
+	cSimp23  =  m3Fast5.2[,1] - m3Slow5.2[,1],
+	cSimp24  =  m3Fast55.2[,1] - m3Slow55.2[,1],
+	cSimp25  =  m3Fast.2[,1] - m3Slow.2[,1]
+)
 
 
-plotContr(density(cSimp3))
 
+##  Histograms of simple comparisons between regression lines accross the 
+##  nSperm gradient
+
+par(mfrow=c(5,5))
+for (i in 1:25) {
+	plotContr(density(simpContr[[i]]))
+}
 
 #########################################
 ##  Adjusting for Run-specific variation
 #########################################
-m3.summ
+m3.summ$X1
 m3a.summ$X1
 
 ##  Calculate Predicted Lines
-m3.ranef   <-  m3.summ$Mean[621:628]
-m3a.ranef   <-  m3a.summ$Mean[9:28]
-
 m3Fast5   <-  inv_logit(m3.coef[1] + m3.coef[2] * nSperm_z)
 m3Fast55  <-  inv_logit((m3.coef[1] + m3.coef[4]) + (m3.coef[2] + m3.coef[6]) * nSperm_z)
 m3Slow5   <-  inv_logit((m3.coef[1] + m3.coef[3]) + (m3.coef[2] + m3.coef[5]) * nSperm_z)
@@ -685,7 +688,7 @@ m3aSlow    <-  inv_logit((m3a.coef[1] + m3a.coef[3] + (0.5*(m3a.coef[7]))) + (m3
 
 
 ##  Calculate overall intercept for Model 3
-coefs <- as.matrix(m3a.mcmc)[,1:8]
+coefs <- as.matrix(m3.mcmc)[,621:628]
 dim(coefs)
 head(coefs[,-c(2,5,6,8)])
 Xmatr <- as.matrix(ddply(data.frame(X), ~interaction(data$nSperm), colwise(mean))[, -1])
@@ -694,6 +697,24 @@ Xmatr  <-  matrix(Xmatr[1,-c(2,5,6,8)], nrow=nrow(coefs), ncol=4, byrow=TRUE)
 head(Xmatr)
 Xnames
 int  <-  rowSums(coefs[,-c(2,5,6,8)] * Xmatr)
+hist(inv_logit(int))
+mean(int)
+
+slope  <-  rowSums(coefs[,c(2,5,6,8)] * Xmatr)
+hist(inv_logit(slope))
+mean(slope)
+
+
+##  Calculate overall intercept for Model 3a
+coefs.a <- as.matrix(m3a.mcmc)[,1:8]
+dim(coefs.a)
+head(coefs.a[,-c(2,5,6,8)])
+Xmatr <- as.matrix(ddply(data.frame(X), ~interaction(data$nSperm), colwise(mean))[, -1])
+Xmatr[1,-c(2,5,6,8)]
+Xmatr  <-  matrix(Xmatr[1,-c(2,5,6,8)], nrow=nrow(coefs.a), ncol=4, byrow=TRUE)
+head(Xmatr)
+Xnames
+int  <-  rowSums(coefs.a[,-c(2,5,6,8)] * Xmatr)
 hist(inv_logit(int))
 mean(int)
 
@@ -715,12 +736,42 @@ aggregate(data$delta.vo2max,list(data$sex,data$spawn), mean)
 
 
 
+m3.grand  <-  inv_logit(
+						( m3.coef[1] + (0.5*m3.coef[3]) + (0.5*m3.coef[4]) + (0.25*m3.coef[7])) + 
+						((m3.coef[2] + (0.5*m3.coef[5]) + (0.5*m3.coef[6]) + (0.25*m3.coef[8])) * nSperm_z))
+m3.grand  <-  inv_logit(mean(int) + mean(slope) * nSperm_z)
+
 m3a.grand  <-  inv_logit(
 						( m3a.coef[1] + (0.5*m3a.coef[3]) + (0.5*m3a.coef[4]) + (0.25*m3a.coef[7])) + 
 						((m3a.coef[2] + (0.5*m3a.coef[5]) + (0.5*m3a.coef[6]) + (0.25*m3a.coef[8])) * nSperm_z))
 m3a.grand  <-  inv_logit(mean(int) + mean(slope) * nSperm_z)
 
+
+##############################
+##  Add Run-specific effects
+##############################
+print(m3a, c("gamma0", "gamma1", "sigma_gamma0", "sigma_gamma1"), 
+	  probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma[1,1]","gamma[2,2]","gamma[3,3]","gamma[4,4]","gamma[5,5]","gamma[6,6]","gamma[7,7]","gamma[8,8]","gamma[9,9]","gamma[10,10]","gamma[1,11]","gamma[2,12]","gamma[3,13]","gamma[4,14]","gamma[5,15]","gamma[6,16]","gamma[7,17]","gamma[8,18]","gamma[9,19]","gamma[10,20]"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+m3.ranef    <-  m3.summ$Mean[c(1550,1561,1572,1583,1594,1605,1616,1627,1638,1649,
+								1650,1661,1672,1683,1694,1705,1716,1727,1738,1749)]
+m3a.ranef   <-  m3a.summ$Mean[9:28]
+
 Runs  <-  list(
+"m3.r1"  =  inv_logit((mean(int) + m3.ranef[1]) + (mean(slope) + m3.ranef[11]) * nSperm_z),
+"m3.r2"  =  inv_logit((mean(int) + m3.ranef[2]) + (mean(slope) + m3.ranef[12]) * nSperm_z),
+"m3.r3"  =  inv_logit((mean(int) + m3.ranef[3]) + (mean(slope) + m3.ranef[13]) * nSperm_z),
+"m3.r4"  =  inv_logit((mean(int) + m3.ranef[4]) + (mean(slope) + m3.ranef[14]) * nSperm_z),
+"m3.r5"  =  inv_logit((mean(int) + m3.ranef[5]) + (mean(slope) + m3.ranef[15]) * nSperm_z),
+"m3.r6"  =  inv_logit((mean(int) + m3.ranef[6]) + (mean(slope) + m3.ranef[16]) * nSperm_z),
+"m3.r7"  =  inv_logit((mean(int) + m3.ranef[7]) + (mean(slope) + m3.ranef[17]) * nSperm_z),
+"m3.r8"  =  inv_logit((mean(int) + m3.ranef[8]) + (mean(slope) + m3.ranef[18]) * nSperm_z),
+"m3.r9"  =  inv_logit((mean(int) + m3.ranef[9]) + (mean(slope) + m3.ranef[19]) * nSperm_z),
+"m3.r10" =  inv_logit((mean(int) + m3.ranef[10]) + (mean(slope) + m3.ranef[20]) * nSperm_z)
+)
+
+Runs.a  <-  list(
 "m3a.r1"  =  inv_logit((mean(int) + m3a.ranef[1]) + (mean(slope) + m3a.ranef[11]) * nSperm_z),
 "m3a.r2"  =  inv_logit((mean(int) + m3a.ranef[2]) + (mean(slope) + m3a.ranef[12]) * nSperm_z),
 "m3a.r3"  =  inv_logit((mean(int) + m3a.ranef[3]) + (mean(slope) + m3a.ranef[13]) * nSperm_z),
@@ -734,16 +785,25 @@ Runs  <-  list(
 )
 
 
+##  Calculate adjusted y-values
 yhat_adj  <-  c()
 for(i in 1:nrow(data)) {
 	yhat_adj[i]  <-  Runs[[data$Run[i]]][i]
 }
 
-
 y_adj  <-  ((data$nFert - data$nControlFert)/data$nEggs) - yhat_adj
 
+yhat_adjA  <-  c()
+for(i in 1:nrow(data)) {
+	yhat_adjA[i]  <-  Runs.a[[data$Run[i]]][i]
+}
+
+y_adjA  <-  ((data$nFert - data$nControlFert)/data$nEggs) - yhat_adjA
 
 
+
+#####################################################
+##  Run-adjusted plots for m3
 
 # plot of fertilization rate ~ sperm, grouped by run
 par(omi=rep(0.3, 4))
@@ -777,6 +837,132 @@ usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
+lines(m3Fast[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue3', lwd=3)
+lines(m3Slow[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered3', lwd=3)
+# points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast"] ~ data$nSperm[data$Rate == "Fast"], pch=21, 
+#         bg=transparentColor('dodgerblue1', 0.7),
+#         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+# points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+#         bg=transparentColor('orangered1', 0.7),
+#         col=transparentColor('orangered4', 0.9), cex=1.1)
+points((m3Fast + y_adj)[data$Rate == "Fast"] ~ data$nSperm[data$Rate == "Fast"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((m3Slow + y_adj)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.2,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Fast)),
+                      expression(paste(Slow))),
+          pch     =  c(21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('orangered1',0.7)),
+          col     =  c('dodgerblue3','orangered3'),
+          cex     =  1,
+          xjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+
+
+
+
+##  Adjusting y-values to account for Run effect.
+##  Plot of all 4 regression lines for Rate x EggPos
+par(omi=rep(0.3, 4))
+plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot regression lines
+lines(m3Fast5[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue1', lwd=3)
+lines(m3Fast55[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue1', lty=2, lwd=3)
+lines(m3Slow5[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered1', lwd=3)
+lines(m3Slow55[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered1', lty=2, lwd=3)
+points((m3Fast5 + y_adj)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((m3Fast55 + y_adj)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.2),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((m3Slow5 + y_adj)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+points((m3Slow55 + y_adj)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.2),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.3,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(5~cm:~Fast)),
+                      expression(paste(55~cm:~Fast)),
+                      expression(paste(5~cm:~Slow)),
+                      expression(paste(55~cm:~Slow))),
+          pch     =  c(21,21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7),transparentColor('orangered1',0.2)),
+          col     =  c('dodgerblue4','dodgerblue4','orangered4','orangered4'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+
+
+
+
+
+#####################################################
+##  Run-adjusted plots for m3a
+
+# plot of fertilization rate ~ sperm, grouped by run
+par(omi=rep(0.3, 4))
+plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm, data=data, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+for (i in 1:max(as.numeric(data$Run))){
+points(((data$nFert[data$Run==i] - data$nControlFert[data$Run==i])/data$nEggs[data$Run==i]) ~ data$nSperm[data$Run==i], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.7), cex=1.1)
+lines(Runs.a[[i]][data$Run==i][order(nSperm_z[data$Run==i])] ~ data$nSperm[data$Run==i][order(nSperm_z[data$Run==i])],
+                  col='grey60', lwd=3)
+}
+points(yhat_adj[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)])
+axis(1)
+axis(2, las=1)
+
+
+
+##  Adjusting y-values to account for Run effect.
+##  Plotting nSperm x Rate
+par(omi=rep(0.3, 4))
+plot(y_adjA ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
 lines(m3aFast[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='dodgerblue3', lwd=3)
 lines(m3aSlow[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
@@ -787,10 +973,10 @@ lines(m3aSlow[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
 # points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
 #         bg=transparentColor('orangered1', 0.7),
 #         col=transparentColor('orangered4', 0.9), cex=1.1)
-points((m3aFast + y_adj)[data$Rate == "Fast"] ~ data$nSperm[data$Rate == "Fast"], pch=21, 
+points((m3aFast + y_adjA)[data$Rate == "Fast"] ~ data$nSperm[data$Rate == "Fast"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points((m3aSlow + y_adj)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+points((m3aSlow + y_adjA)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
 axis(2, las=1)
@@ -832,16 +1018,16 @@ lines(m3aSlow5[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='orangered1', lwd=3)
 lines(m3aSlow55[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='orangered1', lty=2, lwd=3)
-points((m3aFast5 + y_adj)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points((m3aFast5 + y_adjA)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points((m3aFast55 + y_adj)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points((m3aFast55 + y_adjA)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points((m3aSlow5 + y_adj)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+points((m3aSlow5 + y_adjA)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points((m3aSlow55 + y_adj)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+points((m3aSlow55 + y_adjA)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('orangered1', 0.2),
         col=transparentColor('orangered4', 0.9), cex=1.1)
 axis(2, las=1)
@@ -863,49 +1049,3 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-
-print(m3a, c("gamma0", "gamma1", "sigma_gamma0", "sigma_gamma1"), 
-	  probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m3, c("gamma[1,1]",
-			"gamma[2,1]",
-			"gamma[3,1]",
-			"gamma[4,1]",
-			"gamma[5,1]",
-			"gamma[6,1]",
-			"gamma[7,1]",
-			"gamma[8,1]",
-			"gamma[9,1]",
-			"gamma[10,1]",
-			"gamma[1,11]",
-			"gamma[2,12]",
-			"gamma[3,13]",
-			"gamma[4,14]",
-			"gamma[5,15]",
-			"gamma[6,16]",
-			"gamma[7,17]",
-			"gamma[8,18]",
-			"gamma[9,19]",
-			"gamma[10,20]"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-
-
-
-
-
-##  Correlation structure for m3
-hist(m3.summ[1550:1749,2][m3.summ[1550:1749,2] < 1],breaks=100)
-gammaMat  <-  matrix(m3.summ[1550:1749,2], ncol=20,nrow=10,byrow=TRUE)
-heatmap(gammaMat,Rowv = NA, Colv=NA, scale="column")
-abline(v=c(10.5,20.5))
-abline(h=c(10.5,20.5))
-
-for (i in 1:nrow(gammaMat)) {
-  for (j in 1:ncol(gammaMat)) {
-    if(i == j)
-      gammaMat[i,j] = 0
-  }
-}
-
-Znames
-corrplot(gammaMat * 15, method='circle', type='upper')
-abline(v=c(10.5,20.5))
-abline(h=c(10.5,20.5))

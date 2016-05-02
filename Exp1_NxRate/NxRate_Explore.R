@@ -43,8 +43,8 @@ blue2  <-  adjustcolor("dodgerblue4", alpha.f=0.8)
 red1   <-  adjustcolor("orangered3",  alpha.f=0.5)
 red2   <-  adjustcolor("orangered3", alpha.f=0.8)
 
-Runcols   <-  c(blue1, 
-                red1,
+Runcols   <-  c('blue1', 
+                'red1',
                 adjustcolor("darkolivegreen", alpha.f=1),
                 adjustcolor("salmon1", alpha.f=1),
                 adjustcolor("purple2", alpha.f=1),
@@ -636,7 +636,7 @@ str(Z0)
 head(Z0)
 
 ##  Random Intercepts Model Matrix
-Z1  <-  model.matrix(~ -1 +  data$Run * nSperm_z , data=data)[,-c(1:10)]
+Z1  <-  model.matrix(~ -1 + data$Run:nSperm_z, data=data)
 head(Z1)
 Z1names  <-  dimnames(Z1)[[2]]
 Z1       <-  unname(Z1)
