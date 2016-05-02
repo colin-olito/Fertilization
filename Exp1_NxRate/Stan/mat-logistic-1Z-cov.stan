@@ -29,6 +29,7 @@ transformed parameters {
   vector[N] mu;                   
   matrix[K,K] Lambda_run; 
   vector[K] gamma[J];
+//  vector[K] gamma;
 
   corrs <- tcrossprod(L_run);       // For monitoring correlations
   Lambda_run  <-  diag_pre_multiply(tau_run,L_run);
@@ -42,8 +43,8 @@ transformed parameters {
 model {
   tau_run  ~  cauchy(0,5);          // Priors for covariance matrix
   L_run    ~  lkj_corr_cholesky(2);
-//  u        ~  normal(u_mu,u_sd);
-  for (i in 1:J)
+
+  for (i in 1:J)                    // Priors on spherical Random effects
     u[i] ~ normal(0,1);
 
   beta     ~  normal(0,5);          // Priors on fixed effects

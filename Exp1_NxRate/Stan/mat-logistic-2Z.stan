@@ -22,8 +22,12 @@ parameters {
    real<lower=0> sigma_gamma1;  // Prior for among-Run slope variance
 }
 
-model {
+transformed parameters {
+   vector[N] mu;
+   mu  <-  X*beta + Z0*gamma0 + Z1*gamma1;
+}
 
+model {
    // Hyperpriors
    sigma_gamma0  ~  cauchy(0,5);
    sigma_gamma1  ~  cauchy(0,5);
@@ -34,7 +38,7 @@ model {
    beta ~ normal(0,3);
 
    // Likelihood
-   nS  ~  binomial_logit(nT, X*beta + Z0*gamma0 + Z1*gamma1);  // Likelihood
+   nS  ~  binomial_logit(nT, mu);  // Likelihood
 }
 
 generated quantities {
