@@ -409,9 +409,9 @@ qqline(m3a.resids_z, col = 2)
 
 
 
-
+###################################################################
+###################################################################
 ##  Plot of Rate x nSperm effect.
-
 #pdf(file="./output/NxRate_prelim_m3.pdf", height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
@@ -483,6 +483,109 @@ points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast"] ~ data$n
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.2,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Fast)),
+                      expression(paste(Slow))),
+          pch     =  c(21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('orangered1',0.7)),
+          col     =  c('dodgerblue3','orangered3'),
+          cex     =  1,
+          xjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+
+
+
+###################################################################
+###################################################################
+##  Plot of PER-GAMETE Rate x nSperm effect.
+
+newy  <-  ((data$nFert - data$nControlFert)/data$nEggs)/data$nSperm
+
+#pdf(file="./output/NxRatexEggPos_perCapita.pdf", height=7, width=7)
+par(omi=rep(0.3, 4))
+plot(newy ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('per-Sperm Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(min(newy)*1.1,max(newy)*1.1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot regression lines
+lines(m3Fast5[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue1', lwd=3)
+lines(m3Fast55[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue1', lty=2, lwd=3)
+lines(m3Slow5[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered1', lwd=3)
+lines(m3Slow55[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered1', lty=2, lwd=3)
+points((newy)[data$Rate == "Fast" & data$EggPos == "5"]/data$nSperm[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((newy)[data$Rate == "Fast" & data$EggPos == "55"]/data$nSperm[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.2),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((newy)[data$Rate == "Slow" & data$EggPos == "5"]/data$nSperm[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+points((newy)[data$Rate == "Slow" & data$EggPos == "55"]/data$nSperm[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.2),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*1,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(5~cm:~Fast)),
+                      expression(paste(55~cm:~Fast)),
+                      expression(paste(5~cm:~Slow)),
+                      expression(paste(55~cm:~Slow))),
+          pch     =  c(21,21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7),transparentColor('orangered1',0.2)),
+          col     =  c('dodgerblue4','dodgerblue4','orangered4','orangered4'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+# dev.off()
+
+
+##  Plot of Rate x nSperm effect.
+par(omi=rep(0.3, 4))
+plot(newy ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+# apply(m3a.df, 1, function(x, data, nSperm_z){
+#     xrange   <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit((x['beta.1'] + (x['beta.4'])/2) + (x['beta.2'] + (x['beta.6'])/2) * xrange2), col=transparentColor('dodgerblue1',0.01))
+#     lines(xrange, inv_logit((x['beta.1'] + x['beta.3'] + (0.5*(x['beta.7']))) + (x['beta.2'] + x['beta.5'] + (0.5*(x['beta.8']))) * xrange2), col=transparentColor('orangered1',0.01))
+# }, data=data, nSperm_z=nSperm_z)
+lines(m3aFast[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='dodgerblue3', lwd=3)
+lines(m3aSlow[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='orangered3', lwd=3)
+points((newy)[data$Rate == "Fast"] ~ data$nSperm[data$Rate == "Fast"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points((newy)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
 axis(2, las=1)
