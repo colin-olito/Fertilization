@@ -3,6 +3,25 @@
 # *
 # *
 # */
+######################
+# AUXILLIARY FUNCTIONS
+######################
+
+toPdf <- function(expr, filename, ...) {
+  toDev(expr, pdf, filename, ...)
+}
+
+figPath  <-  function(name) {
+  file.path('output/figs', name)
+}
+
+toDev <- function(expr, dev, filename, ..., verbose=TRUE) {
+  if ( verbose )
+    cat(sprintf('Creating %s\n', filename))
+  dev(filename, family='CM Roman', ...)
+  on.exit(dev.off())
+  eval.parent(substitute(expr))
+}
 
 
 

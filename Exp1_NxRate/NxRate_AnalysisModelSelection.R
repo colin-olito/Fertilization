@@ -248,12 +248,18 @@ m3aSlow55  <-  inv_logit((m3a.coef[1] + m3a.coef[3] + m3a.coef[7]) + (m3a.coef[2
 m3aFast    <-  inv_logit((m3a.coef[1] + (m3a.coef[4])/2) + (m3a.coef[2] + (m3a.coef[6])/2) * nSperm_z)
 m3aSlow    <-  inv_logit((m3a.coef[1] + m3a.coef[3] + (0.5*(m3a.coef[7]))) + (m3a.coef[2] + m3a.coef[5] + (0.5*(m3a.coef[8]))) * nSperm_z)
 
+m3.low   <-  m3.summ$lower[621:628]
+m3.hi   <-  m3.summ$upper[621:628]
+m3Fast.low    <-  inv_logit((m3.low[1] + (m3.coef[4])/2) + (m3.coef[2] + (m3.coef[6])/2) * nSperm_z)
+m3Slow.low    <-  inv_logit((m3.low[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.coef[2] + m3.coef[5] + (0.5*(m3.coef[8]))) * nSperm_z)
+m3Fast.hi     <-  inv_logit((m3.hi[1] + (m3.coef[4])/2) + (m3.coef[2] + (m3.coef[6])/2) * nSperm_z)
+m3Slow.hi     <-  inv_logit((m3.hi[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.coef[2] + m3.coef[5] + (0.5*(m3.coef[8]))) * nSperm_z)
 
 
 ##  MODEL 3
 ##  Plot of all 4 regression lines for Rate x EggPos
 
-#pdf(file="./output/NxRatexEggPos_prelim_m3.pdf", height=7, width=7)
+pdf(file='./output/NxRatexEggPos_prelim_m3.pdf', height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -302,7 +308,8 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-#dev.off()
+dev.off()
+embed_fonts("./output/NxRatexEggPos_prelim_m3.pdf", outfile="./output/NxRatexEggPos_prelim_m3_embedded.pdf")
 
 
 ##  MODEL 3a
@@ -412,7 +419,7 @@ qqline(m3a.resids_z, col = 2)
 ###################################################################
 ###################################################################
 ##  Plot of Rate x nSperm effect.
-#pdf(file="./output/NxRate_prelim_m3.pdf", height=7, width=7)
+pdf(file="./output/NxRate_prelim_m3.pdf", height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -456,7 +463,7 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-#dev.off()
+dev.off()
 
 
 ##  Plot of Rate x nSperm effect.
@@ -510,11 +517,11 @@ axis(1)
 
 newy  <-  ((data$nFert - data$nControlFert)/data$nEggs)/data$nSperm
 
-#pdf(file="./output/NxRatexEggPos_perCapita.pdf", height=7, width=7)
-par(omi=rep(0.3, 4))
+pdf(file="./output/NxRatexEggPos_perCapita.pdf", height=7, width=7)
+par(omi=c(0.3, 0.5, 0.3, 0.3))
 plot(newy ~ nSperm_z, 
-    xlab='Sperm released', ylab=substitute('per-Sperm Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(min(newy)*1.1,max(newy)*1.1), xlim=c(min(data$nSperm),max(data$nSperm)))
+    xlab='Sperm released', ylab='',
+    type='n', axes=FALSE, ylim=c(min(newy)*1.1,max(newy)*1.2), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -528,20 +535,21 @@ lines(m3Slow5[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(
                   col='orangered1', lwd=3)
 lines(m3Slow55[order(nSperm_z)]/data$nSperm[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='orangered1', lty=2, lwd=3)
-points((newy)[data$Rate == "Fast" & data$EggPos == "5"]/data$nSperm[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(newy[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points((newy)[data$Rate == "Fast" & data$EggPos == "55"]/data$nSperm[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(newy[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points((newy)[data$Rate == "Slow" & data$EggPos == "5"]/data$nSperm[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+points(newy[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points((newy)[data$Rate == "Slow" & data$EggPos == "55"]/data$nSperm[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+points(newy[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('orangered1', 0.2),
         col=transparentColor('orangered4', 0.9), cex=1.1)
 axis(2, las=1)
 axis(1)
+proportionalLabel(-0.175,0.5,'per-Sperm Fertilization rate', xpd=NA, srt=90, adj=0.5)
     legend(
           x       =  usr[2]*1,
           y       =  usr[4],
@@ -559,14 +567,15 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-# dev.off()
+ dev.off()
 
 
 ##  Plot of Rate x nSperm effect.
-par(omi=rep(0.3, 4))
+pdf(file="./output/NxRate_perCapita.pdf", height=7, width=7)
+par(omi=c(0.3,0.4,0.3,0.3))
 plot(newy ~ nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+    xlab='Sperm released', ylab='', 
+    type='n', axes=FALSE, ylim=c(min(newy)*1.1,max(newy)*1.1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -590,6 +599,7 @@ points((newy)[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21,
         col=transparentColor('orangered4', 0.9), cex=1.1)
 axis(2, las=1)
 axis(1)
+proportionalLabel(-0.175,0.5,'per-Sperm Fertilization rate', xpd=NA, srt=90, adj=0.5)
     legend(
           x       =  usr[2]*0.2,
           y       =  usr[4],
@@ -604,6 +614,7 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
+dev.off()
 
 ##############################################
 ##  CONTRASTS OF INTEREST
@@ -646,7 +657,6 @@ b1Slow55  <-  inv_logit((m3a.betas[,2] + m3a.betas[,5] + m3a.betas[,8]))
 pval  <-  function(x) length(x[x < 0])/length(x)
 plotContr  <-  function(Dens, name="title") {
 	plot(NA, xlab=expression(paste(Delta)), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, xlim=c(min(Dens$x), (max(Dens$x)+0.4*(max(Dens$x) - min(Dens$x)))), ylim=c(0, (max(Dens$y)+0.05*(max(Dens$y) - min(Dens$y)))), yaxs='i')
-	proportionalLabel(0.5, 1.1, expression(paste('Distribution of ', name)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.2)
 	usr  <-  par('usr')
 	rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 	whiteGrid()
@@ -683,7 +693,7 @@ pval(c9)
 pval(c10)
 pval(c11)
 
-plotContr(density(c5))
+plotContr(density(c1))
 
 
 
@@ -763,10 +773,32 @@ simpContr  <-  list(
 ##  Histograms of simple comparisons between regression lines accross the 
 ##  nSperm gradient
 
-par(mfrow=c(5,5))
-for (i in 1:25) {
+
+pdf(file="./output/contrast_histograms.pdf", height=18, width=20)
+par(mfrow=c(5,5), omi=rep(0.4,4))
+plotContr(density(simpContr[[1]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+proportionalLabel(-0.25, 0.5, expression(paste('x = -2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[2]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow.5 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[3]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Slow.5')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[4]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.55 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[5]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast - Fast')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+for (i in 6:25) {
 	plotContr(density(simpContr[[i]]))
+	if(i == 6)
+		proportionalLabel(-0.25, 0.5, expression(paste('x = -1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+	if(i == 11)
+		proportionalLabel(-0.25, 0.5, expression(paste('x = 0',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+	if(i == 16)
+		proportionalLabel(-0.25, 0.5, expression(paste('x = 1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+	if(i == 21)
+		proportionalLabel(-0.25, 0.5, expression(paste('x = 2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
 }
+dev.off()
 
 #########################################
 ##  Adjusting for Run-specific variation

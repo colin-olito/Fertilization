@@ -356,7 +356,6 @@ axis(1)
 
 
 
-
 ########################################################
 #  Logistic regression ~ nSperm. Random Intercept ~ Run. 
 #  
@@ -1332,20 +1331,21 @@ mat2WAIC   <-  waic(mat2LL)
 
 ##  Plot predicted line etc.
 runs  <-  list(
-               Run1  <- inv_logit(mat2.summ$Mean[3]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run2  <- inv_logit(mat2.summ$Mean[4]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run3  <- inv_logit(mat2.summ$Mean[5]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run4  <- inv_logit(mat2.summ$Mean[6]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run5  <- inv_logit(mat2.summ$Mean[7]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run6  <- inv_logit(mat2.summ$Mean[8]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run7  <- inv_logit(mat2.summ$Mean[9]   + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z),
-               Run8  <- inv_logit(mat2.summ$Mean[10]  + mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
+               Run1  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[3])   + mat2.summ$Mean[2] * nSperm_z),
+               Run2  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[4])   + mat2.summ$Mean[2] * nSperm_z),
+               Run3  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[5])   + mat2.summ$Mean[2] * nSperm_z),
+               Run4  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[6])   + mat2.summ$Mean[2] * nSperm_z),
+               Run5  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[7])   + mat2.summ$Mean[2] * nSperm_z),
+               Run6  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[8])   + mat2.summ$Mean[2] * nSperm_z),
+               Run7  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[9])   + mat2.summ$Mean[2] * nSperm_z),
+               Run8  <- inv_logit((mat2.summ$Mean[1] + mat2.summ$Mean[10])  + mat2.summ$Mean[2] * nSperm_z)
               )
 
 RegLine  <-  inv_logit(mat2.summ$Mean[1] + mat2.summ$Mean[2] * nSperm_z)
 
 
 
+pdf(file="./output/N_runVar.pdf", height=7, width=7)
 par(omi=rep(0.3, 4))
 plot((data$nFert/data$nEggs) ~ nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -1355,16 +1355,16 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot all regression lines from MCMC chains
- apply(mat2.df, 1, function(x, data, nSperm_z){
-     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
-     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
- }, data=data, nSperm_z=nSperm_z)
+# apply(mat2.df, 1, function(x, data, nSperm_z){
+#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
+# }, data=data, nSperm_z=nSperm_z)
 # plot run-specific regression lines
-# for(i in 1:8) {
-#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
-#                   col='grey75', lwd=3)
-# }
+ for(i in 1:8) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
 # plot main regression line
 lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='black', lwd=3)
@@ -1373,7 +1373,7 @@ points((data$nFert/data$nEggs) ~ data$nSperm, pch=21,
         col=transparentColor('dodgerblue1', 0.7), cex=1.1)
 axis(2, las=1)
 axis(1)
-
+dev.off()
 
 
 
@@ -1473,17 +1473,17 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot all regression lines from MCMC chains
- apply(mat2b.df, 1, function(x, data, nSperm_z){
-     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
-     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-     lines(xrange, inv_logit(x['mu_gamma'] + x['beta'] * xrange2), col=transparentColor('grey68',0.1))
- }, data=data, nSperm_z=nSperm_z)
+# apply(mat2b.df, 1, function(x, data, nSperm_z){
+#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit(x['mu_gamma'] + x['beta'] * xrange2), col=transparentColor('grey68',0.1))
+# }, data=data, nSperm_z=nSperm_z)
 # plot run-specific regression lines
-# for(i in 1:8) {
-#   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
-#                   col='grey75', lwd=3)
-# }
-# plot main regression line
+ for(i in 1:8) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
+ plot main regression line
 lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='black', lwd=3)
 points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
@@ -1680,7 +1680,7 @@ nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 #   )
 
 ## Call to STAN
-mat4b <- stan(data     =  data.list,
+mat4 <- stan(data     =  data.list,
              file     =  './Stan/mat-logistic-1Z-cov.stan',
              chains   =  nChains,
              iter     =  numSavedSteps,
