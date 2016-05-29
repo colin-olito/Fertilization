@@ -1,5 +1,5 @@
 /*
- * Basic, flexible Mixed Effects Regression/ANOVA model 
+ * Basic, flexible Mixed Effects Logistic Regression/ANOVA model 
  * using design matrix to define model structure. 
  */
 

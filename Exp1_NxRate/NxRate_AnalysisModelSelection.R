@@ -671,6 +671,7 @@ plotContr  <-  function(Dens, name="title") {
 c1   <-  b0Slow - b0Fast
 c2   <-  b1Slow - b1Fast
 c3   <-  b1Slow - 0
+c3b  <-  b1Fast
 c4   <-  b0Fast5 - b0Fast55
 c5   <-  b1Fast5 - b1Fast55
 c6   <-  b0Slow5 - b0Slow55
@@ -683,7 +684,7 @@ c11  <-  b1Fast55 - b1Slow55
 
 pval(c1)
 pval(c2)
-pval(c3)
+pval(c3b)
 pval(c4)
 pval(c5)
 pval(c6)
@@ -693,7 +694,7 @@ pval(c9)
 pval(c10)
 pval(c11)
 
-plotContr(density(c1))
+plotContr(density(c3))
 
 
 

@@ -57,17 +57,17 @@ nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 
 
-################################################
-## Model #1: MAXIMAL MODEL W/ COVARIANCE MATRIX
-################################################
-
-#  Fixed Effects Model Matrix
+#  Fixed Effects Model Matrix (Same for all models)
 X       <-  model.matrix(~ 1 + nSperm_z*Rate*EggPos, data=data)
 Xnames  <-  dimnames(X)[[2]]
 X       <-  unname(X)
 attr(X,"assign") <- NULL
 str(X)
 head(X)
+
+################################################
+## Model #1: MAXIMAL MODEL W/ COVARIANCE MATRIX
+################################################
 
 #  Random Effects Model Matrix
 #  Not enough observations to include EggPos ixns! Results in only 
