@@ -69,29 +69,22 @@
 
 \section*{Introduction}
 
-Living organisms, the communities they form, and the environments they inhabit, are all temporally dynamic systems. Consequently, accessing many fundamental questions in biology begins with a consideration of the rates of underlying biological processes. When nonlinearity is of biological interest and accurately represents the biological rate of interest, then nonlinear, function valued approaches may be most appropriate (e.g. \citealt{MarshallWhite2013, Stinchcombe2012}). But in many instances, there is a putatively linear rate that is of biological relevance that we wish to estimate free of artifactual nonlinear regions. In these cases, biologists often reduce experimental complexity by holding state variables constant in order to estimate monotonic rates, which are then used in subsequent analyses. For example, the Metabolic Theory of Ecology (MTE) seeks to explain ecological patterns by scaling the size- and temperature-dependence of metabolic rates from individuals to ecosystems (\citealt{Gillooly_etal2001, Brown2004}). The study of MTE therefore begins with estimates of rates of O$_2$ consumption or CO$_2$ production, which are used as proxies for metabolic rate (e.g.~\citealt{Gillooly_etal2001,Brown2004,WhiteMarshall2011,Barneche2014}). Similarly, understanding and predicting the impacts of climate change on ecosystem processes, such as community primary productivity, begins with estimates of \chem{O_2} production rates (\citealt{Tanaka2013, YvonDurocher2015}). Other examples include estimates of leaf respiration rate (\citealt{Shapiro2004}), ecosystem functioning (\citealt{RossKeough2013}), as well as components of biogeochemical cycles such as denitrification (\citealt{Song2011}), CO$_2$, and CH$_4$ gas emissions (e.g.~\citealt{Larmola2013}). Thus, accurate estimates of biological rates provide the foundation for many branches of biology but surprisingly, there are few systematic approaches to estimating rates.
+\hl{...}
 
-Biological rates are routinely estimated from inherently non-linear or noisy time series data using linear regression. For example, many studies in physiology, ecosystem ecology, and biogeochemistry monitor reactant consumption or production in closed chambers at standardized temperatures, and use the resulting, often non-linear time series to estimate the rate of interest (e.g.~\citealt{Song2011, WhiteMarshall2011, Larmola2013, RossKeough2013, Tanaka2013, YvonDurocher2015}). There are several important problems with this approach. First, the data used to estimate biological rates rarely meet the criteria for linear regression to be an appropriate analytical tool. The first measures in a time series are often noisy as equipment/samples/organisms equilibrate after setup, while at the other end of the time series, rates can change because of saturation effects or the exhaustion of a limiting resource. Consequently, linear regression of a full time series can conflate the biological rate of interest with undesired effects, resulting in misleading and inaccurate estimates. Second, common \textit{ad hoc} methods to ameliorate this problem, such as manually truncating non-linear portions of the time series, introduce subjectivity into the analysis, and may reduce statistical power by throwing out useful data. Last, published studies rarely provide both the raw data and the specific methods necessary to reproduce reported results; so the appropriateness of the methods cannot be evaluated by reviewers or readers. The need to estimate monotonic rates from time series data will only increase as technological advances continue to make collection of high-resolution rate data easy and cost effective. This presents biologists with a non-trivial challenge: to reliably estimate biological rates in a way that is statistically robust, and fully reproducible. Here, we describe and develop a toolkit for this purpose.
-
-We introduce the {\code LoLinR} package for R (R Development Core Team 2016). {\code LoLinR} provides an objective and reproducible toolkit to implement local linear regressions to estimate monotonic rates from time series or trace data. We describe the general approach to reproducible and statistically robust estimation of monotonic rates, and the specific methods used in the package. We then walk through three example analyses to illustrate the utility of the package, as well as important analytic considerations and pitfalls.
 
 \section*{Methods}
 
-
-
+\hl{...}
 
 
 \section*{Discussion}
 
-
-
-
-\section*{Closing Comments}
+\hl{...}
 
 
 
 \section*{Acknowledgments}
-The authors thank C.~Venables, D.~Barneche, and C.~Y. Chang for helpful feedback. CO and DB conceived the study, CO performed the experiments and analyses, and wrote the manuscript with assistance from DJM. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship to CO, an Australian Research Council grants to DJM, and by the Monash University Centre for Geometric Biology.
+CO thanks C.~Venables, D.~Barneche, and C.~Y. Chang for helpful discussion and feedback. CO and DJM conceived the study, CO performed the experiments and analyses, and wrote the manuscript with assistance from DJM. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship to CO, an Australian Research Council grants to DJM, and by the Monash University Centre for Geometric Biology.
 
 \newpage{}
 
@@ -102,100 +95,10 @@ The authors thank C.~Venables, D.~Barneche, and C.~Y. Chang for helpful feedback
 
 \begin{thebibliography}{}
 
-\bibitem[{Barneche et~al.(2014)Barneche et~al.}]{Barneche2014}
-Barneche, D.~R., M. Kulbicki, S.~R. Floeter, A.~M. Friedlander, J. Maina, and A.~P. Allen. 2014.
-\newblock Scaling metabolism from individuals to reef-fish communities at broad spatial scales.
-\newblock Ecology Letters 17:1067--1076.
-
-\bibitem[{Brown et.~al.(2004)Brown et.~al.}]{Brown2004}
-Brown, J.~H., J.~F. Gillooly, A.~P. Allen, V.~M. Savage, and G.~B. West. 2004.
-\newblock Toward a metabolic theory of ecology.
-\newblock Ecology 85:1771--1789.
-
-\bibitem[{Fang et.~al.(2012)Fang et.~al.}]{Fang2012}
-Fang, F.~C., R.~G. Steen, and A. Casadevall. 2012.
-\newblock Misconduct accounts for the majority of retracted scientific publications.
-\newblock Proceedings of the National Academy of Sciences of the United States of America 109:17028--17033.
-
-\bibitem[{Grieneisen \& Zhang (2012)Grieneisen \& Zhang}]{Grieneisen2012}
-Grieneisen, M.~L., and M. Zhang. 2012.
-\newblock A Comprehensive Survey of Retracted Articles from the Scholarly Literature.
-\newblock PLoS One 7:e44118.
-
-\bibitem[{Gillooly et.~al.(2001)Gillooly et.~al.}]{Gillooly_etal2001}
-Gillooly, J.~F., J.~H. Brown, G.~B. West, V.~M. Savage, and E.~L. Charnov. 2001.
-\newblock Effects of size and temperature on metabolic rate.
-\newblock Science 293:2248--2251.
-
-\bibitem[{Harrell (2001)Harrell}]{Harrell2001}
-Harrell F.~E. 2001.
-\newblock Regression modelling strategies with applications to linear models, logistic regression and survival analysis.
-\newblock Springer, New York, USA.
-
-\bibitem[{Lagos et.~al.(2015)Lagos et.~al.}]{Lagos2015}
-Lagos, M.~E., C.~R. White, and D.~J. Marshall. 2015.
-\newblock Avoiding log-oxygen environments as a mechanism of habitat selection in a marine environment.
-\newblock Marine Ecology Progress Series 540:99--107.
-
-\bibitem[{Larmola et.~al.(2013)Larmola et.~al.}]{Larmola2013}
-Larmola, T., J.~L. Bubier, C. Kobyljanec, N. Basiliko, S. Juutinen, E. Humphreys, M. Preston, and T.~R. Moore. 2013.
-\newblock Vegetation feedbacks of nutrient addition lead to a weaker carbon sink in an ombrotrophic bog.
-\newblock Global Change Biology 19:3729--3739.
-
-\bibitem[{Marshall et.~al.(2013)Marshall et.~al.}]{MarshallWhite2013}
-Marshall, D.~J., M. Bode, and C.~R. White. 2013.
-\newblock Estimating physiological tolerances - a comparison of traditional approaches to nonlinear regression techniques.
-\newblock Journal of Experimental Biology 216:2178--2182.
-
-\bibitem[{Pettersen et.~al.(2015)Pettersen et.~al.}]{Pettersen2015}
-Pettersen, A.~K., C.~R. White, and D.~J. Marshall. 2015.
-\newblock Why does offspring size affect performance? Integrating metabolic scaling with life-history theory.
-\newblock Proceedings of the Royal Society B 282:20151946. (doi:10.1098/rspb.2015.1946)
-
-\bibitem[{Ross et.~al.(2013)Ross et.~al.}]{RossKeough2013}
-Ross, D.~J., A.~R. Longmore, and M.~J. Keough. 2013.
-\newblock Spatially variable effects of a marine pest on ecosystem function.
-\newblock Oecologia 172:525--538.
-
-\bibitem[{Shapiro et~al.(2004)Shapiro et~al.}]{Shapiro2004}
-Shapiro, J.~B., K.~L. Griffin, J.~D. Lewis, and D.~T. Tissue. 2004.
-\newblock Response of \textit{Xanthium strumarium} leaf respiration in the light to elevated CO$_2$ concntration, nitrogen availability, and temperature.
-\newblock New Phytologist 162:377--386.
-
-\bibitem[{Song et~al.(2011)Song et~al.}]{Song2011}
-Song, K., S.-H. Lee, and H. Kang. 2011.
-\newblock Denitrification rates and community structure of denitrifiying bacteria in newly constructed wetland.
-\newblock European Journal of Soil Biology 47:24--29.
-
-\bibitem[{Stinchcombe et~al.(2012)Stinchcombe et~al.}]{Stinchcombe2012}
-Stinchcombe, J.~R., Function-valued Traits Working Group, and M. Kirkpatrick. 2012.
-\newblock Genetics and evolution of funciton-valued traits: understanding environmentally responsive phenotypes.
-\newblock Trends in Ecology and Evolution 27:637--647.
-
-\bibitem[{Tanaka et~al.(2013)Tanaka et~al.}]{Tanaka2013}
-Tanaka, T., S. Alliouane, R.~G.~B. Bellerby, J. Czerny, A. de Kluijver, U. Riebesell, K.~G. Schulz, A. Silyakova, and J.~P. Gattuso. 2013.
-\newblock Effect of increased \textit{p}\chem{CO_2} on the phytoplanktonic metabolic balance during a mesocosm experiment in an Arctic fjord.
-\newblock Biogeosciences 10:315--325.
-
-\bibitem[{White et~al.(2011)White et~al.}]{White2011}
-White, C.~R., D. Gr\'{e}millet, J.~A. Green, G.~R. Martin, and P.~J. Butler. 2011.
-\newblock Metabolic rate throughout the annual cycle reveals the demands of an Arctic existence in Great Cormorants.
-\newblock Ecology 92:475--486.
-
-\bibitem[{White et~al.(2011)White et~al.}]{WhiteMarshall2011}
-White, C.~R., M.~R. Kearney, P.~G.~D. Matthews, S.~A.~L.~M. Kooijman, and D.~J. Marshall. 2011.
-\newblock A manipulative test of competing theories for metabolic scaling.
-\newblock American Naturalist 178:746--754.
-
-\bibitem[{Withers(2001)Withers}]{Withers2001}
-Withers, P.~C. 2001.
-\newblock Design, calibration, and calculation for flow-through respirometry systems.
-\newblock Australian Journal of Zoology 49:445--461.
-
-\bibitem[{Yvon-Durocher et~al.(2015)Yvon-Durocher et~al.}]{YvonDurocher2015}
-Yvon-Durocher, G., A.~P. Allen, M. Cellamare, M. Dossena, K.~J. Gaston, M. Leitao, J.~M. Montoya, D.~C. Reuman, G. Woodward, and M. Trimmer. 2015.
-\newblock Five years of experimental warming increases the biodiversity and productivity of phytoplankton.
-\newblock PLoS Biology 13:e1002324.
+\bibitem[{Olito et~al.(2015)Olito et~al.}]{Olito2015}
+Olito, C., M. Bode, and D.~J. Marshall. 2015.
+\newblock Evolutionary consequences of fertilization mode for reproductive phenology and asynchrony.
+\newblock Mar. Ecol. Prog. Ser. 537:23--38.
 
 \end{thebibliography}
 
@@ -206,37 +109,8 @@ Yvon-Durocher, G., A.~P. Allen, M. Cellamare, M. Dossena, K.~J. Gaston, M. Leita
  
 \begin{figure}[!ht]
 \includegraphics[scale=0.7]{./fig1}
-\caption{Schematic showing both a typical {\code LoLinR} workflow, as well as how using {\code LoLinR} to estimate biological rates would fit into a experimental project workflow.}
-\label{Fig:fig1.eps}
-\end{figure}
-\newpage{}
-
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./fig2}
-\caption{Diagnostic plots generated by the {\code plot} command for the $L_{\%}$ rank 1 local regression for the Bugula larva respiration time series data (\citealt{Pettersen2015}). The output plots show A) The full time series, with the rank 1 local regression highlighted in blue, along with the associated regression equation and number of observations; B) Standardized residuals for the chosen local regression, regressed against the predictor variable (time in seconds for the Bugula data set); C) Standardized residuals regressed against the fitted values; D) Density plot showing the empirical distribution of local regression slopes ($\beta_1$), benchmarked against the slopes of the rank 1 local regressions for each $L$ metric; E) Normal-Quantile-Quantile plot for the rank 1 local regression; F) A histogram showing the distribution of the standardized residuals for the rank 1 local regression.}
-\label{Fig:fig2.eps}
-\end{figure}
-\newpage{}
-
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./fig3}
-\caption{Diagnostic plots of the $L_{eq}$ rank 1 local regression for the phytoplankton community respiration (CR) time series data (\citealt{YvonDurocher2015}). The CR time series has relatively few observations, and pushes the boundary of minimum window sizes used to fit local regressions ({\code alpha} $\times~N) \approx 15$ data points in this analysis). The output plots show A) The full time series, with the rank 1 local regression highlighted in blue, along with the associated regression equation and number of observations; B) Standardized residuals for the chosen local regression, regressed against the predictor variable (time in minutes); C) Standardized residuals regressed against the fitted values; D) Density plot showing the empirical distribution of local regression slopes ($\beta_1$), benchmarked against the slopes of the rank 1 local regressions for each $L$ metric; E) Normal-Quantile-Quantile plot for the rank 1 local regression; F) A histogram showing the distribution of the standardized residuals for the rank 1 local regression.}
-\label{Fig:fig3.eps}
-\end{figure}
-\newpage{}
-
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./fig4}
-\caption{Diagnostic plots of the $L_{\%}$ rank 1 local regression for the phytoplankton net community production (NCP) time series data (\citealt{YvonDurocher2015}). The output plots show A) The full time series, with the rank 1 local regression highlighted in blue, along with the associated regression equation and number of observations; B) Standardized residuals for the chosen local regression, regressed against the predictor variable (time in minutes); C) Standardized residuals regressed against the fitted values; D) Density plot showing the empirical distribution of local regression slopes ($\beta_1$), benchmarked against the slopes of the rank 1 local regressions for each $L$ metric; E) Normal-Quantile-Quantile plot for the rank 1 local regression; F) A histogram showing the distribution of the standardized residuals for the rank 1 local regression.}
-\label{Fig:fig4.eps}
-\end{figure}
-\newpage{}
-
-
-\begin{figure}[ht!]
-\includegraphics[width=\textwidth]{./fig5}
-\caption{Diagnostic plots of the flow-through respirometry data (\citealt{White2011}) showing A) The distribution of local regression slopes ($\beta_1$) (Note that long tails on the distribution have been truncated to emphasize differences in the $L$ metric benchmarks); B) the $L_{eq}$ rank 1 local regression, which badly misidentifies the subset of the data where O$_2$ consumption was most stable; and C) The $L_\%$ rank 1 local regression, which appears to identify a reasonable subset of the full time series where the rate of O$_2$ consumption is stable.}
-\label{Fig:fig5.eps}
+\caption{......}
+\label{Fig:fig1.pdf}
 \end{figure}
 \newpage{}
 
@@ -248,23 +122,11 @@ Yvon-Durocher, G., A.~P. Allen, M. Cellamare, M. Dossena, K.~J. Gaston, M. Leita
 
 \begin{figure}[!ht]
 \includegraphics[width=\textwidth]{./figA1}
-\caption{A summary plot produces using {\code outputRankLocRegPlot} showing the top 25 $L_{eq}$-ranked local regressions for the phytoplankton NCP time series data. Note that the rank 4 local regression is identical to the $L_\%$ rank 1 local regression presented in Fig.~\ref{Fig:fig4.eps}.}
-\label{FigA:figA1.eps}
-\end{figure}
-\newpage{}
-
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./figA2}
-\caption{Empirical distributions of the component metrics A) $S$; B) $C.I.~range$; and C) $R^2_{BG}$ for the analysis of resting metabolic rate in Great Cormorants (raw data thinned using {\code thinData(CormorantData,~by=3)}, and a call to {\code rankLocReg} using {\code alpha=0.1}). Note the extremely long tail in the distribution of $R^2_{BG}$ (panel C), and the large discrepancy between the $L_\%$ benchmark and the other metrics.}
-\label{FigA:figA2.eps}
+\caption{....}
+\label{FigA:figA1.pdf}
 \end{figure}
 \newpage{}
 
 
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./figA3}
-\caption{A graphical summary of conventional methods of estimating resting metabolic rate from \.VO$_2$ time series data (after \citealt{Withers2001}). Panel A shows the minimum estimated \.VO$_2$ as a function of the number of adjacent observations used to calculate the running average. After a rapid increase in the minimum \.VO$_2$ with increasing observations up to $n = 11$ (solid black cross), there is a brief region with an intermediate slope, before the plot plateaus at $n = 18$ (dotted cross). Using these methods, a researcher could potentially justify using the running average associated with either of these two points as an estimate of resting metabolic rate. Panels A and B show the full time series, with the subsets associated with $n = 11$ and $n = 18$ respectively highlighted in blue. Note that both subsets are much smaller than the number of observations included in the $L_\%$ rank 1 local regression identified by {\code rankLocReg} (Fig.~\ref{Fig:fig5.eps}).}
-\label{FigA:figA3.eps}
-\end{figure}
 
 \end{document}
