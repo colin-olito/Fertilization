@@ -1,44 +1,42 @@
-﻿%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Preamble
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Preamble
+\documentclass{article}
 
-\documentclass[11pt]{article}
 
-%%%%%%%%%%%%%%%
-% Load packages
-
+%Dependencies
 \usepackage[left]{lineno}
 \usepackage{titlesec}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{color,soul}
+\usepackage{ogonek}
+
+
+% Packages from Am. Nat. Template
 \usepackage[sc]{mathpazo} %Like Palatino with extensive math support
 \usepackage{fullpage}
 \usepackage[authoryear,sectionbib,sort]{natbib}
 \linespread{1.7}
-\usepackage[utf8]{inputenc}
-\usepackage{setspace}
-\usepackage[hidelinks]{hyperref}
+\usepackage{lineno}
 
 % Graphics
 \usepackage{graphicx}
 \graphicspath{{./}.eps}
 
 % New commands: fonts
-\newcommand{\code}{\fontfamily{pcr}\selectfont}
-\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
+%\newcommand{\code}{\fontfamily{pcr}\selectfont}
+%\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
 
-
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Title Page
-\title{The evolution of spawning phenologies in broadcast spawners}
+
+\title{Allocation- and size-dependent selection on sperm release phenologies in broadcast spawners}
 \author{Colin Olito$^{\ast}$ and Dustin J. Marshall}
 \date{\today}
 
 \begin{document}
-
 \maketitle
 
 
@@ -55,12 +53,14 @@
 
 \bigskip
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Set line number options
 \linenumbers
 \modulolinenumbers[1]
 \renewcommand\linenumberfont{\normalfont\small}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Text
 
 \newpage{}
 \section*{Abstract}
@@ -69,12 +69,65 @@
 
 \section*{Introduction}
 
-\hl{...}
+\begin{enumerate}
+	\item Our expectations and predictions regarding the outcome of sexual selection are heavily influenced by the idea that males compete strongly for the fertilization of females' eggs (CITE: Bateman, Parker).
+		\begin{enumerate}
+			\item Indeed, sperm competition theory represents the largest and most influential body of theory explaining observed patterns of male reproductive investment and allocation. 
+			\item Classic predictions from SCT include increased ejaculate investment with competition among species, and facultative adjustment of ejaculate allocation within species to better compete for fertilizations.
+			\item While the consequences of sperm competition for the evolution of male reproductive phenotypes are well studied in internally fertilizing taxa, and some externally fertilizing fish species, it is unclear how relevant these predictions are for the archetypal external fertilizer: broadcast spawners (\citealt{BodeMarshall2007,Olito2015}). 
+				\begin{enumerate}
+					\item This is despite the fact that broadcast spawners constitute more than 50\% of marine invertebrate biodiversity worldwide (\citealt{MonroMarshall2015}), represent the ancestral mode of reproduction (), and have long been used as a model for sperm competition theory and the evolution of anisogamy (Parker 1982; Parker et al. 1972).
+				\end{enumerate}
+		\end{enumerate}
+
+	\item On the surface, broadcast spawning species appear well suited to predictions from sperm competition theory.
+		\begin{enumerate}
+			\begin{enumerate}
+				\item Gametes are released into the water column by multiple individuals, often in dense aggregations, ensuring that single males never have sole access to a single females' eggs.
+				\item As a consequence, polyandry is extremely common (CITE Levitan urchins and corals, Johnson \& Yund (2007) for brooders), and sperm competition is probably intense for many broadcast spawning species.
+			\end{enumerate}
+		\item However, several well documeted empirical patterns in broadcast spawning taxa do not appear consistent with SCT predictions.
+			\begin{enumerate}
+				\item Phenologies crucial behavioural trait determining local sperm concentrations.
+				\item many species exhibit surprisingly long populations spawning phenologies characterized by slow gamete release rates by individuals.
+				\item Large males do not necessarily release more sperm than small males, despite having the resources available to do so (\citealt{Styan2003})
+				\item Protandry is also common among broadcast spawners, with males releasing sperm earlier for for longer than females do eggs (\citealt{McEuan1988, LotterhosLevitan2010, Levitan2005, BoltonMarshall2007}).
+			\end{enumerate}
+		\item These reproductive phenotypes are particularly counterintuitive from the perspective of sperm competition theory because males releasing sperm faster should enjoy a fitness advantage by acheiving numerical dominance over their competitors.
+		\item Further confounding SCT predictions is the fact that broadcast spawners generally have massive gonads relative to even the most extravagant internal fertilizers (\hl{NEED TO PUT A NUMBER AND SOME CITATIONS ON THIS}).
+		\end{enumerate}
+	
+	\item 
+		\begin{enumerate}
+			\item next point...
+			\item next point...
+		\end{enumerate}
+	
+	\item next point...
+		\begin{enumerate}
+			\item next point...
+			\item next point...
+		\end{enumerate}
+\end{enumerate}
+
 
 
 \section*{Methods}
 
-\hl{...}
+	\subsection*{Study species}
+
+	\subsection*{Flume experiment}
+
+	\subsection*{Analyses}
+
+
+
+\section*{Results}
+
+	\subsection*{Flume experiment}
+
+	\subsection*{Analyses}
+
 
 
 \section*{Discussion}
@@ -84,7 +137,7 @@
 
 
 \section*{Acknowledgments}
-CO thanks C.~Venables, D.~Barneche, and C.~Y. Chang for helpful discussion and feedback. CO and DJM conceived the study, CO performed the experiments and analyses, and wrote the manuscript with assistance from DJM. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship to CO, an Australian Research Council grants to DJM, and by the Monash University Centre for Geometric Biology.
+CO thanks C.~Venables, T. Connallon, D.~Barneche, and C.~Y. Chang for helpful discussion and feedback. CO and DJM conceived the study, CO performed the experiments and analyses, and wrote the manuscript with assistance from DJM. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship to CO, an Australian Research Council grants to DJM, and by the Monash University Centre for Geometric Biology.
 
 \newpage{}
 
@@ -95,6 +148,36 @@ CO thanks C.~Venables, D.~Barneche, and C.~Y. Chang for helpful discussion and f
 
 \begin{thebibliography}{}
 
+\bibitem[{Bode and Marshall(2007)Bode and Marshall}]{BodeMarshall2007}
+Bode, M. and D.~J Marshall. 2007.
+\newblock The quick and the dead? sperm competition and sexual conflict in the sea.
+\newblock Evolution 61:2693--2700.
+
+\bibitem[{Marshall and Bolton(2007)Marshall and Bolton}]{MarshallBolton2007}
+D.~J Marshall and T.~F. Bolton. 2007.
+\newblock Sperm release strategies in marine broadcast spawners: the costs of releasing sperm quickly.
+\newblock J. Exp. Biol 210:3720--3727.
+
+\bibitem[{Levitan(1998)Levitan}]{Levitan1998}
+Levitan, D. 1998.
+\newblock Does Bateman's principle apply to broadcast-spawning organisms? Egg traits influence in situ fertilization rates among congeneric sea urchins.
+\newblock Evolution 52:1043--1056.
+
+\bibitem[{Levitan(2005)Levitan}]{Levitan2005}
+Levitan, D. 2005.
+\newblock Sex-specific spawning behaviour and its consequences in an external fertilizer.
+\newblock American Naturalist 165:682--694.
+
+\bibitem[{McEuan(1988)McEuan}]{McEuan1988}
+McEuan, F.~S. 1988.
+\newblock Spawning behaviors of northeast Pacific sea cucumbers (Holothuroidea: Ecinodermata).
+\newblock Marine Biology 98:565--585.
+
+\bibitem[{Monro and Marshall(2015)Monro and Marshall}]{MonroMarshall2015}
+Monro, K. and D.~J. Marshall. 2015.
+\newblock The biogeography of fertilisation mode in the sea.
+\newblock Global Ecology and Biogeography. DOI: 10.1111/geb.12358.
+
 \bibitem[{Olito et~al.(2015)Olito et~al.}]{Olito2015}
 Olito, C., M. Bode, and D.~J. Marshall. 2015.
 \newblock Evolutionary consequences of fertilization mode for reproductive phenology and asynchrony.
@@ -104,15 +187,18 @@ Olito, C., M. Bode, and D.~J. Marshall. 2015.
 
 \newpage{}
 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Figures}
  
-\begin{figure}[!ht]
-\includegraphics[scale=0.7]{./fig1}
-\caption{......}
-\label{Fig:fig1.pdf}
-\end{figure}
-\newpage{}
+%\begin{figure}[!ht]
+%\includegraphics[scale=0.7]{./fig1}
+%\caption{......}
+%\label{Fig:fig1.pdf}
+%\end{figure}
+%\newpage{}
 
 
 
@@ -120,12 +206,12 @@ Olito, C., M. Bode, and D.~J. Marshall. 2015.
 \renewcommand{\thefigure}{A\arabic{figure}}
 \setcounter{figure}{0}
 
-\begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./figA1}
-\caption{....}
-\label{FigA:figA1.pdf}
-\end{figure}
-\newpage{}
+%\begin{figure}[!ht]
+%\includegraphics[width=\textwidth]{./figA1}
+%\caption{....}
+%\label{FigA:figA1.pdf}
+%\end{figure}
+%\newpage{}
 
 
 
