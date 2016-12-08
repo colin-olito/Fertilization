@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 # Backup Files #
 ################
 **/*~
-
 # Compiled source #
 ###################
 *.com
@@ -29,6 +27,7 @@
 *.sql
 *.sqlite
 # OS generated files #
+######################
 .DS_Store
 .DS_Store?
 ._*
@@ -39,11 +38,11 @@ Thumbs.db
 # Images #
 ##########
 *.jpg
-*.JPG
 *.gif
 *.png
 *.svg
 *.ico
+*.eps
 # Video #
 #########
 *.wmv
@@ -57,6 +56,7 @@ Thumbs.db
 *.ogg
 *.webm
 # Audio  #
+##########
 *.wav
 *.mp3
 *.wma
@@ -77,20 +77,32 @@ vignettes/*.pdf
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
 .Rproj.user
-## Rando files
+# Miscellaneous file types #
+############################
 *~
 *.pdf
 *.DS_Store
 *.R*istory*
 *.doc*
 *.xls*
-.Rproj.user
-.Rhistory
-.RData
-*.layout
-*.skb
-*.skp
-*.nb
+*.Rproj.user
+*.Rhistory
+*.RData
+*.pptx
+# LaTeX Files #
+###############
 *.aux
-*.fdb_latexmk
 *.fls
+*.log
+*.fdb_latexmk
+*.out
+# Mathematica Notebooks #
+#########################
+*.nb
+# Untracked Folders #
+#####################
+Exp1_NxRate/output/*
+Exp1_NxRate/data-raw/*
+# Untracked Files for public repo #
+###################################
+*CoverLetter*.tex
