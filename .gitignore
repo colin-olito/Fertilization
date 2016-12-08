@@ -105,6 +105,10 @@ vignettes/*.pdf
 # Untracked Folders #
 #####################
 Exp2_NxRatexF/*
+Flume/*
+Pilots/*
+Sperm_morphology/*
+Theory/*
 Exp1_NxRate/output/*
 # Untracked Files for public repo #
 ###################################
