@@ -89,6 +89,9 @@ vignettes/*.pdf
 *.Rhistory
 *.RData
 *.pptx
+*.xls*
+*.ppt*
+*.ods*
 # LaTeX Files #
 ###############
 *.aux
@@ -101,8 +104,8 @@ vignettes/*.pdf
 *.nb
 # Untracked Folders #
 #####################
+Exp2_NxRatexF/*
 Exp1_NxRate/output/*
-Exp1_NxRate/data-raw/*
 # Untracked Files for public repo #
 ###################################
 *CoverLetter*.tex
