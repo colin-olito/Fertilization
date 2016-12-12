@@ -24,7 +24,7 @@ transformed parameters {
   vector[N] y_hat;
 
   for (i in 1:N)
-    y_hat[i]  <-  a[Lane[i]] + theta * nSperm[i];
+    y_hat[i]  =  a[Lane[i]] + theta * nSperm[i];
 }
 
 model {
@@ -37,5 +37,5 @@ model {
 generated quantities {
 	int<lower=0> nFert_rep[N];      // Posterior draws for prediction
 	for (i in 1:N) 
-    	nFert_rep[i] <- binomial_rng(nEggs[i], inv_logit(a[Lane[i]] + theta * nSperm[i])); 
+    	nFert_rep[i] = binomial_rng(nEggs[i], inv_logit(a[Lane[i]] + theta * nSperm[i])); 
 }

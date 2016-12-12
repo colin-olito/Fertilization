@@ -25,6 +25,6 @@ generated quantities {
  	vector[N] log_lik;
  
  	for (i in 1:N) {
- 		log_lik[i]  <-  binomial_logit_log(nS[i], nT[i], X[i] * beta);
+ 		log_lik[i]  =  binomial_logit_log(nS[i], nT[i], X[i] * beta);
  	}
 }

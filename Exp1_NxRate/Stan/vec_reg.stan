@@ -21,4 +21,3 @@ parameters {
 model {
    y  ~  binomial_logit(nEggs, X * beta);   // Likelihood
 }
-

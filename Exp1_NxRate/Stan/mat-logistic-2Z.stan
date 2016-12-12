@@ -24,7 +24,7 @@ parameters {
 
 transformed parameters {
    vector[N] mu;
-   mu  <-  X*beta + Z0*gamma0 + Z1*gamma1;
+   mu  =  X*beta + Z0*gamma0 + Z1*gamma1;
 }
 
 model {
@@ -45,6 +45,6 @@ generated quantities {
    vector[N] log_lik;
  
    for (i in 1:N) {
-      log_lik[i]  <-  binomial_logit_log(nS[i], nT[i], X[i]*beta + Z0[i]*gamma0 + Z1[i]*gamma1);
+      log_lik[i]  =  binomial_logit_log(nS[i], nT[i], X[i]*beta + Z0[i]*gamma0 + Z1[i]*gamma1);
    }
 }

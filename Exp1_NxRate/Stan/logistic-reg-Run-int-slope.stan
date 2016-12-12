@@ -27,7 +27,7 @@ transformed parameters {
 	vector[N] y_hat;
 
   for (i in 1:N)
-    y_hat[i]  <-  a[Run[i]] + b[Run[i]] * nSperm[i];
+    y_hat[i]  =  a[Run[i]] + b[Run[i]] * nSperm[i];
 }
 
 model {

@@ -27,10 +27,10 @@ transformed parameters {
    vector[N] lambda;        // mean chance of success
 
    for (n in 1:N)
-      lambda[n] <- inv_logit(X[n]*beta + Z[n]*gamma); //using logit link
+      lambda[n] = inv_logit(X[n]*beta + Z[n]*gamma); //using logit link
    
-   a  <- lambda * kappa;
-   b  <- (1 - lambda) * kappa;
+   a  = lambda * kappa;
+   b  = (1 - lambda) * kappa;
 }
 
 
@@ -51,6 +51,6 @@ generated quantities {
    vector[N] log_lik;
  
    for (i in 1:N) {
-      log_lik[i]  <-  beta_binomial_log(nS[i], nT[i], a[i], b[i]);
+      log_lik[i]  =  beta_binomial_log(nS[i], nT[i], a[i], b[i]);
    }
 }

@@ -31,13 +31,13 @@ transformed parameters {
   vector[K] gamma[J];
 //  vector[K] gamma;
 
-  corrs <- tcrossprod(L_run);       // For monitoring correlations
-  Lambda_run  <-  diag_pre_multiply(tau_run,L_run);
+  corrs = tcrossprod(L_run);       // For monitoring correlations
+  Lambda_run  =  diag_pre_multiply(tau_run,L_run);
   for (i in 1:J)
-    gamma[i] <- Lambda_run * u[i];  // Random-effect coefficients
+    gamma[i] = Lambda_run * u[i];  // Random-effect coefficients
   
   for (i in 1:N)                    // Loop to vectorize likelihood in model block
-    mu[i]  <-  X[i] * beta + Z[i] * gamma[grp[i]];
+    mu[i]  =  X[i] * beta + Z[i] * gamma[grp[i]];
 }
 
 model {
@@ -57,6 +57,6 @@ generated quantities {
   vector[N] log_lik;  // Log-likelihood
 
   for (i in 1:N) {
-    log_lik[i]  <-  binomial_logit_log(nS[i], nT[i], mu[i]);
+    log_lik[i]  =  binomial_logit_log(nS[i], nT[i], mu[i]);
   }
 }
