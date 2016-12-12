@@ -22,5 +22,5 @@ model {
 generated quantities {
 	int<lower=0> nFert_rep[N];      // replications for existing items 
 	for (n in 1:N) 
-    	nFert_rep[n] <- binomial_rng(nEggs[n], inv_logit(theta[1] + theta[2] * nSperm[n])); 
+    	nFert_rep[n] = binomial_rng(nEggs[n], inv_logit(theta[1] + theta[2] * nSperm[n])); 
 }
