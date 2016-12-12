@@ -43,6 +43,6 @@ generated quantities {
    vector[N] log_lik;
  
    for (i in 1:N) {
-      log_lik[i]  =  binomial_logit_log(nS[i], nT[i], Z0[i]*gamma0 + Z1[i]*gamma1);
+      log_lik[i]  =  binomial_logit_lpmf(nS[i] | nT[i], Z0[i]*gamma0 + Z1[i]*gamma1);
    }
 }

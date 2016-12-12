@@ -57,6 +57,6 @@ generated quantities {
   vector[N] log_lik;  // Log-likelihood
 
   for (i in 1:N) {
-    log_lik[i]  =  binomial_logit_log(nS[i], nT[i], mu[i]);
+    log_lik[i]  =  binomial_logit_lpmf(nS[i] | nT[i], mu[i]);
   }
 }
