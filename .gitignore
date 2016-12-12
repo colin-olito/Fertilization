@@ -92,6 +92,7 @@ vignettes/*.pdf
 *.xls*
 *.ppt*
 *.ods*
+*.rda
 # LaTeX Files #
 ###############
 *.aux
