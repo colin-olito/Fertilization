@@ -28,3 +28,4 @@ generated quantities {
  		log_lik[i]  =  binomial_logit_lpmf(nS[i] | nT[i], X[i] * beta);
  	}
 }
+
