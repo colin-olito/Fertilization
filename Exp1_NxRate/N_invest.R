@@ -172,17 +172,19 @@ data.list  <-  list(N       =  nrow(data),
 
 #  Options for the analysis
 nChains        = 4
-burnInSteps    = 0
-thinSteps      = 5
+thinSteps      = 1
 numSavedSteps  = 10000 #across all chains
+burnInSteps    = numSavedSteps / 2
 nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
 
 Logistic1 <- stan(data    =  data.list,
-                 file     =  './Stan/logistic-reg-pool.stan',
-                 chains   =  nChains,
-                 iter     =  nIter,
-                 thin     =  thinSteps,
-                 save_dso =  TRUE
+                  seed    =  123456789,
+                  file     =  './Stan/logistic-reg-pool.stan',
+                  sample_file =  './output/StanFits/Logistic1.csv',
+                  chains   =  nChains,
+                  iter     =  nIter,
+                  thin     =  thinSteps,
+                  save_dso =  TRUE
                  )
 
 # Model Results
@@ -193,6 +195,15 @@ mcmc.Logistic1  <-  as.mcmc(Logistic1)
 Logistic1.mcmc  <-  rstan:::as.mcmc.list.stanfit(Logistic1)
 Logistic1.summary <- plyr:::adply(as.matrix(Logistic1.df),2,MCMCsum)
 (Logistic1.summary)
+
+# import model results from stan sample_files
+csvFiles  <-  c('./output/StanFits/Logistic1.csv1',
+                './output/StanFits/Logistic1.csv2',
+                './output/StanFits/Logistic1.csv3',
+                './output/StanFits/Logistic1.csv4')
+test <- read_stan_csv(csvFiles, col_major = TRUE)
+print(test, c("theta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
 
 # Simple Diagnostic Plots
 plot(Logistic1, pars="theta")
@@ -334,7 +345,7 @@ box()
  apply(mlLogistic1.df, 1, function(x, data, nSperm_z){
      xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
      xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-     lines(xrange, inv_logit(x['mu_a'] + x['theta'] * xrange2), col=transparentColor('grey68',0.01))
+     lines(xrange, inv_logit(x['mu_a'] + x['theta'] * xrange2), col=transparentColor('grey50',0.01))
  }, data=data, nSperm_z=nSperm_z)
 # plot run-specific regression lines
 # for(i in 1:8) {
@@ -342,6 +353,37 @@ box()
 #                   col='grey75', lwd=3)
 # }
 # plot main regression line
+lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
+                  col='black', lwd=3)
+points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.7),
+        col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+axis(2, las=1)
+axis(1)
+
+
+
+
+par(omi=rep(0.3, 4))
+plot((data$nFert/data$nEggs) ~ nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot all regression lines from MCMC chains
+# apply(mlLogistic1.df, 1, function(x, data, nSperm_z){
+#     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
+#     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
+#     lines(xrange, inv_logit(x['mu_a'] + x['theta'] * xrange2), col=transparentColor('grey50',0.01))
+# }, data=data, nSperm_z=nSperm_z)
+# plot run-specific regression lines
+ for(i in 1:8) {
+   lines(runs[[i]][data$Run == i][order(nSperm_z[data$Run == i])] ~ data$nSperm[data$Run == i][order(nSperm_z[data$Run == i])],
+                   col='grey75', lwd=3)
+ }
+ plot main regression line
 lines(RegLine[order(nSperm_z)] ~ data$nSperm[order(nSperm_z)],
                   col='black', lwd=3)
 points((data$nFert/data$nEggs) ~ data$nSperm, pch=21, 
@@ -503,7 +545,7 @@ data.list  <-  list(N       =  nrow(data),
 
 #  Options for the analysis
 nChains        = 4
-thinSteps      = 5
+thinSteps      = 1
 numSavedSteps  = 5000 #across all chains
 burnInSteps    = numSavedSteps / 2
 nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)

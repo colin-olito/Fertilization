@@ -261,13 +261,13 @@ burnInSteps    = numSavedSteps / 2
 	m3 <- stan(data         =  data.list,
 	           seed         =  456789123,
 	           file         =  './Stan/mat-logistic-allZ.stan',
-	#           sample_file  =  './output/StanFits/N_invest_m3.csv',
+	           sample_file  =  './output/StanFits/N_invest_m3.csv',
 	           chains       =  nChains,
 	           warmup       =  burnInSteps,
 	           iter         =  numSavedSteps,
 	           thin         =  thinSteps,
 	           save_dso     =  TRUE,
-	           control      =  list(adapt_delta = 0.99)
+	           control      =  list(adapt_delta = 0.99) # default adapt_delta value threw ~60 divergent transitions.
 	          )
 
 # message
