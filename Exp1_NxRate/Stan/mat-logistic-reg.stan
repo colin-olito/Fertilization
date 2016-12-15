@@ -47,8 +47,8 @@ generated quantities {
     vector[N] y_hat;              // predicted values
     vector[N] X2_data;            // Chi-squared discrepancy between real data and prediction line
     vector[N] X2_rep;             // Chi-squared discrepancy between simulated data and prediction line
-    real<lower=0> fit; // ...
-    real<lower=0> fit_rep; // ...
+    real<lower=0> fit_data;       // ...
+    real<lower=0> fit_rep;        // ...
 
   
  	for (i in 1:N) {
@@ -69,6 +69,6 @@ generated quantities {
     p_mean  =  (mean_y_rep >= mean_y);
     p_sd    =  (sd_y_rep >= sd_y);
 
-    fit      =  sum(X2_data);
-    fit_rep  =  sum(X2_rep);
+    fit_data  =  sum(X2_data);
+    fit_rep   =  sum(X2_rep);
 }

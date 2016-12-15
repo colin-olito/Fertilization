@@ -156,14 +156,14 @@ axis(1)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m1.df[1,51:98])/data$nEggs
+y  <-  as.numeric(m1.df[1,52:99])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 #for(i in 2:(nrow(m1.df) - 1)) {
 for(i in 2:1000) {
   rm(y)
-  y  <-  as.numeric(m1.df[i,51:98])/data$nEggs
+  y  <-  as.numeric(m1.df[i,52:99])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1) 
@@ -174,24 +174,24 @@ abline(a=0,b=1)
 #  calculated values for real data
 #  Find associated p-values in m1.summ
 par(mfrow=c(2,2))
-plot(density(m1.df[,99]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+plot(density(m1.df[,100]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,100]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m1.df[,101]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,101]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m1.df[,102]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,102]), xlim=c(min(m1.df[,102],sd(data$nFert)),max(m1.df[,102],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+plot(density(m1.df[,103]), xlim=c(min(m1.df[,103],sd(data$nFert)),max(m1.df[,103],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
 
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-y  <-  as.numeric(m1.df[,252])
-x  <-  as.numeric(m1.df[,251])
+x  <-  as.numeric(m1.df[,252])
+y  <-  as.numeric(m1.df[,253])
 
 plot(y ~ x, 
     xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
@@ -245,6 +245,7 @@ m2WAIC   <-  waic(m2LL)
 ########################
 # Plot of main results
 
+
 ##  Plot predicted line etc.
 runs  <-  list(
                Run1  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[3])   + m2.summ$Mean[2] * data$nSperm_z),
@@ -293,6 +294,82 @@ axis(1)
 
 
 
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m2.df[1,61:108])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m2.df[i,61:108])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1) 
+
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m2.summ
+par(mfrow=c(2,2))
+plot(density(m2.df[,109]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m2.df[,110]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m2.df[,111]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m2.df[,112]), xlim=c(min(m2.df[,112],sd(data$nFert)),max(m2.df[,112],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+x1  <-  as.numeric(m1.df[,252])
+y1  <-  as.numeric(m1.df[,253])
+x2  <-  as.numeric(m2.df[,261])
+y2  <-  as.numeric(m2.df[,262])
+
+plot(y1 ~ x1, 
+    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
+    type='n', axes=FALSE, xlim=c(0,max(c(x1,y1))), ylim=c(0,max(c(x1,y1))))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y1 ~ x1, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.1),
+        col=transparentColor('dodgerblue4', 0.3), cex=1.1)
+points(y2 ~ x2, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.1),
+        col=transparentColor('dodgerblue3', 0.3), cex=1.1)
+abline(a=0,b=1, lwd=2) 
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.15,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Model~1)),
+                      expression(paste(Model~2))),
+          pch     =  21,
+          pt.bg   =  c(transparentColor('dodgerblue4',0.7), transparentColor('dodgerblue3',0.7)),
+          col     =  c('dodgerblue4', 'dodgerblue3'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
 
 
 #####################################
