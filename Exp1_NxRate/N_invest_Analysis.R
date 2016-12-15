@@ -97,6 +97,7 @@ rm(csvFiles)
 # Model Results
 print(m1)
 print(m1, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m1, c("yRep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m1.df    <-  as.data.frame(extract(m1))
 mcmc.m1  <-  as.mcmc(m1)
 m1.mcmc  <-  rstan:::as.mcmc.list.stanfit(m1)
@@ -149,9 +150,62 @@ axis(2, las=1)
 axis(1)
 
 
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m1.df[1,51:98])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+#for(i in 2:(nrow(m1.df) - 1)) {
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m1.df[i,51:98])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1) 
 
 
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m1.summ
+par(mfrow=c(2,2))
+plot(density(m1.df[,99]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
 
+plot(density(m1.df[,100]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m1.df[,101]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m1.df[,102]), xlim=c(min(m1.df[,102],sd(data$nFert)),max(m1.df[,102],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+y  <-  as.numeric(m1.df[,252])
+x  <-  as.numeric(m1.df[,251])
+
+plot(y ~ x, 
+    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
+    type='n', axes=FALSE, xlim=c(0,max(c(x,y))), ylim=c(0,max(c(x,y))))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y ~ x, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.2),
+        col=transparentColor('dodgerblue4', 0.4), cex=1.1)
+abline(a=0,b=1, lwd=2) 
+axis(2, las=1)
+axis(1)
 
 
 
