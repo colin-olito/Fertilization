@@ -87,9 +87,9 @@ rm(csvFiles)
 
 
 
-#####################################
+##########################################################################
 # Model: m1
-#####################################
+##########################################################################
 
 ##############
 # Diagnostics
@@ -174,7 +174,7 @@ abline(a=0,b=1)
 #  calculated values for real data
 #  Find associated p-values in m1.summ
 par(mfrow=c(2,2))
-plot(density(m1.df[,100]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+plot(density(m1.df[,100], adjust=2), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
 plot(density(m1.df[,101]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
@@ -190,17 +190,17 @@ abline(v=sd(data$nFert), lwd=3, col=2)
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-x  <-  as.numeric(m1.df[,252])
-y  <-  as.numeric(m1.df[,253])
+x1  <-  as.numeric(m1.df[,252])
+y1  <-  as.numeric(m1.df[,253])
 
-plot(y ~ x, 
+plot(y1 ~ x1, 
     xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
-    type='n', axes=FALSE, xlim=c(0,max(c(x,y))), ylim=c(0,max(c(x,y))))
+    type='n', axes=FALSE, xlim=c(0,max(c(x1,y1))), ylim=c(0,max(c(x1,y1))))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
-points(y ~ x, pch=21, 
+points(y1 ~ x1, pch=21, 
         bg=transparentColor('dodgerblue4', 0.2),
         col=transparentColor('dodgerblue4', 0.4), cex=1.1)
 abline(a=0,b=1, lwd=2) 
@@ -209,9 +209,9 @@ axis(1)
 
 
 
-#####################################
+##########################################################################
 # Model: m2
-#####################################
+##########################################################################
 
 ##############
 # Diagnostics
@@ -318,7 +318,7 @@ abline(a=0,b=1)
 #  calculated values for real data
 #  Find associated p-values in m2.summ
 par(mfrow=c(2,2))
-plot(density(m2.df[,109]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+plot(density(m2.df[,109], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
 plot(density(m2.df[,110]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
@@ -334,8 +334,6 @@ abline(v=sd(data$nFert), lwd=3, col=2)
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-x1  <-  as.numeric(m1.df[,252])
-y1  <-  as.numeric(m1.df[,253])
 x2  <-  as.numeric(m2.df[,261])
 y2  <-  as.numeric(m2.df[,262])
 
@@ -372,9 +370,9 @@ axis(1)
     )
 
 
-#####################################
+##########################################################################
 # Model: m2b
-#####################################
+##########################################################################
 
 ##############
 # Diagnostics
@@ -478,7 +476,7 @@ abline(a=0,b=1)
 #  calculated values for real data
 #  Find associated p-values in m2b.summ
 par(mfrow=c(2,2))
-plot(density(m2b.df[,109]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+plot(density(m2b.df[,109], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
 plot(density(m2b.df[,110]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
@@ -494,10 +492,6 @@ abline(v=sd(data$nFert), lwd=3, col=2)
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-x1   <-  as.numeric(m1.df[,252])
-y1   <-  as.numeric(m1.df[,253])
-x2   <-  as.numeric(m2.df[,261])
-y2   <-  as.numeric(m2.df[,262])
 x2b  <-  as.numeric(m2b.df[,261])
 y2b  <-  as.numeric(m2b.df[,262])
 
@@ -543,9 +537,9 @@ axis(1)
 
 
 
-#####################################
+##########################################################################
 # Model: m3
-#####################################
+##########################################################################
 
 ##############
 # Diagnostics
@@ -648,7 +642,7 @@ abline(a=0,b=1)
 #  calculated values for real data
 #  Find associated p-values in m3.summ
 par(mfrow=c(2,2))
-plot(density(m3.df[,118]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+plot(density(m3.df[,118],adjust=2), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
 plot(density(m3.df[,119]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
@@ -664,12 +658,6 @@ abline(v=sd(data$nFert), lwd=3, col=2)
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-x1   <-  as.numeric(m1.df[,252])
-y1   <-  as.numeric(m1.df[,253])
-x2   <-  as.numeric(m2.df[,261])
-y2   <-  as.numeric(m2.df[,262])
-x2b  <-  as.numeric(m2b.df[,261])
-y2b  <-  as.numeric(m2b.df[,262])
 x3   <-  as.numeric(m3.df[,270])
 y3   <-  as.numeric(m3.df[,271])
 
@@ -723,9 +711,9 @@ axis(1)
 
 
 
-#####################################
+##########################################################################
 # Model: m4
-#####################################
+##########################################################################
 
 ##############
 # Diagnostics
@@ -771,21 +759,22 @@ m4WAIC   <-  waic(m4LL)
 
 
 ########################
-# Plot of main results
+# Plot of main results 
+## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
 
-##  Plot predicted line etc.
-runs  <-  list(
-               Run1  <- inv_logit(m4.summ$Mean[965] + m4.summ$Mean[1029]  * data$nSperm_z),
-               Run2  <- inv_logit(m4.summ$Mean[974] + m4.summ$Mean[1038] * data$nSperm_z),
-               Run3  <- inv_logit(m4.summ$Mean[983] + m4.summ$Mean[1047] * data$nSperm_z),
-               Run4  <- inv_logit(m4.summ$Mean[992] + m4.summ$Mean[1056] * data$nSperm_z),
-               Run5  <- inv_logit(m4.summ$Mean[1001] + m4.summ$Mean[1065] * data$nSperm_z),
-               Run6  <- inv_logit(m4.summ$Mean[1010] + m4.summ$Mean[1074] * data$nSperm_z),
-               Run7  <- inv_logit(m4.summ$Mean[1019] + m4.summ$Mean[1083] * data$nSperm_z),
-               Run8  <- inv_logit(m4.summ$Mean[1028] + m4.summ$Mean[1092] * data$nSperm_z)
-              )
+  ##  Plot predicted line etc.
+  runs  <-  list(
+                 Run1  <- inv_logit(m4.summ$Mean[965] + m4.summ$Mean[1029]  * data$nSperm_z),
+                 Run2  <- inv_logit(m4.summ$Mean[974] + m4.summ$Mean[1038] * data$nSperm_z),
+                 Run3  <- inv_logit(m4.summ$Mean[983] + m4.summ$Mean[1047] * data$nSperm_z),
+                 Run4  <- inv_logit(m4.summ$Mean[992] + m4.summ$Mean[1056] * data$nSperm_z),
+                 Run5  <- inv_logit(m4.summ$Mean[1001] + m4.summ$Mean[1065] * data$nSperm_z),
+                 Run6  <- inv_logit(m4.summ$Mean[1010] + m4.summ$Mean[1074] * data$nSperm_z),
+                 Run7  <- inv_logit(m4.summ$Mean[1019] + m4.summ$Mean[1083] * data$nSperm_z),
+                 Run8  <- inv_logit(m4.summ$Mean[1028] + m4.summ$Mean[1092] * data$nSperm_z)
+                )
 
-RegLine  <-  inv_logit(m4.summ$Mean[402] + m4.summ$Mean[403] * data$nSperm_z)
+  RegLine  <-  inv_logit(m4.summ$Mean[402] + m4.summ$Mean[403] * data$nSperm_z)
 
 
 
@@ -822,13 +811,165 @@ axis(1)
 
 
 
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m4.df[1,1141:1188])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m4.df[i,1141:1188])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1) 
+
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m4.df[,1189], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m4.df[,1190]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m4.df[,1191]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m4.df[,1192]), xlim=c(min(m2.df[,112],sd(data$nFert)),max(m2.df[,112],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+x4   <-  as.numeric(m4.df[,1341])
+y4   <-  as.numeric(m4.df[,1342])
+
+plot(y1 ~ x1, 
+    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
+    type='n', axes=FALSE, xlim=c(0,max(c(x1,y1))), ylim=c(0,max(c(x1,y1))))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y1 ~ x1, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.1),
+        col=transparentColor('dodgerblue4', 0.3), cex=1.1)
+points(y2 ~ x2, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.1),
+        col=transparentColor('dodgerblue3', 0.4), cex=1.1)
+points(y2b ~ x2b, pch=21, 
+        bg=transparentColor('tomato2', 0.1),
+        col=transparentColor('tomato2', 0.4), cex=1.1)
+points(y3 ~ x3, pch=21, 
+        bg=transparentColor('dodgerblue2', 0.1),
+        col=transparentColor('dodgerblue2', 0.4), cex=1.1)
+points(y4 ~ x4, pch=21, 
+        bg=transparentColor('tomato1', 0.1),
+        col=transparentColor('tomato1', 0.4), cex=1.1)
+abline(a=0,b=1, lwd=2) 
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.15,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Model~1)),
+                      expression(paste(Model~2)),
+                      expression(paste(Model~"2b")),
+                      expression(paste(Model~3)),
+                      expression(paste(Model~4))),
+          pch     =  21,
+          pt.bg   =  c(transparentColor('dodgerblue4',0.7), 
+                       transparentColor('dodgerblue3',0.7),
+                       transparentColor('tomato2',0.7),
+                       transparentColor('dodgerblue2',0.7),
+                       transparentColor('tomato1',0.7)),
+          col     =  c('dodgerblue4', 
+                       'dodgerblue3',
+                       'tomato2',
+                       'dodgerblue2',
+                       'tomato1'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
 
 
 
-#############################################
+
+
+
+#########################################################
+##  Final Plot for comparison of Chi-squared discrepancy 
+##  posterior predictive check
+##  Excludes models 2b & 4 because they provide almost
+##  identical fits to models 2 & 3 respectively.
+
+pdf(file="./output/N_invest_X2Discrepancy.pdf", height=7, width=7)
+par(omi=rep(0.3, 4))
+plot(y1 ~ x1, 
+    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
+    type='n', axes=FALSE, xlim=c(0,max(c(x1,y1))), ylim=c(0,max(c(x1,y1))), xpd=NA)
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y1 ~ x1, pch=21, 
+        bg=transparentColor('dodgerblue1', 0.1),
+        col=transparentColor('dodgerblue1', 0.3), cex=1.1)
+points(y2 ~ x2, pch=21, 
+        bg=transparentColor('dodgerblue2', 0.1),
+        col=transparentColor('dodgerblue2', 0.4), cex=1.1)
+points(y3 ~ x3, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.1),
+        col=transparentColor('dodgerblue4', 0.4), cex=1.1)
+abline(a=0,b=1, lwd=2) 
+axis(2)
+axis(1)
+    legend(
+          x       =  usr[2]*0.572,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Model~1:~Simple~logistic~regression)),
+                      expression(paste(Model~2:~Random~intercepts)),
+                      expression(paste(Model~3:~Random~intercept/slope))),
+          pch     =  21,
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7), 
+                       transparentColor('dodgerblue2',0.7),
+                       transparentColor('dodgerblue4',0.7)),
+          col     =  c('dodgerblue1', 
+                       'dodgerblue2',
+                       'dodgerblue4'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+dev.off()
+
+
+
+
+
+
+
+##########################################################################################
+##########################################################################################
 # Model selection using LOO cross-validation
-#############################################
-
+##########################################################################################
+##########################################################################################
 
 str(m1Loo)
 looDiff   <-  compare(m1Loo, m2Loo, m2bLoo, m3Loo, m4Loo)
