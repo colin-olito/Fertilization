@@ -625,6 +625,100 @@ axis(1)
 
 
 
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m3.df[1,70:117])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m3.df[i,70:117])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1) 
+
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m3.summ
+par(mfrow=c(2,2))
+plot(density(m3.df[,118]), lwd=3, col='dodgerBlue3', main='min_y_rep (min. numm Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m3.df[,119]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m3.df[,120]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m3.df[,121]), xlim=c(min(m2.df[,112],sd(data$nFert)),max(m2.df[,112],sd(data$nFert))), lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+x1   <-  as.numeric(m1.df[,252])
+y1   <-  as.numeric(m1.df[,253])
+x2   <-  as.numeric(m2.df[,261])
+y2   <-  as.numeric(m2.df[,262])
+x2b  <-  as.numeric(m2b.df[,261])
+y2b  <-  as.numeric(m2b.df[,262])
+x3   <-  as.numeric(m3.df[,270])
+y3   <-  as.numeric(m3.df[,271])
+
+plot(y1 ~ x1, 
+    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
+    type='n', axes=FALSE, xlim=c(0,max(c(x1,y1))), ylim=c(0,max(c(x1,y1))))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+points(y1 ~ x1, pch=21, 
+        bg=transparentColor('dodgerblue4', 0.1),
+        col=transparentColor('dodgerblue4', 0.3), cex=1.1)
+points(y2 ~ x2, pch=21, 
+        bg=transparentColor('dodgerblue3', 0.1),
+        col=transparentColor('dodgerblue3', 0.4), cex=1.1)
+points(y2b ~ x2b, pch=21, 
+        bg=transparentColor('tomato2', 0.1),
+        col=transparentColor('tomato2', 0.4), cex=1.1)
+points(y3 ~ x3, pch=21, 
+        bg=transparentColor('dodgerblue2', 0.1),
+        col=transparentColor('dodgerblue2', 0.4), cex=1.1)
+abline(a=0,b=1, lwd=2) 
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.15,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Model~1)),
+                      expression(paste(Model~2)),
+                      expression(paste(Model~"2b")),
+                      expression(paste(Model~3))),
+          pch     =  21,
+          pt.bg   =  c(transparentColor('dodgerblue4',0.7), 
+                       transparentColor('dodgerblue3',0.7),
+                       transparentColor('tomato2',0.7),
+                       transparentColor('dodgerblue2',0.7)),
+          col     =  c('dodgerblue4', 
+                       'dodgerblue3',
+                       'tomato2',
+                       'dodgerblue2'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+
 
 
 
