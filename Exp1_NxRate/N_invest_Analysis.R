@@ -1044,14 +1044,21 @@ row.names(LooDiff)  <-  c("m3 - m4",
                           "m2b - m1")
 colnames(LooDiff)   <-  c("diff", "se", "p.value")
 LooDiff
+LooDiff[c(1,2,4,9),]
+
+
 
 ########################################
 ## Main result of LOO model comparison:
 #
-# Model m3 (random slopes & intercepts) is the best fitting model.extract
-#  However, the goodness of fit is statistically indistinguishable from 
-#  models m4, m2, or m2b. We therefore present the results from model m2,
-#  the random intercepts model without cell mean specification. We would 
-#  be reasonable to present the model 2b, as this is basically equivalent 
-#  to m2.
+#  Model m3 (random slopes & intercepts) is the best fitting model.
+#  This is corroborated by the posterior predictive checks, especially
+#  the Chi-square discrepancy graphical check. Modes m4 and m2b gave
+#  nearly identical fits to models m3 and m2, and so not discussed
+#  further.
 #
+#  Model comparison using LOO suggests that the overall fit for models
+#  m3 and m2 are statistically indistinguishable (LooDiff pValue = 0.618). 
+#  We therefore present the results from model m2, the random intercepts
+#  model. There could be an arguement for presenting m3 based on the 
+#  Chi-square discrepancy plots... but at this point in time... meh.
