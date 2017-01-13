@@ -2,15 +2,12 @@
 # * Colin Olito. Created 13/12/2016
 # * Analysis of 1st flume experiment: N-invest
 # * 
-# * NOTES:  This file will fit all the necessary
-# * 		Stan models for the analysis of the
-# * 		N-invest flume data, and write the
-# * 		Stan sample files to ./output/Stanfits
+# * NOTES:  This file contains all the necessary
+# * 		code to read in the STAN sample files
+# * 		and perform posterior predictive checks
+# *     model selection, and produce regression
+# *     plots for the N_invest flume data
 # * 
-# * 		These Stan sample files can then be 
-# * 		imported, plotted, and analyzed using
-# * 		./N_invest_Analysis
-# *          
 # */
 
 rm(list=ls())
