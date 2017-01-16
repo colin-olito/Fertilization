@@ -20,7 +20,7 @@ options("menu.graphics"=FALSE)
 
 #******************
 # DEPENDENCIES
-source('R/dependencies.R')
+source('R/functions.R')
 
 #*******************
 # Import Data
@@ -58,12 +58,12 @@ attr(X,"assign") <- NULL
 
 
 # Options for the STAN analyses
-nChains        = 3
-thinSteps      = 1
-numSavedSteps  = 5000 #across all chains
-burnInSteps    = numSavedSteps / 2
-#nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
+nChains       = 3
+thinSteps     = 1
+nIter         = 2000 #for each chain
+burnInSteps   = numSavedSteps / 2
+nSavedSteps  = (nIter/2)*nChains
+(nSavedSteps)
 
 ########################################################
 #  Model m1: MAXIMAL MODEL 
@@ -100,7 +100,7 @@ m1 <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-1Z-cov.stan',
            sample_file  =  './output/StanFits/NxRate_m1.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -150,7 +150,7 @@ m1a <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-1Z.stan',
            sample_file  =  './output/StanFits/NxRate_m1a.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -173,7 +173,7 @@ rm(m1a)
 
 #  Random Effects Model Matrix
 Z       <-  model.matrix(~ -1 + data$Run +
-                                data$Run:nSperm_z +
+                                data$Run:data$nSperm_z +
                                 data$Run:data$Rate) 
 Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
@@ -196,7 +196,7 @@ m2 <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-1Z-cov.stan',
            sample_file  =  './output/StanFits/NxRate_m2.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -244,7 +244,7 @@ m3 <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-1Z-cov.stan',
            sample_file  =  './output/StanFits/NxRate_m3.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -283,8 +283,7 @@ attr(Z1,"assign") <- NULL
 #  Assemble data.list for stan
 data.list  <-  list(N   =  nrow(data),
                     P   =  ncol(X), 
-                    K0   =  ncol(Z0),
-                    K1  =  ncol(Z1),
+                    K   =  ncol(Z0),
                     nT  =  data$nEggs,
                     nS  =  data$nFert - data$nControlFert,
                     Z0  =  Z0,
@@ -294,10 +293,10 @@ data.list  <-  list(N   =  nrow(data),
 # Call to STAN
 m3a <- stan(data         =  data.list,
             seed         =  456789123,
-            file         =  './Stan/mat-logistic-allZ.stan',
+            file         =  './Stan/mat-logistic-2Z.stan',
             sample_file  =  './output/StanFits/NxRate_m3a.csv',
             chains       =  nChains,
-            iter         =  numSavedSteps,
+            iter         =  nIter,
             thin         =  thinSteps,
             save_dso     =  TRUE
            )
@@ -346,7 +345,7 @@ m4 <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-1Z-cov.stan',
            sample_file  =  './output/StanFits/NxRate_m4.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
 #           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
            save_dso     =  TRUE
@@ -391,7 +390,7 @@ m4a <- stan(data        =  data.list,
             file        =  './Stan/mat-logistic-1Z.stan',
             sample_file  =  './output/StanFits/NxRate_m4a.csv',
             chains      =  nChains,
-            iter        =  numSavedSteps,
+            iter        =  nIter,
             thin        =  thinSteps,
             save_dso    =  TRUE
            )
@@ -430,7 +429,7 @@ m5 <- stan(data         =  data.list,
            file         =  './Stan/mat-logistic-reg.stan',
            sample_file  =  './output/StanFits/NxRate_m5.csv',
            chains       =  nChains,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )

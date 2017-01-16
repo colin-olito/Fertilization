@@ -17,7 +17,7 @@ options("menu.graphics"=FALSE)
 
 ###############
 # DEPENDENCIES
-source('R/dependencies.R')
+source('R/functions-figures.R')
 
 # Import NxRate Data Set
 data <- read.csv('data/NxRate_master.csv', header=TRUE, stringsAsFactors=FALSE)
@@ -344,6 +344,15 @@ m3.df    <-  as.data.frame(extract(m3))
 m3.mcmc  <-  rstan:::as.mcmc.list.stanfit(m3)
 m3.summ  <-  plyr:::adply(as.matrix(m3.df),2,MCMCsum)[-1,]
 
+# Simple Diagnostic Plots
+plot(m3, pars="beta")
+pairs(m3, pars="beta")
+par(mfrow=c(5,5))
+plot(m3.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(m3.mcmc, c("beta"), ask=TRUE)
+
+
 # Explore Correlation structure
 corrMat  <-  matrix(m3.summ[631:1030,2], ncol=16,nrow=16)
 corrplot(corrMat , method='circle', type='upper')
@@ -362,13 +371,20 @@ corrplot(corrMat * 50, method='circle', type='upper')
 abline(v=8.5)
 abline(h=8.5)
 
-# Simple Diagnostic Plots
-plot(m3, pars="beta")
-pairs(m3, pars="beta")
-par(mfrow=c(5,5))
-plot(m3.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m3.mcmc, c("beta"), ask=TRUE)
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m3, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+plot(m3, pars="tau_run")
+
+
 
 
 #########################################
@@ -456,6 +472,7 @@ m3a.summ  <-  plyr:::adply(as.matrix(m3a.df),2,MCMCsum)[-1,]
 
 
 # Simple Diagnostic Plots
+plot(m3a, pars="beta")
 plot(m3a, pars="gamma0")
 pairs(m3a, pars="gamma1")
 par(mfrow=c(5,5))
@@ -468,14 +485,9 @@ dev.off()
 #########################################
 # LOO Log-likelihood for model selection
 
-m3aLL  <-  extract_log_lik(m3a, parameter_name = "log_lik")
+m3aLL     <-  extract_log_lik(m3a, parameter_name = "log_lik")
 m3aLoo    <-  loo(m3aLL)
 m3aWAIC   <-  waic(m3aLL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
 
 
 
@@ -486,13 +498,13 @@ m3aWAIC   <-  waic(m3aLL)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m3a.df[1,146:265])/data$nEggs
+y  <-  as.numeric(m3a.df[1,276:395])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:500) {
   rm(y)
-  y  <-  as.numeric(m3a.df[i,146:265])/data$nEggs
+  y  <-  as.numeric(m3a.df[i,276:395])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -502,16 +514,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m3a.df[,266], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m3a.df[,396], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,267]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m3a.df[,397]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,268]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m3a.df[,398]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,269]), xlim=c(min(m3a.df[,269],sd(data$nFert)),max(m3a.df[,269],sd(data$nFert))),
+plot(density(m3a.df[,399]), xlim=c(min(m3a.df[,399],sd(data$nFert)),max(m3a.df[,399],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -521,8 +533,8 @@ print(m3a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-X2data3a   <-  as.numeric(m3a.df[,634])
-X2sim3a    <-  as.numeric(m3a.df[,635])
+X2data3a   <-  as.numeric(m3a.df[,764])
+X2sim3a    <-  as.numeric(m3a.df[,765])
 
 
 
@@ -538,7 +550,7 @@ X2sim3a    <-  as.numeric(m3a.df[,635])
 # Diagnostics
 
 # Model Results
-# print(m3a)
+# print(m4)
 print(m4, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m4, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m4.df    <-  as.data.frame(extract(m4))
@@ -811,10 +823,12 @@ X2data1   <-  as.numeric(m1.df[,6379])
 X2sim1    <-  as.numeric(m1.df[,6380])
 plotRange  <-  c(0,max(X2data1,X2data5))
 
-#pdf(file='output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
+pdf(file='output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
+par(omi=rep(0.3, 4))
 plot(X2sim5 ~ X2data5, 
-    xlab=expression(paste(Chi^2~discrepancy~of~observed~data)), ylab=expression(paste(Chi^2~discrepancy~of~simulated~data)), 
-    type='n', axes=FALSE, xlim=plotRange, ylim=plotRange)
+    xlab=expression(paste(chi^2~discrepancy~of~observed~data)), ylab=expression(paste(chi^2~discrepancy~of~simulated~data)), 
+    main=expression(paste(Posterior~predictive~check:~chi^2~"discrepancy")),
+    type='n', axes=FALSE, xlim=plotRange, ylim=plotRange, xpd=NA)
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
@@ -826,14 +840,14 @@ points(X2sim4a ~ X2data4a, pch=21,
         bg=transparentColor(COLS[6], 0.1),
         col=transparentColor(COLS[6], 0.3), cex=1.1)
 points(X2sim4 ~ X2data4, pch=21, 
-        bg=transparentColor(COLS[7], 0.1),
-        col=transparentColor(COLS[7], 0.3), cex=1.1)
-points(X2sim3a ~ X2data3a, pch=21, 
         bg=transparentColor(COLS[5], 0.1),
         col=transparentColor(COLS[5], 0.3), cex=1.1)
 points(X2sim3 ~ X2data3, pch=21, 
         bg=transparentColor(COLS[3], 0.1),
         col=transparentColor(COLS[3], 0.3), cex=1.1)
+points(X2sim3a ~ X2data3a, pch=21, 
+        bg=transparentColor(COLS[7], 0.1),
+        col=transparentColor(COLS[7], 0.3), cex=1.1)
 points(X2sim2 ~ X2data2, pch=21, 
         bg=transparentColor(COLS[2], 0.1),
         col=transparentColor(COLS[2], 0.3), cex=1.1)
@@ -844,7 +858,7 @@ abline(a=0,b=1, lwd=2)
 axis(2, las=1)
 axis(1)
     legend(
-          x       =  usr[2]*0.15,
+          x       =  usr[2]*0.17,
           y       =  usr[4],
           legend  =  c(
                       expression(paste(Model~1)),
@@ -858,24 +872,24 @@ axis(1)
           pt.bg   =  c(transparentColor(COLS[1],0.5), 
                        transparentColor(COLS[2],0.5),
                        transparentColor(COLS[3],0.5),
-                       transparentColor(COLS[5],0.5),
                        transparentColor(COLS[7],0.5),
+                       transparentColor(COLS[5],0.5),
                        transparentColor(COLS[6],0.5),
                        transparentColor(COLS[4],0.5)),
           col     =  c(transparentColor(COLS[1], 0.7),
                        transparentColor(COLS[2], 0.7), 
                        transparentColor(COLS[3], 0.7), 
-                       transparentColor(COLS[5], 0.7), 
                        transparentColor(COLS[7], 0.7), 
+                       transparentColor(COLS[5], 0.7), 
                        transparentColor(COLS[6], 0.7), 
-                       transparentColor(COLS[7], 0.7)),
+                       transparentColor(COLS[4], 0.7)),
           cex     =  1,
           xjust   =  1,
           yjust   =  1,
           bty     =  'n',
           border  =  NA
     )
-#dev.off()
+dev.off()
 
 
 
@@ -1004,7 +1018,7 @@ LooDiff
 ## Main result from LOO model comparison:
 ##
 ##  Model m3:  Random intercept & slopes x Run w/ COVARIANCE MATRIX model
-##             is probablyh the most parsimonious model for this analysis.
+##             is probably the most parsimonious model for this analysis.
 ##
 ##  Modelling the covariance structure for this model (m3 vs. m3a) only 
 ##  marginally improves the fit according to LOO (LooDiff pValue = 0.111). 
@@ -1017,26 +1031,30 @@ LooDiff
 ###########################################################################
 
 
+######################################################
+##  Have another look at Posterior Predictive Checks
+######################################################
+
 # Density plots of min, max, mean, sd
 #  of replicated data, benchmarked with
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
 
-plot(density(m3.df[,1991], adjust=1), lwd=3, col=COLS[3], main='min_y_rep (min. num. Successes)')
-lines(density(m3a.df[,266], adjust=1), lwd=3, col=COLS[5])
+plot(density(m3.df[,1991], adjust=2), lwd=3, col=COLS[3], main='min_y_rep (min. num. Successes)')
+lines(density(m3a.df[,396], adjust=2), lwd=3, col=COLS[7])
 abline(v=min(data$nFert), lwd=3, col=2)
     legend(
-          x       =  7.5,
-          y       =  0.75,
+          x       =  8,
+          y       =  0.4,
           legend  =  c(
                       expression(paste(Model~3)),
                       expression(paste(Model~"3a"))),
           pch     =  21,
           pt.bg   =  c(transparentColor(COLS[3],0.5),
-                       transparentColor(COLS[5],0.5)),
+                       transparentColor(COLS[7],0.5)),
           col     =  c(transparentColor(COLS[3], 0.7),
-                       transparentColor(COLS[5], 0.7)),
+                       transparentColor(COLS[7], 0.7)),
           cex     =  1,
           xjust   =  1,
           yjust   =  1,
@@ -1045,16 +1063,16 @@ abline(v=min(data$nFert), lwd=3, col=2)
     )
 
 plot(density(m3.df[,1992]), lwd=3, col=COLS[3], main='max_y_rep (max. num. Successes)')
-lines(density(m3a.df[,267]), lwd=3, col=COLS[5])
+lines(density(m3a.df[,397]), lwd=3, col=COLS[7])
 abline(v=max(data$nFert), lwd=3, col=2)
 
 plot(density(m3.df[,1993]), lwd=3, col=COLS[3], main='mean_y_rep (mean num. Successes)')
-lines(density(m3a.df[,268]), lwd=3, col=COLS[5])
+lines(density(m3a.df[,398]), lwd=3, col=COLS[7])
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m3.df[,1994]), xlim=c(min(m3.df[,1994],m3a.df[,269],sd(data$nFert)),max(m3.df[,1994],m3a.df[,269],sd(data$nFert))),
+plot(density(m3.df[,1994]), xlim=c(min(m3.df[,1994],m3a.df[,399],sd(data$nFert)),max(m3.df[,1994],m3a.df[,399],sd(data$nFert))),
  lwd=3, col=COLS[3], main='sd_y_rep (sd num. Successes)')
-lines(density(m3a.df[,269]), lwd=3, col=COLS[5], main='sd_y_rep (sd num. Successes)')
+lines(density(m3a.df[,399]), lwd=3, col=COLS[7], main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
 
@@ -1064,21 +1082,140 @@ print(m3a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 
 
 
-par(mfrow=c(2,2))
-plot(density(m3.df[2501:7500,1991], adjust=1), lwd=3, col=COLS[3], main='min_y_rep (min. num. Successes)')
-lines(density(m3a.df[2501:7500,266], adjust=1), lwd=3, col=COLS[5])
-abline(v=min(data$nFert), lwd=3, col=2)
+######################################################
+## Have a look at the final regression from m3 & m3a
+
+##  Calculate Predicted Lines
+m3.coef   <-  m3.summ$Mean[621:628]
+m3a.coef  <-  m3a.summ$Mean[1:8]
+
+m3Fast5   <-  inv_logit(m3.coef[1] + m3.coef[2] * data$nSperm_z)
+m3Fast55  <-  inv_logit((m3.coef[1] + m3.coef[4]) + (m3.coef[2] + m3.coef[6]) * data$nSperm_z)
+m3Slow5   <-  inv_logit((m3.coef[1] + m3.coef[3]) + (m3.coef[2] + m3.coef[5]) * data$nSperm_z)
+m3Slow55  <-  inv_logit((m3.coef[1] + m3.coef[3] + m3.coef[7]) + (m3.coef[2] + m3.coef[5] + m3.coef[8]) * data$nSperm_z)
+m3Fast    <-  inv_logit((m3.coef[1] + (m3.coef[4])/2) + (m3.coef[2] + (m3.coef[6])/2) * data$nSperm_z)
+m3Slow    <-  inv_logit((m3.coef[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.coef[2] + m3.coef[5] + (0.5*(m3.coef[8]))) * data$nSperm_z)
+
+m3aFast5   <-  inv_logit(m3a.coef[1] + m3a.coef[2] * data$nSperm_z)
+m3aFast55  <-  inv_logit((m3a.coef[1] + m3a.coef[4]) + (m3a.coef[2] + m3a.coef[6]) * data$nSperm_z)
+m3aSlow5   <-  inv_logit((m3a.coef[1] + m3a.coef[3]) + (m3a.coef[2] + m3a.coef[5]) * data$nSperm_z)
+m3aSlow55  <-  inv_logit((m3a.coef[1] + m3a.coef[3] + m3a.coef[7]) + (m3a.coef[2] + m3a.coef[5] + m3a.coef[8]) * data$nSperm_z)
+m3aFast    <-  inv_logit((m3a.coef[1] + (m3a.coef[4])/2) + (m3a.coef[2] + (m3a.coef[6])/2) * data$nSperm_z)
+m3aSlow    <-  inv_logit((m3a.coef[1] + m3a.coef[3] + (0.5*(m3a.coef[7]))) + (m3a.coef[2] + m3a.coef[5] + (0.5*(m3a.coef[8]))) * data$nSperm_z)
+
+m3.low   <-  m3.summ$lower[621:628]
+m3.hi   <-  m3.summ$upper[621:628]
+m3Fast.low    <-  inv_logit((m3.low[1] + (m3.coef[4])/2) + (m3.coef[2] + (m3.coef[6])/2) * data$nSperm_z)
+m3Slow.low    <-  inv_logit((m3.low[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.coef[2] + m3.coef[5] + (0.5*(m3.coef[8]))) * data$nSperm_z)
+m3Fast.hi     <-  inv_logit((m3.hi[1] + (m3.coef[4])/2) + (m3.coef[2] + (m3.coef[6])/2) * data$nSperm_z)
+m3Slow.hi     <-  inv_logit((m3.hi[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.coef[2] + m3.coef[5] + (0.5*(m3.coef[8]))) * data$nSperm_z)
+
+
+
+
+
+library(extrafont)
+library(fontcm)
+loadfonts()
+
+pdf(file='output/xRatexEggPos_m3.pdf', height=7, width=7)
+par(omi=rep(0.3, 4))
+plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot regression lines
+lines(m3Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lwd=3)
+lines(m3Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lty=2, lwd=3)
+lines(m3Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='orangered1', lwd=3)
+lines(m3Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='orangered1', lty=2, lwd=3)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.2),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.2),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
     legend(
-          x       =  7.5,
-          y       =  0.75,
+          x       =  usr[2]*0.3,
+          y       =  usr[4],
           legend  =  c(
-                      expression(paste(Model~3)),
-                      expression(paste(Model~"3a"))),
-          pch     =  21,
-          pt.bg   =  c(transparentColor(COLS[3],0.5),
-                       transparentColor(COLS[5],0.5)),
-          col     =  c(transparentColor(COLS[3], 0.7),
-                       transparentColor(COLS[5], 0.7)),
+                      expression(paste(5~cm:~Fast)),
+                      expression(paste(55~cm:~Fast)),
+                      expression(paste(5~cm:~Slow)),
+                      expression(paste(55~cm:~Slow))),
+          pch     =  c(21,21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7),transparentColor('orangered1',0.2)),
+          col     =  c('dodgerblue4','dodgerblue4','orangered4','orangered4'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+dev.off()
+embed_fonts("./output/NxRatexEggPos_m3.pdf", outfile="./output/NxRatexEggPos_m3.pdf")
+
+
+
+
+dev.new()
+par(omi=rep(0.3, 4))
+plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), 
+    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot regression lines
+lines(m3aFast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lwd=3)
+lines(m3aFast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lty=2, lwd=3)
+lines(m3aSlow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='orangered1', lwd=3)
+lines(m3aSlow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='orangered1', lty=2, lwd=3)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.2),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('orangered1', 0.2),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+    legend(
+          x       =  usr[2]*0.3,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(5~cm:~Fast)),
+                      expression(paste(55~cm:~Fast)),
+                      expression(paste(5~cm:~Slow)),
+                      expression(paste(55~cm:~Slow))),
+          pch     =  c(21,21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7),transparentColor('orangered1',0.2)),
+          col     =  c('dodgerblue4','dodgerblue4','orangered4','orangered4'),
           cex     =  1,
           xjust   =  1,
           yjust   =  1,
@@ -1086,16 +1223,57 @@ abline(v=min(data$nFert), lwd=3, col=2)
           border  =  NA
     )
 
-plot(density(m3.df[2501:7500,1992]), lwd=3, col=COLS[3], main='max_y_rep (max. num. Successes)')
-lines(density(m3a.df[2501:7500,267]), lwd=3, col=COLS[5])
-abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m3.df[2501:7500,1993]), lwd=3, col=COLS[3], main='mean_y_rep (mean num. Successes)')
-lines(density(m3a.df[2501:7500,268]), lwd=3, col=COLS[5])
-abline(v=mean(data$nFert), lwd=3, col=2)
+#########################################
+##  Compare residual plots for m3 & m3a
 
-plot(density(m3.df[2501:7500,1994]), xlim=c(min(m3.df[2501:7500,1994],m3a.df[2501:7500,269],sd(data$nFert)),max(m3.df[2501:7500,1994],m3a.df[2501:7500,269],sd(data$nFert))),
- lwd=3, col=COLS[3], main='sd_y_rep (sd num. Successes)')
-lines(density(m3a.df[2501:7500,269]), lwd=3, col=COLS[5], main='sd_y_rep (sd num. Successes)')
-abline(v=sd(data$nFert), lwd=3, col=2)
+##  look at residuals for m3
+m3yhat        <-  inv_logit(m3.summ$Mean[1030:1149])
+m3.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd(m3yhat)
+m3.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m3yhat))
+m3ayhat       <-  inv_logit(m3a.summ$Mean[404:523])
+m3a.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat)/sqrt(m3ayhat)
+m3a.resids_z  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat))
 
+
+##  Model 3 Residual Plots
+par(mfrow=c(2,2))
+hist(m3.resids_z, breaks=40)
+abline(v=c(-2,2), lty=2)
+plot(m3.resids_z ~ data$nSperm_z)
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+plot(m3.resids_z ~ seq_along(m3.resids_z))
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+qqnorm(m3.resids_z)
+qqline(m3.resids_z, col = 2)
+
+dev.new()
+par(mfrow=c(2,2))
+hist(m3a.resids_z, breaks=40)
+plot(m3a.resids_z ~ data$nSperm_z)
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+plot(m3a.resids_z ~ seq_along(m3a.resids_z))
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+qqnorm(m3a.resids_z)
+qqline(m3a.resids_z, col = 2)
+
+# hist(m3.resids, breaks=40)
+# plot(m3.resids ~ data$nSperm_z)
+# abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+# plot(m3.resids ~ seq_along(m3.resids))
+# abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+# qqnorm(m3.resids)
+# qqline(m3.resids, col = 2)
+
+# hist(m3a.resids, breaks=40)
+# plot(m3a.resids ~ nSperm_z)
+# abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+# plot(m3a.resids ~ seq_along(m3a.resids))
+# abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+# qqnorm(m3a.resids)
+# qqline(m3a.resids, col = 2)
+
+
+
+##  Model 3 Residual Plots
+par(mfrow=c(2,2))

@@ -207,8 +207,7 @@ abline(h=c(10.5,20.5))
 ##  -0.015 and 0.015... with standard deviations
 ##  in the neighborhood of 0.21... providing strong
 ##  evidence that these correlations could be 0
-print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m3, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
 
 ##  But the standard deviations of unconditional 
 ##  random effect distributions appear to be 

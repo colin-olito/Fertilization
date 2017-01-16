@@ -47,18 +47,26 @@ data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 ########################################################
 ########################################################
 
+
+#  Fixed Effects Model Matrix (Same for all models)
+X       <-  model.matrix(~ 1 + nSperm_z, data=data)
+X       <-  unname(X)
+attr(X,"assign") <- NULL
+
+
+# Options for the STAN analyses
+nChains       = 3
+thinSteps     = 1
+nIter         = 2000 #for each chain
+burnInSteps   = nIter / 2
+nSavedSteps  = (nIter/2)*nChains
+(nSavedSteps)
+
 ########################################################
 #  m1: Simple Logistic regression 
 #      --  FertRate ~ nSperm_z
 #	   --  Complete pooling of observations
 ########################################################
-
-
-# model matrix
-X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
-attr(X,"assign") <- NULL
-# str(X)
-# head(X)
 
 # create data.list
 data.list  <-  list(N   =  nrow(data),
@@ -68,13 +76,6 @@ data.list  <-  list(N   =  nrow(data),
                     X   =  X
                    )
 
-#  Options for the analysis
-nChains        = 4
-thinSteps      = 1
-numSavedSteps  = 10000 #across all chains
-burnInSteps    = numSavedSteps / 2
-#nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
 # Call to STAN
 m1 <- stan(data         =  data.list,
            seed         =  123456789,
@@ -82,7 +83,7 @@ m1 <- stan(data         =  data.list,
            sample_file  =  './output/StanFits/N_invest_m1.csv',
            chains       =  nChains,
            warmup       =  burnInSteps,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -101,13 +102,6 @@ rm(m1)
 #      --  FertRate ~ nSperm_z + (1 | Run)
 ########################################################
 
-# model matrices
-# 'fixed effects'
-X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
-attr(X,"assign") <- NULL
-# str(X)
-# head(X)
-
 # 'random effects'
 Z  <-  unname(model.matrix(~ data$Run -1, data=data))
 attr(Z,"assign") <- NULL
@@ -124,13 +118,6 @@ data.list  <-  list(N   =  nrow(data),
                     Z   =  Z
                    )
 
-#  Options for the analysis
-nChains        = 4
-thinSteps      = 1
-numSavedSteps  = 10000 #across all chains
-burnInSteps    = numSavedSteps / 2
-nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
 # Call to STAN
 m2 <- stan(data         =  data.list,
            seed         =  234567891,
@@ -138,7 +125,7 @@ m2 <- stan(data         =  data.list,
            sample_file  =  './output/StanFits/N_invest_m2.csv',
            chains       =  nChains,
            warmup       =  burnInSteps,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -161,12 +148,6 @@ rm(m2)
 #       --  Alternative cell-mean model specification
 ########################################################
 
-# model matrices
-X  <-  unname(model.matrix(~ nSperm_z -1, data=data))
-attr(X,"assign") <- NULL
-# str(X)
-# head(X)
-
 Z  <-  unname(model.matrix(~ data$Run -1, data=data))
 attr(Z,"assign") <- NULL
 # str(Z)
@@ -182,14 +163,6 @@ data.list  <-  list(N   =  nrow(data),
                     Z   =  Z
                    )
 
-
-#  Options for the analysis
-nChains        = 4
-thinSteps      = 1
-numSavedSteps  = 10000 #across all chains
-burnInSteps    = numSavedSteps / 2
-# nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
 # Call to STAN
 m2b <- stan(data         =  data.list,
            seed         =  345678912,
@@ -197,7 +170,7 @@ m2b <- stan(data         =  data.list,
            sample_file  =  './output/StanFits/N_invest_m2b.csv',
            chains       =  nChains,
            warmup       =  burnInSteps,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE
           )
@@ -221,12 +194,6 @@ rm(m2b)
 #       --  random slopes for Run x nSperm
 ########################################################
 
-# model matrices
-X  <-  unname(model.matrix(~ nSperm_z -1, data=data))
-attr(X,"assign") <- NULL
-# str(X)
-# head(X)
-
 Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
 attr(Z0,"assign") <- NULL
 # str(Z0)
@@ -249,14 +216,6 @@ data.list  <-  list(N   =  nrow(data),
                     Z1  =  Z1
                    )
 
-#  Options for the analysis
-nChains        = 4
-thinSteps      = 5
-numSavedSteps  = 10000 #across all chains
-burnInSteps    = numSavedSteps / 2
-# nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
-
 	# Call to STAN
 	m3 <- stan(data         =  data.list,
 	           seed         =  456789123,
@@ -264,7 +223,7 @@ burnInSteps    = numSavedSteps / 2
 	           sample_file  =  './output/StanFits/N_invest_m3.csv',
 	           chains       =  nChains,
 	           warmup       =  burnInSteps,
-	           iter         =  numSavedSteps,
+	           iter         =  nIter,
 	           thin         =  thinSteps,
 	           save_dso     =  TRUE,
 	           control      =  list(adapt_delta = 0.99) # default adapt_delta value threw ~60 divergent transitions.
@@ -289,13 +248,6 @@ rm(m3)
 ## -- Estimate covariance matrix
 ########################################################
 
-
-# model matrices
-X  <-  unname(model.matrix(~ 1 + nSperm_z, data=data))
-attr(X,"assign") <- NULL
-# str(X)
-# head(X)
-
 Z  <-  unname(model.matrix(~ data$Run *nSperm_z -1, data=data))
 attr(Z,"assign") <- NULL
 # str(Z)
@@ -313,13 +265,6 @@ data.list  <-  list(N    =  nrow(data),
                     Z    =  Z
                    )
 
-#  Options for the analysis
-nChains        = 4
-thinSteps      = 1
-numSavedSteps  = 10000 #across all chains
-burnInSteps    = numSavedSteps / 2
-# nIter          = ceiling(burnInSteps+(numSavedSteps * thinSteps)/nChains)
-
 # inits  <-  list(
 #   list(L_run    =  matrix(runif(16^2,-0.5,0.5), nrow=16,ncol=16)),
 #   list(tau_run  =  runif(16,0.1,2)),
@@ -335,7 +280,7 @@ m4 <- stan(data         =  data.list,
            sample_file  =  './output/StanFits/N_invest_m4.csv',
            chains       =  nChains,
            warmup       =  burnInSteps,
-           iter         =  numSavedSteps,
+           iter         =  nIter,
            thin         =  thinSteps,
            save_dso     =  TRUE,
            control      =  list(adapt_delta = 0.95) # default adapt_delta of 0.8 threw many divergent transitions. 
