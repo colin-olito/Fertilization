@@ -38,6 +38,9 @@ library(MCMCpack)
 library(MCMCglmm)
 library(lme4) # remember to detatch("package:nlme") because of conflicts
 #library(boot)
+library(extrafont)
+library(fontcm)
+loadfonts(quiet = TRUE)
 
 ################
 # STAN OPTIONS
@@ -52,6 +55,63 @@ MCMCsum <- function(x) {
    data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,na.rm=TRUE)), HPDinterval(as.mcmc(x)))
 }
 
+#######################
+# SUMMARIZE LOO RESULTS
+#######################
+#' Summarize loo model comparison results
+#'
+#' @title Make a table to summarize LOO model comparisons.
+#' @param looDiff Result table from baked in function compare() from the 'loo' package.
+#' @param looList A list of the loo objects for each of the models being compared.
+#'                CRITICAL: order of these loo objects must match the ranked row.names from
+#'                          the associated looDiff object!!!!
+#' @return A Results table in matrix form with pairwise elpd_loo differences, s.e., and p-values.
+#' @author Colin Olito.
+
+#' @export
+makeLooTable <- function(looDiff, looList) {
+    # Variables, Containers
+    index      <-  combn(nrow(looDiff),2)
+    nameIndex  <-  row.names(looDiff)
+    elpd_pair  <-  rep(0, length = ncol(index))
+    selooDiff  <-  rep(0, length = ncol(index))
+    pDiff      <-  rep(0, length = ncol(index))
+    names      <-  rep(0, length = ncol(index))
+    
+    # Check sample sizes
+    for (i in 1:ncol(index)) {
+        if(length(looList[[index[1,i]]]$pointwise[,"elpd_loo"]) != 
+            length(looList[[index[2,i]]]$pointwise[,"elpd_loo"]))
+            stop("sample sizes (chain lengths) differ between models")
+    }
+    n  <-  length(looList[[index[1,1]]]$pointwise[,"elpd_loo"])
+
+   # Pairwise elpd_loo differences for all models
+    for (i in 1:ncol(index)) {
+        elpd_pair[i]  <-  looDiff[index[1,i], 3] - looDiff[index[2,i], 3]
+    }
+
+    # Standard Error of pairwise elpd_loo differences
+    for (i in 1:ncol(index)) {
+        selooDiff[i]  <-  sqrt(n * var(looList[[index[1,i]]]$pointwise[,"elpd_loo"]  - 
+                                       looList[[index[2,i]]]$pointwise[,"elpd_loo"]))
+    }
+    # P-values for pairwise elpd_loo differences
+#    for (i in 1:ncol(index)) {
+        pDiff  <-  as.numeric(rounded(2*pnorm(-abs((elpd_pair - 0)/selooDiff)), 3))
+#    }
+
+    # Combine results into table
+    LooDiff  <-  cbind(elpd_pair, selooDiff, pDiff)
+    for(i in 1:ncol(index)){
+        names[i]  <-  paste0(unlist(strsplit(nameIndex[index[1,i]],split='L'))[1]," v. ",
+                            unlist(strsplit(nameIndex[index[2,i]],split='L'))[1])
+    }
+    row.names(LooDiff)  <-  names
+
+    # Return result
+    (LooDiff)
+}
 
 ########################
 # INVERSE LOGIT FUNCTION
