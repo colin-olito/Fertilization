@@ -59,10 +59,10 @@ attr(X,"assign") <- NULL
 
 # Options for the STAN analyses
 nChains       = 3
-thinSteps     = 1
-nIter         = 2000 #for each chain
-burnInSteps   = numSavedSteps / 2
-nSavedSteps  = (nIter/2)*nChains
+thinSteps     = 5
+nIter         = 2000 * thinSteps #for each chain
+burnInSteps   = nIter / 2
+nSavedSteps  = ((nIter/thinSteps)/2)*nChains
 (nSavedSteps)
 
 ########################################################
@@ -117,52 +117,6 @@ rm(m1)
 
 
 
-########################################################
-#  Model m1a: MAXIMAL MODEL 
-#      --  Random Effects: Run*nSperm_z*Rate
-#      --  w/o COVARIANCE MATRIX
-########################################################
-#  !!!! NECESSARY??  !!!!
-
-#  Random Effects Model Matrix
-#  Not enough observations to include EggPos ixns! Results in only 
-#  3 observations per run.
-Z       <-  model.matrix(~ -1 + data$Run +
-                                data$Run:data$nSperm_z +
-                                data$Run:data$Rate +
-                                data$Run:data$nSperm_z:data$Rate)
-Z       <-  unname(Z)
-attr(Z,"assign") <- NULL
-
-#  Assemble data.list for STAN
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
-                   )
-
-# Call to STAN
-m1a <- stan(data         =  data.list,
-           seed         =  1234567898,
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m1a.csv',
-           chains       =  nChains,
-           iter         =  nIter,
-           thin         =  thinSteps,
-           save_dso     =  TRUE
-          )
-
-#  Notification
-system('notify-send "Sampling for model m1a complete"')
-print("Sampling for model m1a complete")
-
-# garbage collection
-rm(data.list)
-rm(Z)
-rm(m1a)
 
 ########################################################
 #  Model m2: Remove Run x Rate x nSperm ixn 

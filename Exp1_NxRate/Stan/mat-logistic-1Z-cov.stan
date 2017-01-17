@@ -41,7 +41,6 @@ transformed parameters {
   vector[N] mu;                   
   matrix[K,K] Lambda_run; 
   vector[K] gamma[J];
-//  vector[K] gamma;
 
   corrs = tcrossprod(L_run);       // For monitoring correlations
   Lambda_run  =  diag_pre_multiply(tau_run,L_run);
@@ -65,13 +64,6 @@ model {
   nS  ~  binomial_logit(nT, mu);    // Likelihood
 }
 
-//generated quantities {
-//  vector[N] log_lik;  // Log-likelihood
-//
-//  for (i in 1:N) {
-//    log_lik[i]  =  binomial_logit_lpmf(nS[i] | nT[i], mu[i]);
-//  }
-//}
 generated quantities {
 
    // Containers

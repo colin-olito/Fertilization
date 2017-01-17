@@ -62,14 +62,10 @@ MCMCsum <- function(x) {
 #'
 #' @title Make a table to summarize LOO model comparisons.
 #' @param looDiff Result table from baked in function compare() from the 'loo' package.
-#' @param looList A list of the loo objects for each of the models being compared.
-#'                CRITICAL: order of these loo objects must match the ranked row.names from
-#'                          the associated looDiff object!!!!
 #' @return A Results table in matrix form with pairwise elpd_loo differences, s.e., and p-values.
 #' @author Colin Olito.
-
 #' @export
-makeLooTable <- function(looDiff, looList) {
+makeLooTable <- function(looDiff) {
     # Variables, Containers
     index      <-  combn(nrow(looDiff),2)
     nameIndex  <-  row.names(looDiff)
@@ -77,6 +73,7 @@ makeLooTable <- function(looDiff, looList) {
     selooDiff  <-  rep(0, length = ncol(index))
     pDiff      <-  rep(0, length = ncol(index))
     names      <-  rep(0, length = ncol(index))
+    looList    <-  lapply(row.names(looDiff), get)
     
     # Check sample sizes
     for (i in 1:ncol(index)) {
@@ -96,10 +93,9 @@ makeLooTable <- function(looDiff, looList) {
         selooDiff[i]  <-  sqrt(n * var(looList[[index[1,i]]]$pointwise[,"elpd_loo"]  - 
                                        looList[[index[2,i]]]$pointwise[,"elpd_loo"]))
     }
+
     # P-values for pairwise elpd_loo differences
-#    for (i in 1:ncol(index)) {
         pDiff  <-  as.numeric(rounded(2*pnorm(-abs((elpd_pair - 0)/selooDiff)), 3))
-#    }
 
     # Combine results into table
     LooDiff  <-  cbind(elpd_pair, selooDiff, pDiff)

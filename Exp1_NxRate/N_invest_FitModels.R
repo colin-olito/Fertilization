@@ -20,7 +20,7 @@ options("menu.graphics"=FALSE)
 
 #******************
 # DEPENDENCIES
-source('R/dependencies.R')
+source('R/functions.R')
 
 #*******************
 # Import Data
@@ -93,7 +93,6 @@ message("STAN has finished fitting model m1")
 system("notify-send \"STAN has finished fitting model m1\"")
 
 # garbage collection
-rm(X)
 rm(data.list)
 rm(m1)
 
@@ -136,7 +135,6 @@ system("notify-send \"N-invest analysis model fitting:\n
 					  STAN has finished fitting model m2\"")
 
 # garbage collection
-rm(X)
 rm(Z)
 rm(data.list)
 rm(m2)
@@ -180,7 +178,6 @@ message("STAN has finished fitting model m2b")
 system("notify-send \"STAN has finished fitting model m2b\"")
 
 # garbage collection
-rm(X)
 rm(Z)
 rm(data.list)
 rm(m2b)
@@ -291,7 +288,6 @@ message("STAN has finished fitting model m4")
 system("notify-send \"STAN has finished fitting model m4\"")
 
 # garbage collection
-rm(X)
 rm(Z)
 rm(data.list)
 rm(m4)

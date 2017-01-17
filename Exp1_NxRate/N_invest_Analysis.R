@@ -17,7 +17,7 @@ options("menu.graphics"=FALSE)
 
 ###############
 # DEPENDENCIES
-source('R/dependencies.R')
+source('R/functions.R')
 
 ##############
 # Import Data
@@ -43,36 +43,31 @@ data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
 csvFiles  <-  c('./output/StanFits/N_invest_m1.csv1',
                 './output/StanFits/N_invest_m1.csv2',
-                './output/StanFits/N_invest_m1.csv3',
-                './output/StanFits/N_invest_m1.csv4')
+                './output/StanFits/N_invest_m1.csv3')
 m1        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
 csvFiles  <-  c('./output/StanFits/N_invest_m2.csv1',
                 './output/StanFits/N_invest_m2.csv2',
-                './output/StanFits/N_invest_m2.csv3',
-                './output/StanFits/N_invest_m2.csv4')
+                './output/StanFits/N_invest_m2.csv3')
 m2        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
 csvFiles  <-  c('./output/StanFits/N_invest_m2b.csv1',
                 './output/StanFits/N_invest_m2b.csv2',
-                './output/StanFits/N_invest_m2b.csv3',
-                './output/StanFits/N_invest_m2b.csv4')
+                './output/StanFits/N_invest_m2b.csv3')
 m2b        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
 csvFiles  <-  c('./output/StanFits/N_invest_m3.csv1',
                 './output/StanFits/N_invest_m3.csv2',
-                './output/StanFits/N_invest_m3.csv3',
-                './output/StanFits/N_invest_m3.csv4')
+                './output/StanFits/N_invest_m3.csv3')
 m3        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
 csvFiles  <-  c('./output/StanFits/N_invest_m4.csv1',
                 './output/StanFits/N_invest_m4.csv2',
-                './output/StanFits/N_invest_m4.csv3',
-                './output/StanFits/N_invest_m4.csv4')
+                './output/StanFits/N_invest_m4.csv3')
 m4        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
@@ -972,6 +967,12 @@ str(m1Loo)
 looDiff   <-  compare(m1Loo, m2Loo, m2bLoo, m3Loo, m4Loo)
 waicDiff  <-  compare(m1WAIC, m2WAIC, m2bWAIC, m3WAIC, m4WAIC)
 
+row.names(looDiff)
+"m3Loo" "m4Loo" "m2Loo" "m2bLoo" "m1Loo"
+
+looList  <-  lapply(row.names(looDiff),get)
+names(looList)  <-  row.names(looDiff)
+
 print(looDiff, digits=4)
 print(waicDiff, digits=4)
 
@@ -1044,6 +1045,8 @@ LooDiff
 LooDiff[c(1,2,4,9),]
 
 
+# or, using new makeLooTable() function:
+makeLooTable(looDiff, looList)
 
 ########################################
 ## Main result of LOO model comparison:

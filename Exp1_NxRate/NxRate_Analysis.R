@@ -17,7 +17,7 @@ options("menu.graphics"=FALSE)
 
 ###############
 # DEPENDENCIES
-source('R/functions-figures.R')
+source('R/functions.R')
 
 # Import NxRate Data Set
 data <- read.csv('data/NxRate_master.csv', header=TRUE, stringsAsFactors=FALSE)
@@ -130,6 +130,15 @@ m1.df    <-  as.data.frame(extract(m1))  # Run at beginning of script to establi
 m1.mcmc  <-  rstan:::as.mcmc.list.stanfit(m1)
 m1.summ  <-  plyr:::adply(as.matrix(m1.df),2,MCMCsum)[-1,]
 
+# Simple Diagnostic Plots
+plot(m1, pars="beta")
+pairs(m1, pars="beta")
+par(mfrow=c(5,5))
+plot(m1.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(m1.mcmc, ask=TRUE)
+#plot(density(m1.df[]))
+
 # Explore Correlation structure
 corrMat  <-  matrix(m1.summ[2051:3650,2], ncol=16,nrow=16)
 corrplot(corrMat , method='circle', type='upper')
@@ -148,28 +157,25 @@ corrplot(corrMat * 50, method='circle', type='upper')
 abline(v=8.5)
 abline(h=8.5)
 
-# Simple Diagnostic Plots
-plot(m1, pars="beta")
-pairs(m1, pars="beta")
-par(mfrow=c(5,5))
-plot(m1.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m1.mcmc, ask=TRUE)
-#plot(density(m1.df[]))
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m1, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m1, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+plot(m1, pars="tau_run")
+
 
 #########################################
 # LOO Log-likelihood for model selection
 
-m1LL  <-  extract_log_lik(m1, parameter_name = "log_lik")
+m1LL     <-  extract_log_lik(m1, parameter_name = "log_lik")
 m1Loo    <-  loo(m1LL)
 m1WAIC   <-  waic(m1LL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
-
-
 
 
 ##############################
@@ -235,6 +241,14 @@ m2.df    <-  as.data.frame(extract(m2))
 m2.mcmc  <-  rstan:::as.mcmc.list.stanfit(m2)
 m2.summ  <-  plyr:::adply(as.matrix(m2.df),2,MCMCsum)[-1,]
 
+# Simple Diagnostic Plots
+plot(m2, pars="beta")
+pairs(m2, pars="beta")
+par(mfrow=c(5,5))
+plot(m2.mcmc, ask=TRUE)
+par(mfrow=c(3,2))
+traceplot(m2.mcmc, c("beta"), ask=TRUE)
+
 # Explore Correlation structure
 corrMat  <-  matrix(m2.summ[1241:2140,2], ncol=16,nrow=16)
 corrplot(corrMat , method='circle', type='upper')
@@ -253,13 +267,17 @@ corrplot(corrMat * 50, method='circle', type='upper')
 abline(v=8.5)
 abline(h=8.5)
 
-# Simple Diagnostic Plots
-plot(m2, pars="beta")
-pairs(m2, pars="beta")
-par(mfrow=c(5,5))
-plot(m2.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m2.mcmc, c("beta"), ask=TRUE)
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m2, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m2, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+plot(m2, pars="tau_run")
 
 
 #########################################
@@ -268,13 +286,6 @@ traceplot(m2.mcmc, c("beta"), ask=TRUE)
 m2LL  <-  extract_log_lik(m2, parameter_name = "log_lik")
 m2Loo    <-  loo(m2LL)
 m2WAIC   <-  waic(m2LL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
-
-
 
 
 ##############################
@@ -385,21 +396,12 @@ print(m3, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 plot(m3, pars="tau_run")
 
 
-
-
 #########################################
 # LOO Log-likelihood for model selection
 
 m3LL     <-  extract_log_lik(m3, parameter_name = "log_lik")
 m3Loo    <-  loo(m3LL)
 m3WAIC   <-  waic(m3LL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
-
-
 
 
 ##############################
@@ -445,9 +447,6 @@ print(m3, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.9
 
 X2data3   <-  as.numeric(m3.df[,2359])
 X2sim3    <-  as.numeric(m3.df[,2360])
-
-
-
 
 
 
@@ -569,17 +568,44 @@ traceplot(m4.mcmc, c("beta"), ask=TRUE)
 
 dev.off()
 
+
+# Explore Correlation structure
+corrMat  <-  matrix(m4.summ[631:1030,2], ncol=16,nrow=16)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=8.5)
+abline(h=8.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  corrMat[corrMat == 1]  = 0
+  }
+}
+
+corrplot(corrMat * 50, method='circle', type='upper')
+abline(v=8.5)
+abline(h=8.5)
+
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m4, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m4, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+plot(m4, pars="tau_run")
+
 #########################################
 # LOO Log-likelihood for model selection
 
 m4LL  <-  extract_log_lik(m4, parameter_name = "log_lik")
 m4Loo    <-  loo(m4LL)
 m4WAIC   <-  waic(m4LL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
 
 
 
@@ -631,16 +657,6 @@ X2sim4    <-  as.numeric(m4.df[,1250])
 
 
 
-
-
-
-
-
-
-
-
-
-
 ##########################################################################
 # Model: m4a
 ##########################################################################
@@ -674,13 +690,6 @@ dev.off()
 m4aLL  <-  extract_log_lik(m4a, parameter_name = "log_lik")
 m4aLoo    <-  loo(m4aLL)
 m4aWAIC   <-  waic(m4aLL)
-
-
-########################
-# Plot of main results 
-## !!!!!!!!!!!!!! STILL NEED TO FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
-
-
 
 
 ##############################
@@ -757,14 +766,6 @@ m5Loo    <-  loo(m5LL)
 m5WAIC   <-  waic(m5LL)
 
 
-
-########################
-# Plot of main results
-## !!!!!!!!!!!!!! STILL NEED TO DO THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!! ##
-
-
-
-
 ##############################
 # Posterior Predictive Checks
 
@@ -819,11 +820,11 @@ X2sim5    <-  as.numeric(m5.df[,619])
 #  Plot of Chi-squared discrepancy for all models
 
 # Plot Range for PPC plots
-X2data1   <-  as.numeric(m1.df[,6379])
-X2sim1    <-  as.numeric(m1.df[,6380])
+X2data1    <-  as.numeric(m1.df[,6379])
+X2sim1     <-  as.numeric(m1.df[,6380])
 plotRange  <-  c(0,max(X2data1,X2data5))
 
-pdf(file='output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
+pdf(file='./output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
 par(omi=rep(0.3, 4))
 plot(X2sim5 ~ X2data5, 
     xlab=expression(paste(chi^2~discrepancy~of~observed~data)), ylab=expression(paste(chi^2~discrepancy~of~simulated~data)), 
@@ -895,9 +896,6 @@ dev.off()
 
 
 
-
-
-
 ##########################################################################################
 ##########################################################################################
 # Model selection using LOO cross-validation
@@ -911,120 +909,28 @@ waicDiff  <-  compare(m1WAIC, m2WAIC, m3WAIC, m3aWAIC, m4WAIC, m4aWAIC, m5WAIC)
 print(looDiff, digits=4)
 print(waicDiff, digits=4)
 
-
-str(looDiff)
-looDiff21    <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][2]
-looDiff23    <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][3]
-looDiff23a   <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][4]
-looDiff24a   <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][5]
-looDiff24    <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][6]
-looDiff25    <-  looDiff[,'elpd_loo'][1] - looDiff[,'elpd_loo'][7]
-looDiff13    <-  looDiff[,'elpd_loo'][2] - looDiff[,'elpd_loo'][3]
-looDiff13a   <-  looDiff[,'elpd_loo'][2] - looDiff[,'elpd_loo'][4]
-looDiff14a   <-  looDiff[,'elpd_loo'][2] - looDiff[,'elpd_loo'][5]
-looDiff14    <-  looDiff[,'elpd_loo'][2] - looDiff[,'elpd_loo'][6]
-looDiff15    <-  looDiff[,'elpd_loo'][2] - looDiff[,'elpd_loo'][7]
-looDiff33a   <-  looDiff[,'elpd_loo'][3] - looDiff[,'elpd_loo'][4]
-looDiff34a   <-  looDiff[,'elpd_loo'][3] - looDiff[,'elpd_loo'][5]
-looDiff34    <-  looDiff[,'elpd_loo'][3] - looDiff[,'elpd_loo'][6]
-looDiff35    <-  looDiff[,'elpd_loo'][3] - looDiff[,'elpd_loo'][7]
-looDiff3a4a  <-  looDiff[,'elpd_loo'][4] - looDiff[,'elpd_loo'][5]
-looDiff3a4   <-  looDiff[,'elpd_loo'][4] - looDiff[,'elpd_loo'][6]
-looDiff3a5   <-  looDiff[,'elpd_loo'][4] - looDiff[,'elpd_loo'][7]
-looDiff4a4   <-  looDiff[,'elpd_loo'][5] - looDiff[,'elpd_loo'][6]
-looDiff4a5   <-  looDiff[,'elpd_loo'][5] - looDiff[,'elpd_loo'][7]
-looDiff45    <-  looDiff[,'elpd_loo'][6] - looDiff[,'elpd_loo'][7]
+# order looList to match ranked order of models from looDiff
+row.names(looDiff)
+"m3Loo" "m4Loo" "m2Loo" "m2bLoo" "m1Loo"
+looList  <-  list(m3Loo,m4Loo,m2Loo,m2bLoo,m1Loo)
+names(looList)  <-  row.names(looDiff)
 
 
-n  <-  length(m1Loo$pointwise[,"elpd_loo"])
-selooDiff21    <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m1Loo$pointwise[,"elpd_loo"]))
-selooDiff23    <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m3Loo$pointwise[,"elpd_loo"]))  
-selooDiff23a   <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m3aLoo$pointwise[,"elpd_loo"]))  
-selooDiff24a   <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m4aLoo$pointwise[,"elpd_loo"]))  
-selooDiff24    <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m4Loo$pointwise[,"elpd_loo"]))  
-selooDiff25    <-  sqrt(n * var(m2Loo$pointwise[,"elpd_loo"] - m5Loo$pointwise[,"elpd_loo"]))  
-selooDiff13    <-  sqrt(n * var(m1Loo$pointwise[,"elpd_loo"] - m3Loo$pointwise[,"elpd_loo"]))  
-selooDiff13a   <-  sqrt(n * var(m1Loo$pointwise[,"elpd_loo"] - m3aLoo$pointwise[,"elpd_loo"]))  
-selooDiff14a   <-  sqrt(n * var(m1Loo$pointwise[,"elpd_loo"] - m4aLoo$pointwise[,"elpd_loo"]))  
-selooDiff14    <-  sqrt(n * var(m1Loo$pointwise[,"elpd_loo"] - m4Loo$pointwise[,"elpd_loo"]))  
-selooDiff15    <-  sqrt(n * var(m1Loo$pointwise[,"elpd_loo"] - m5Loo$pointwise[,"elpd_loo"]))  
-selooDiff33a   <-  sqrt(n * var(m3Loo$pointwise[,"elpd_loo"] - m3aLoo$pointwise[,"elpd_loo"]))  
-selooDiff34a   <-  sqrt(n * var(m3Loo$pointwise[,"elpd_loo"] - m4aLoo$pointwise[,"elpd_loo"]))  
-selooDiff34    <-  sqrt(n * var(m3Loo$pointwise[,"elpd_loo"] - m4Loo$pointwise[,"elpd_loo"]))  
-selooDiff35    <-  sqrt(n * var(m3aLoo$pointwise[,"elpd_loo"] - m5Loo$pointwise[,"elpd_loo"]))  
-selooDiff3a4a  <-  sqrt(n * var(m3aLoo$pointwise[,"elpd_loo"] - m4aLoo$pointwise[,"elpd_loo"]))  
-selooDiff3a4   <-  sqrt(n * var(m3aLoo$pointwise[,"elpd_loo"] - m4Loo$pointwise[,"elpd_loo"]))  
-selooDiff3a5   <-  sqrt(n * var(m3aLoo$pointwise[,"elpd_loo"] - m5Loo$pointwise[,"elpd_loo"]))  
-selooDiff4a4   <-  sqrt(n * var(m4aLoo$pointwise[,"elpd_loo"] - m4Loo$pointwise[,"elpd_loo"]))  
-selooDiff4a5   <-  sqrt(n * var(m4aLoo$pointwise[,"elpd_loo"] - m5Loo$pointwise[,"elpd_loo"]))  
-selooDiff45    <-  sqrt(n * var(m4Loo$pointwise[,"elpd_loo"]  - m5Loo$pointwise[,"elpd_loo"]))  
-
-
-LooDiff  <-  cbind(c(looDiff21,looDiff23,looDiff23a,looDiff24a,looDiff24,looDiff25,looDiff13,looDiff13a,looDiff14a,looDiff14,looDiff15,looDiff33a,looDiff34a,looDiff34,looDiff35,looDiff3a4a,looDiff3a4,looDiff3a5,looDiff4a4,looDiff4a5,looDiff45),
-                  c(selooDiff21,selooDiff23,selooDiff23a,selooDiff24a,selooDiff24,selooDiff25,selooDiff13,selooDiff13a,selooDiff14a,selooDiff14,selooDiff15,selooDiff33a,selooDiff34a,selooDiff34,selooDiff35,selooDiff3a4a,selooDiff3a4,selooDiff3a5,selooDiff4a4,selooDiff4a5,selooDiff45))
-
-
-pDiff21    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[1,1] - 0)/LooDiff[1,2])), 3))
-pDiff23    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[2,1] - 0)/LooDiff[2,2])), 3))
-pDiff23a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[3,1] - 0)/LooDiff[3,2])), 3))
-pDiff24a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[4,1] - 0)/LooDiff[4,2])), 3))
-pDiff24    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[5,1] - 0)/LooDiff[5,2])), 3))
-pDiff25    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[6,1] - 0)/LooDiff[6,2])), 3))
-pDiff13    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[7,1] - 0)/LooDiff[7,2])), 3))
-pDiff13a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[8,1] - 0)/LooDiff[8,2])), 3))
-pDiff14a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[9,1] - 0)/LooDiff[9,2])), 3))
-pDiff14    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[10,1] - 0)/LooDiff[10,2])), 3))
-pDiff15    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[11,1] - 0)/LooDiff[11,2])), 3))
-pDiff33a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[12,1] - 0)/LooDiff[12,2])), 3))
-pDiff34a   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[13,1] - 0)/LooDiff[13,2])), 3))
-pDiff34    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[14,1] - 0)/LooDiff[14,2])), 3))
-pDiff35    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[15,1] - 0)/LooDiff[15,2])), 3))
-pDiff3a4a  <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[16,1] - 0)/LooDiff[16,2])), 3))
-pDiff3a4   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[17,1] - 0)/LooDiff[17,2])), 3))
-pDiff3a5   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[18,1] - 0)/LooDiff[18,2])), 3))
-pDiff4a4   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[19,1] - 0)/LooDiff[19,2])), 3))
-pDiff4a5   <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[20,1] - 0)/LooDiff[20,2])), 3))
-pDiff45    <-  as.numeric(rounded(2*pnorm(-abs((LooDiff[21,1] - 0)/LooDiff[21,2])), 3))
-
-LooDiff  <-  cbind(LooDiff,c(pDiff21,pDiff23,pDiff23a,pDiff24a,pDiff24,pDiff25,pDiff13,pDiff13a,pDiff14a,pDiff14,pDiff15,pDiff33a,pDiff34a,pDiff34,pDiff35,pDiff3a4a,pDiff3a4,pDiff3a5,pDiff4a4,pDiff4a5,pDiff45))
-
-row.names(LooDiff)  <-  c('m2 - m1',
-                          'm2 - m3',
-                          'm2 - m3a',
-                          'm2 - m4a',
-                          'm2 - m4',
-                          'm2 - m5',
-                          'm1 - m3',
-                          'm1 - m3a',
-                          'm1 - m4a',
-                          'm1 - m4',
-                          'm1 - m5',
-                          'm3 - m3a',
-                          'm3 - m4a',
-                          'm3 - m4',
-                          'm3 - m5',
-                          'm3a - m4a',
-                          'm3a - m4',
-                          'm3a - m5',
-                          'm4a - m4',
-                          'm4a - m5',
-                          'm4 - m5')
-colnames(LooDiff)   <-  c("diff", "se", "p.value")
-LooDiff
-
+# LOO Results Summary Table
+LooDiff  <-  makeLooTable(looDiff, looList)
+(LooDiff)
 
 ###########################################################################
 ###########################################################################
 ## Main result from LOO model comparison:
 ##
-##  Model m3:  Random intercept & slopes x Run w/ COVARIANCE MATRIX model
+##  Model m3a:  Random intercept & slopes x Run wout COVARIANCE MATRIX 
 ##             is probably the most parsimonious model for this analysis.
 ##
-##  Modelling the covariance structure for this model (m3 vs. m3a) only 
-##  marginally improves the fit according to LOO (LooDiff pValue = 0.111). 
-##  However, based on the Chi-squared discrepancy posterior predictive 
-##  checks, there is a reasonably large gap between these models, with m3
-##  having lower discrepancy. Thus, modelling the covariance structure here
+##  Modelling the covariance structure for this model (m3 vs. m3a) has  
+##  almsot no effect on the overall fit (LooDiff pValue = 0.XXX). 
+##  This is also reflected in the Chi-squared discrepancy posterior predictive 
+##  checks, ...  Thus, modelling the covariance structure here
 ##  seems to improve model fit pretty well, despite the marginal difference
 ##  in LOO.
 ###########################################################################
@@ -1114,9 +1020,6 @@ m3Slow.hi     <-  inv_logit((m3.hi[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.c
 
 
 
-library(extrafont)
-library(fontcm)
-loadfonts()
 
 pdf(file='output/xRatexEggPos_m3.pdf', height=7, width=7)
 par(omi=rep(0.3, 4))
