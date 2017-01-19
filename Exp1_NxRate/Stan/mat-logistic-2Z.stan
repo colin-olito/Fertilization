@@ -14,6 +14,18 @@ data {
    matrix[N,K] Z1;   // Model matrix for run-specific slopes
 }
 
+transformed data {
+  real min_y;   // minimum successes
+  real max_y;   // maximum successes
+  real mean_y;  // sample mean successes
+  real sd_y;    // sample std dev successes
+
+  min_y   =  min(nS);
+  max_y   =  max(nS);
+  mean_y  =  mean(to_vector(nS));
+  sd_y    =  sd(to_vector(nS));
+}
+
 parameters {
    vector [P] beta;            // Vector of fixed effect estimates
    vector [K] gamma0;           // Vector of random effect estimates
@@ -24,15 +36,7 @@ parameters {
 
 transformed parameters {
   vector[N] mu;
-  real min_y;   // minimum successes
-  real max_y;   // maximum successes
-  real mean_y;  // sample mean successes
-  real sd_y;    // sample std dev successes
 
-  min_y   =  min(nS);
-  max_y   =  max(nS);
-  mean_y  =  mean(to_vector(nS));
-  sd_y    =  sd(to_vector(nS));
   mu      =  X*beta + Z0*gamma0 + Z1*gamma1;
 }
 

@@ -31,6 +31,12 @@ parameters {
    real<lower=0> sigma_gamma;  // Prior for among-Run variance
 }
 
+transformed parameters {
+  vector[N] mu;
+
+  mu  =  X*beta + Z*gamma;
+}
+
 model {
 
    // Hyperpriors
@@ -41,7 +47,7 @@ model {
    beta ~ normal(0,3);
 
    // Likelihood
-   nS  ~  binomial_logit(nT, X*beta + Z*gamma);  // Likelihood
+   nS  ~  binomial_logit(nT, mu);  // Likelihood
 }
 
 generated quantities {

@@ -124,20 +124,14 @@ print(m5, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # Model Results
 #print(m1)[,9:10]
 print(m1, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-# print(m1, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-m1.df    <-  as.data.frame(extract(m1))  # Run at beginning of script to establish PPC plot ranges
-# mcmc.m1  <-  as.mcmc(m1)
-m1.mcmc  <-  rstan:::as.mcmc.list.stanfit(m1)
+m1.df    <-  as.data.frame(extract(m1))  
 m1.summ  <-  plyr:::adply(as.matrix(m1.df),2,MCMCsum)[-1,]
 
 # Simple Diagnostic Plots
 plot(m1, pars="beta")
 pairs(m1, pars="beta")
 par(mfrow=c(5,5))
-plot(m1.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m1.mcmc, ask=TRUE)
-#plot(density(m1.df[]))
+rstan::traceplot(m1, pars=c("beta", "tau_run"), inc_warmup=FALSE)
 
 # Explore Correlation structure
 corrMat  <-  matrix(m1.summ[2051:3650,2], ncol=16,nrow=16)
@@ -237,17 +231,14 @@ X2sim1    <-  as.numeric(m1.df[,6380])
 print(m2, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m2, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m2.df    <-  as.data.frame(extract(m2))
-# mcmc.m2  <-  as.mcmc(m2)
-m2.mcmc  <-  rstan:::as.mcmc.list.stanfit(m2)
 m2.summ  <-  plyr:::adply(as.matrix(m2.df),2,MCMCsum)[-1,]
 
 # Simple Diagnostic Plots
 plot(m2, pars="beta")
 pairs(m2, pars="beta")
 par(mfrow=c(5,5))
-plot(m2.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m2.mcmc, c("beta"), ask=TRUE)
+rstan::traceplot(m2, c("beta"), inc_warmup=FALSE)
+
 
 # Explore Correlation structure
 corrMat  <-  matrix(m2.summ[1241:2140,2], ncol=16,nrow=16)
@@ -283,9 +274,9 @@ plot(m2, pars="tau_run")
 #########################################
 # LOO Log-likelihood for model selection
 
-m2LL  <-  extract_log_lik(m2, parameter_name = "log_lik")
-m2Loo    <-  loo(m2LL)
-m2WAIC   <-  waic(m2LL)
+m2LL    <-  extract_log_lik(m2, parameter_name = "log_lik")
+m2Loo   <-  loo(m2LL)
+m2WAIC  <-  waic(m2LL)
 
 
 ##############################
@@ -351,18 +342,14 @@ X2sim2    <-  as.numeric(m2.df[,4070])
 print(m3, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m3, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m3.df    <-  as.data.frame(extract(m3))
-# mcmc.m3  <-  as.mcmc(m3)
-m3.mcmc  <-  rstan:::as.mcmc.list.stanfit(m3)
 m3.summ  <-  plyr:::adply(as.matrix(m3.df),2,MCMCsum)[-1,]
 
 # Simple Diagnostic Plots
 plot(m3, pars="beta")
 pairs(m3, pars="beta")
-par(mfrow=c(5,5))
-plot(m3.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m3.mcmc, c("beta"), ask=TRUE)
+rstan::traceplot(m3, c("beta"), inc_warmup=FALSE)
 
+print(m3, pars="gamma")
 
 # Explore Correlation structure
 corrMat  <-  matrix(m3.summ[631:1030,2], ncol=16,nrow=16)
@@ -393,8 +380,8 @@ print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
 ##  random effect distributions appear to be 
 ##  different from 0
 print(m3, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-plot(m3, pars="tau_run")
-
+rstan::plot(m3, pars="tau_run")
+rstan::traceplot(m3,pars="tau_run", inc_warmup=FALSE)
 
 #########################################
 # LOO Log-likelihood for model selection
@@ -463,10 +450,9 @@ X2sim3    <-  as.numeric(m3.df[,2360])
 # Model Results
 # print(m3a)
 print(m3a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m3a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m3a.df    <-  as.data.frame(extract(m3a))
-# mcmc.m3a  <-  as.mcmc(m3a)
-m3a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m3a)
 m3a.summ  <-  plyr:::adply(as.matrix(m3a.df),2,MCMCsum)[-1,]
 
 
@@ -474,10 +460,7 @@ m3a.summ  <-  plyr:::adply(as.matrix(m3a.df),2,MCMCsum)[-1,]
 plot(m3a, pars="beta")
 plot(m3a, pars="gamma0")
 pairs(m3a, pars="gamma1")
-par(mfrow=c(5,5))
-plot(m3a.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m3a.mcmc, c("beta"), ask=TRUE)
+rstan::traceplot(m3a, c("beta"), inc_warmup=FALSE)
 
 dev.off()
 
@@ -497,13 +480,13 @@ m3aWAIC   <-  waic(m3aLL)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m3a.df[1,276:395])/data$nEggs
+y  <-  as.numeric(m3a.df[1,271:390])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:500) {
   rm(y)
-  y  <-  as.numeric(m3a.df[i,276:395])/data$nEggs
+  y  <-  as.numeric(m3a.df[i,271:390])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -513,16 +496,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m3a.df[,396], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m3a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,397]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m3a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,398]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m3a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m3a.df[,399]), xlim=c(min(m3a.df[,399],sd(data$nFert)),max(m3a.df[,399],sd(data$nFert))),
+plot(density(m3a.df[,394]), xlim=c(min(m3a.df[,394],sd(data$nFert)),max(m3a.df[,394],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -532,8 +515,8 @@ print(m3a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-X2data3a   <-  as.numeric(m3a.df[,764])
-X2sim3a    <-  as.numeric(m3a.df[,765])
+X2data3a   <-  as.numeric(m3a.df[,759])
+X2sim3a    <-  as.numeric(m3a.df[,760])
 
 
 
@@ -553,20 +536,14 @@ X2sim3a    <-  as.numeric(m3a.df[,765])
 print(m4, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m4, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m4.df    <-  as.data.frame(extract(m4))
-# mcmc.m4  <-  as.mcmc(m4)
-m4.mcmc  <-  rstan:::as.mcmc.list.stanfit(m4)
 m4.summ  <-  plyr:::adply(as.matrix(m4.df),2,MCMCsum)[-1,]
 
 
 # Simple Diagnostic Plots
 plot(m4, pars="beta")
 pairs(m4, pars="beta")
-par(mfrow=c(5,5))
-plot(m4.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m4.mcmc, c("beta"), ask=TRUE)
+rstan::traceplot(m4.mcmc, c("beta"), inc_warmup=FALSE)
 
-dev.off()
 
 
 # Explore Correlation structure
@@ -599,6 +576,7 @@ print(m4, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
 ##  different from 0
 print(m4, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 plot(m4, pars="tau_run")
+rstan::traceplot(m4, pars="tau_run", inc_warmup=FALSE)
 
 #########################################
 # LOO Log-likelihood for model selection
@@ -606,8 +584,6 @@ plot(m4, pars="tau_run")
 m4LL  <-  extract_log_lik(m4, parameter_name = "log_lik")
 m4Loo    <-  loo(m4LL)
 m4WAIC   <-  waic(m4LL)
-
-
 
 
 ##############################
@@ -669,20 +645,14 @@ X2sim4    <-  as.numeric(m4.df[,1250])
 print(m4a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m4a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m4a.df    <-  as.data.frame(extract(m4a))
-# mcmc.m4a  <-  as.mcmc(m4a)
-m4a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m4a)
 m4a.summ  <-  plyr:::adply(as.matrix(m4a.df),2,MCMCsum)[-1,]
 
 
 # Simple Diagnostic Plots
 plot(m4a, pars="beta")
 pairs(m4a, pars="beta")
-par(mfrow=c(5,5))
-plot(m4a.mcmc, ask=TRUE)
-par(mfrow=c(3,2))
-traceplot(m4a.mcmc, c("beta"), ask=TRUE)
+rstan::traceplot(m4a, c("beta"), inc_warmup=FALSE)
 
-dev.off()
 
 #########################################
 # LOO Log-likelihood for model selection
@@ -753,9 +723,13 @@ X2sim4a    <-  as.numeric(m4a.df[,630])
 print(m5, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m5, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m5.df    <-  as.data.frame(extract(m5))
-# mcmc.m5  <-  as.mcmc(m5)
-m5.mcmc  <-  rstan:::as.mcmc.list.stanfit(m5)
 m5.summ  <-  plyr:::adply(as.matrix(m5.df),2,MCMCsum)[-1,]
+
+
+# Simple Diagnostic Plots
+plot(m5, pars="beta")
+pairs(m5, pars="beta")
+rstan::traceplot(m5, c("beta"), inc_warmup=FALSE)
 
 
 #########################################
@@ -824,7 +798,7 @@ X2data1    <-  as.numeric(m1.df[,6379])
 X2sim1     <-  as.numeric(m1.df[,6380])
 plotRange  <-  c(0,max(X2data1,X2data5))
 
-pdf(file='./output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
+# pdf(file='./output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
 par(omi=rep(0.3, 4))
 plot(X2sim5 ~ X2data5, 
     xlab=expression(paste(chi^2~discrepancy~of~observed~data)), ylab=expression(paste(chi^2~discrepancy~of~simulated~data)), 
@@ -890,7 +864,7 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-dev.off()
+# dev.off()
 
 
 
@@ -909,30 +883,32 @@ waicDiff  <-  compare(m1WAIC, m2WAIC, m3WAIC, m3aWAIC, m4WAIC, m4aWAIC, m5WAIC)
 print(looDiff, digits=4)
 print(waicDiff, digits=4)
 
-# order looList to match ranked order of models from looDiff
-row.names(looDiff)
-"m3Loo" "m4Loo" "m2Loo" "m2bLoo" "m1Loo"
-looList  <-  list(m3Loo,m4Loo,m2Loo,m2bLoo,m1Loo)
-names(looList)  <-  row.names(looDiff)
-
-
 # LOO Results Summary Table
-LooDiff  <-  makeLooTable(looDiff, looList)
+LooDiff  <-  makeLooTable(looDiff)
 (LooDiff)
 
 ###########################################################################
 ###########################################################################
 ## Main result from LOO model comparison:
 ##
-##  Model m3a:  Random intercept & slopes x Run wout COVARIANCE MATRIX 
-##             is probably the most parsimonious model for this analysis.
+##  Model m3a:  Random intercept & slopes x Run w/out covariance matrix
+##               is the most parsimonious model for this analysis.
 ##
-##  Modelling the covariance structure for this model (m3 vs. m3a) has  
-##  almsot no effect on the overall fit (LooDiff pValue = 0.XXX). 
-##  This is also reflected in the Chi-squared discrepancy posterior predictive 
-##  checks, ...  Thus, modelling the covariance structure here
-##  seems to improve model fit pretty well, despite the marginal difference
-##  in LOO.
+##  While model m2 provides a slightly better fit to the data over model
+##  m3a, this does not appear to be of statistical significance (LooDiff
+##  pValue = 0.676). 
+##
+##  Modelling the covariance structure for model m3a (m3a vs. m3) has  
+##  almost no effect on the overall fit (LooDiff pValue = 0.289), and model
+##  3a, in fact, fits slightly better . 
+##
+##  These results are reflected in the Chi-squared discrepancy posterior
+##  predictive checks, where models 3a & 3 are almost perfectly overlapping. 
+##  Models m1 and m2 appear to marginally improve the X^2 discrepancy 
+##  compared to model 3a, but given the MUCH lower model complexity for m3a,
+##  combined with the LOO results, model m3a seems the most appropriate
+##  choice for the final model upon which to base our inference.
+##
 ###########################################################################
 ###########################################################################
 
@@ -946,13 +922,12 @@ LooDiff  <-  makeLooTable(looDiff, looList)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-
 plot(density(m3.df[,1991], adjust=2), lwd=3, col=COLS[3], main='min_y_rep (min. num. Successes)')
-lines(density(m3a.df[,396], adjust=2), lwd=3, col=COLS[7])
+lines(density(m3a.df[,391], adjust=2), lwd=3, col=COLS[7])
 abline(v=min(data$nFert), lwd=3, col=2)
     legend(
           x       =  8,
-          y       =  0.4,
+          y       =  0.35,
           legend  =  c(
                       expression(paste(Model~3)),
                       expression(paste(Model~"3a"))),
@@ -969,22 +944,21 @@ abline(v=min(data$nFert), lwd=3, col=2)
     )
 
 plot(density(m3.df[,1992]), lwd=3, col=COLS[3], main='max_y_rep (max. num. Successes)')
-lines(density(m3a.df[,397]), lwd=3, col=COLS[7])
+lines(density(m3a.df[,392]), lwd=3, col=COLS[7])
 abline(v=max(data$nFert), lwd=3, col=2)
 
 plot(density(m3.df[,1993]), lwd=3, col=COLS[3], main='mean_y_rep (mean num. Successes)')
-lines(density(m3a.df[,398]), lwd=3, col=COLS[7])
+lines(density(m3a.df[,393]), lwd=3, col=COLS[7])
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m3.df[,1994]), xlim=c(min(m3.df[,1994],m3a.df[,399],sd(data$nFert)),max(m3.df[,1994],m3a.df[,399],sd(data$nFert))),
+plot(density(m3.df[,1994]), xlim=c(min(m3.df[,1994],m3a.df[,394],sd(data$nFert)),max(m3.df[,1994],m3a.df[,394],sd(data$nFert))),
  lwd=3, col=COLS[3], main='sd_y_rep (sd num. Successes)')
-lines(density(m3a.df[,399]), lwd=3, col=COLS[7], main='sd_y_rep (sd num. Successes)')
+lines(density(m3a.df[,394]), lwd=3, col=COLS[7], main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
 
 print(m3, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 print(m3a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-
 
 
 
@@ -1021,7 +995,7 @@ m3Slow.hi     <-  inv_logit((m3.hi[1] + m3.coef[3] + (0.5*(m3.coef[7]))) + (m3.c
 
 
 
-pdf(file='output/xRatexEggPos_m3.pdf', height=7, width=7)
+# pdf(file='output/xRatexEggPos_m3.pdf', height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -1070,14 +1044,10 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-dev.off()
-embed_fonts("./output/NxRatexEggPos_m3.pdf", outfile="./output/NxRatexEggPos_m3.pdf")
-
-
-
+# dev.off()
 
 dev.new()
-par(omi=rep(0.3, 4))
+# par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
     type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
@@ -1131,13 +1101,17 @@ axis(1)
 ##  Compare residual plots for m3 & m3a
 
 ##  look at residuals for m3
-m3yhat        <-  inv_logit(m3.summ$Mean[1030:1149])
+#m3yhat        <-  inv_logit(m3.summ$Mean[1030:1149]) # mus
+m3yhat        <-  (m3.summ$Mean[1999:2118])
 m3.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd(m3yhat)
 m3.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m3yhat))
-m3ayhat       <-  inv_logit(m3a.summ$Mean[404:523])
-m3a.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat)/sqrt(m3ayhat)
+#m3ayhat       <-  inv_logit(m3a.summ$Mean[32:151]) # mus
+m3ayhat       <-  (m3a.summ$Mean[403:522])
+m3a.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat)/sd(m3ayhat)
 m3a.resids_z  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m3ayhat))
 
+plot(m3yhat ~ m3ayhat, xlim=c(0,1), ylim=c(0,1))
+abline(a = 0, b = 1)
 
 ##  Model 3 Residual Plots
 par(mfrow=c(2,2))
@@ -1169,7 +1143,7 @@ qqline(m3a.resids_z, col = 2)
 # qqline(m3.resids, col = 2)
 
 # hist(m3a.resids, breaks=40)
-# plot(m3a.resids ~ nSperm_z)
+# plot(m3a.resids ~ data$nSperm_z)
 # abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
 # plot(m3a.resids ~ seq_along(m3a.resids))
 # abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
@@ -1178,5 +1152,13 @@ qqline(m3a.resids_z, col = 2)
 
 
 
-##  Model 3 Residual Plots
-par(mfrow=c(2,2))
+
+##  All of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0, 
+##  and yet further support for using model m3a
+##  for the analysis.
+print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+m3Corrs  <-  m3.summ$Mean[grep('corrs', names(m3.df))]
+plot(density(m3Corrs[m3Corrs < 0.2 & m3Corrs > -0.2]), xlim=c(-0.2,0.2))

@@ -177,6 +177,7 @@ rm(m2)
 #  Random Effects Model Matrix
 Z       <-  model.matrix(~ -1 + data$Run +
                                 data$Run:data$nSperm_z)
+Znames  <-  dimnames(Z)[[2]]
 Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
@@ -231,8 +232,11 @@ attr(Z0,"assign") <- NULL
 
 #  Random Intercepts Model Matrix
 Z1  <-  model.matrix(~ -1 +  data$Run:nSperm_z , data=data)
+Z1names  <-  dimnames(Z1)[[2]]
 Z1       <-  unname(Z1)
 attr(Z1,"assign") <- NULL
+
+
 
 #  Assemble data.list for stan
 data.list  <-  list(N   =  nrow(data),
@@ -248,7 +252,7 @@ data.list  <-  list(N   =  nrow(data),
 m3a <- stan(data         =  data.list,
             seed         =  456789123,
             file         =  './Stan/mat-logistic-2Z.stan',
-            sample_file  =  './output/StanFits/NxRate_m3a.csv',
+            sample_file  =  './output/StanFits/NxRate_m3a2Z.csv',
             chains       =  nChains,
             iter         =  nIter,
             thin         =  thinSteps,
@@ -266,6 +270,49 @@ rm(data.list)
 rm(m3a)
 
 
+########################################################
+#  Model m3a: Random intercept & slopes x Run 
+#      --  Random Effects: Run + Run*nSperm_z
+#      --  NO COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z)
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert - data$nControlFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+## Call to STAN
+m3a <- stan(data         =  data.list,
+           seed         =  567891234,
+           file         =  './Stan/mat-logistic-1Z.stan',
+           sample_file  =  './output/StanFits/NxRate_m3a.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+#           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m3a")
+system("notify-send \"STAN has finished fitting model m3a\"")
+
+# garbage collection
+rm(Z)
+rm(data.list)
+rm(m3a)
 
 ########################################################
 #  Model m4: Random intercept x Run 

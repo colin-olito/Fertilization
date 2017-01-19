@@ -1046,8 +1046,7 @@ LooDiff[c(1,2,4,9),]
 
 
 # or, using new makeLooTable() function:
-makeLooTable(looDiff, looList)
-
+makeLooTable(looDiff)
 ########################################
 ## Main result of LOO model comparison:
 #
