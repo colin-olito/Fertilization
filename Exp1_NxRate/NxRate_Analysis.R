@@ -134,10 +134,10 @@ par(mfrow=c(5,5))
 rstan::traceplot(m1, pars=c("beta", "tau_run"), inc_warmup=FALSE)
 
 # Explore Correlation structure
-corrMat  <-  matrix(m1.summ[2051:3650,2], ncol=16,nrow=16)
+corrMat  <-  matrix(m1.summ[2051:3650,2], ncol=40,nrow=40)
 corrplot(corrMat , method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=20.5)
+abline(h=20.5)
 
 for (i in 1:nrow(corrMat)) {
   for (j in 1:ncol(corrMat)) {
@@ -148,8 +148,8 @@ for (i in 1:nrow(corrMat)) {
 }
 
 corrplot(corrMat * 50, method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=20.5)
+abline(h=20.5)
 
 ##  Most of the estimated covariances lie between 
 ##  -0.015 and 0.015... with standard deviations
@@ -241,10 +241,10 @@ rstan::traceplot(m2, c("beta"), inc_warmup=FALSE)
 
 
 # Explore Correlation structure
-corrMat  <-  matrix(m2.summ[1241:2140,2], ncol=16,nrow=16)
+corrMat  <-  matrix(m2.summ[1241:2140,2], ncol=30,nrow=30)
 corrplot(corrMat , method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=15.5)
+abline(h=15.5)
 
 for (i in 1:nrow(corrMat)) {
   for (j in 1:ncol(corrMat)) {
@@ -255,8 +255,8 @@ for (i in 1:nrow(corrMat)) {
 }
 
 corrplot(corrMat * 50, method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=15.5)
+abline(h=15.5)
 
 ##  Most of the estimated covariances lie between 
 ##  -0.015 and 0.015... with standard deviations
@@ -352,10 +352,10 @@ rstan::traceplot(m3, c("beta"), inc_warmup=FALSE)
 print(m3, pars="gamma")
 
 # Explore Correlation structure
-corrMat  <-  matrix(m3.summ[631:1030,2], ncol=16,nrow=16)
+corrMat  <-  matrix(m3.summ[630:1029,2], ncol=20,nrow=20)
 corrplot(corrMat , method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=10.5)
+abline(h=10.5)
 
 for (i in 1:nrow(corrMat)) {
   for (j in 1:ncol(corrMat)) {
@@ -366,8 +366,8 @@ for (i in 1:nrow(corrMat)) {
 }
 
 corrplot(corrMat * 50, method='circle', type='upper')
-abline(v=8.5)
-abline(h=8.5)
+abline(v=10.5)
+abline(h=10.5)
 
 
 ##  Most of the estimated covariances lie between 
@@ -1162,3 +1162,228 @@ qqline(m3a.resids_z, col = 2)
 print(m3, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
 m3Corrs  <-  m3.summ$Mean[grep('corrs', names(m3.df))]
 plot(density(m3Corrs[m3Corrs < 0.2 & m3Corrs > -0.2]), xlim=c(-0.2,0.2))
+
+
+
+
+
+
+
+
+##  Calculate Predicted Lines
+m3.betas   <-  m3.df[,621:628]
+m3a.betas  <-  m3a.df[,2:9]
+
+b0Fast    <-  inv_logit((m3.betas[,1] + (m3.betas[,4])/2))
+b0Slow    <-  inv_logit((m3.betas[,1] + m3.betas[,3] + (0.5*(m3.betas[,7]))))
+b0Fast5   <-  inv_logit(m3.betas[,1])
+b0Fast55  <-  inv_logit((m3.betas[,1] + m3.betas[,4]))
+b0Slow5   <-  inv_logit((m3.betas[,1] + m3.betas[,3]))
+b0Slow55  <-  inv_logit((m3.betas[,1] + m3.betas[,3] + m3.betas[,7]))
+b1Fast    <-  inv_logit((m3.betas[,2] + (m3.betas[,6])/2))
+b1Slow    <-  inv_logit((m3.betas[,2] + m3.betas[,5] + (0.5*(m3.betas[,8]))))
+b1Fast5   <-  inv_logit(m3.betas[,2])
+b1Fast55  <-  inv_logit((m3.betas[,2] + m3.betas[,6]))
+b1Slow5   <-  inv_logit((m3.betas[,2] + m3.betas[,5]))
+b1Slow55  <-  inv_logit((m3.betas[,2] + m3.betas[,5] + m3.betas[,8]))
+
+b0Fast    <-  inv_logit((m3a.betas[,1] + (m3a.betas[,4])/2))
+b0Slow    <-  inv_logit((m3a.betas[,1] + m3a.betas[,3] + (0.5*(m3a.betas[,7]))))
+b0Fast5   <-  inv_logit(m3a.betas[,1])
+b0Fast55  <-  inv_logit((m3a.betas[,1] + m3a.betas[,4]))
+b0Slow5   <-  inv_logit((m3a.betas[,1] + m3a.betas[,3]))
+b0Slow55  <-  inv_logit((m3a.betas[,1] + m3a.betas[,3] + m3a.betas[,7]))
+b1Fast    <-  inv_logit((m3a.betas[,2] + (m3a.betas[,6])/2))
+b1Slow    <-  inv_logit((m3a.betas[,2] + m3a.betas[,5] + (0.5*(m3a.betas[,8]))))
+b1Fast5   <-  inv_logit(m3a.betas[,2])
+b1Fast55  <-  inv_logit((m3a.betas[,2] + m3a.betas[,6]))
+b1Slow5   <-  inv_logit((m3a.betas[,2] + m3a.betas[,5]))
+b1Slow55  <-  inv_logit((m3a.betas[,2] + m3a.betas[,5] + m3a.betas[,8]))
+
+pval  <-  function(x) length(x[x < 0])/length(x)
+plotContr  <-  function(Dens, name="title") {
+  plot(NA, xlab=expression(paste(Delta)), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, xlim=c(min(Dens$x), (max(Dens$x)+0.4*(max(Dens$x) - min(Dens$x)))), ylim=c(0, (max(Dens$y)+0.05*(max(Dens$y) - min(Dens$y)))), yaxs='i')
+  usr  <-  par('usr')
+  rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+  whiteGrid()
+  box()
+  polygon(c(Dens$x), c(Dens$y), col=transparentColor('dodgerblue2', 0.5), border='dodgerblue2')
+  abline(v=0, lwd=2,col=2)
+  axis(1, cex.axis=0.9)
+  axis(2, cex.axis=0.9, las=1)
+}
+
+c1   <-  b0Slow - b0Fast
+c2   <-  b1Slow - b1Fast
+c3   <-  b1Slow - 0
+c3b  <-  b1Fast - 0
+c4   <-  b0Fast5 - b0Fast55
+c5   <-  b1Fast5 - b1Fast55
+c6   <-  b0Slow5 - b0Slow55
+c7   <-  b1Slow5 - b1Slow55
+c8   <-  b0Fast5 - b0Slow5
+c9   <-  b1Fast5 - b1Slow5
+c10  <-  b0Fast55 - b0Slow55
+c11  <-  b1Fast55 - b1Slow55
+
+
+pval(c1)
+pval(c2)
+pval(c3)
+pval(c3b)
+pval(c4)
+pval(c5)
+pval(c6)
+pval(c7)
+pval(c8)
+pval(c9)
+pval(c10)
+pval(c11)
+
+par(mfrow=c(4,4))
+plotContr(density(c1))
+plotContr(density(c2))
+plotContr(density(c3))
+plotContr(density(c4))
+plotContr(density(c5))
+plotContr(density(c6))
+plotContr(density(c7))
+plotContr(density(c8))
+plotContr(density(c9))
+plotContr(density(c10))
+plotContr(density(c11))
+
+
+
+m3Fast5.neg2   <-  inv_logit(m3.betas[1] + m3.betas[2] * (-2))
+m3Fast55.neg2  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (-2))
+m3Slow5.neg2   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (-2))
+m3Slow55.neg2  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (-2))
+m3Fast.neg2    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (-2))
+m3Slow.neg2    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (-2))
+
+m3Fast5.neg1   <-  inv_logit(m3.betas[1] + m3.betas[2] * (-1))
+m3Fast55.neg1  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (-1))
+m3Slow5.neg1   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (-1))
+m3Slow55.neg1  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (-1))
+m3Fast.neg1    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (-1))
+m3Slow.neg1    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (-1))
+
+m3Fast5.0   <-  inv_logit(m3.betas[1] + m3.betas[2] * (0))
+m3Fast55.0  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (0))
+m3Slow5.0   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (0))
+m3Slow55.0  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (0))
+m3Fast.0    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (0))
+m3Slow.0    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (0))
+
+m3Fast5.1   <-  inv_logit(m3.betas[1] + m3.betas[2] * (1))
+m3Fast55.1  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (1))
+m3Slow5.1   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (1))
+m3Slow55.1  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (1))
+m3Fast.1    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (1))
+m3Slow.1    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (1))
+
+m3Fast5.2   <-  inv_logit(m3.betas[1] + m3.betas[2] * (2))
+m3Fast55.2  <-  inv_logit((m3.betas[1] + m3.betas[4]) + (m3.betas[2] + m3.betas[6]) * (2))
+m3Slow5.2   <-  inv_logit((m3.betas[1] + m3.betas[3]) + (m3.betas[2] + m3.betas[5]) * (2))
+m3Slow55.2  <-  inv_logit((m3.betas[1] + m3.betas[3] + m3.betas[7]) + (m3.betas[2] + m3.betas[5] + m3.betas[8]) * (2))
+m3Fast.2    <-  inv_logit((m3.betas[1] + (m3.betas[4])/2) + (m3.betas[2] + (m3.betas[6])/2) * (2))
+m3Slow.2    <-  inv_logit((m3.betas[1] + m3.betas[3] + (0.5*(m3.betas[7]))) + (m3.betas[2] + m3.betas[5] + (0.5*(m3.betas[8]))) * (2))
+
+
+simpContr  <-  list(
+  cSimp1   =  m3Fast5.neg2[,1] - m3Fast55.neg2[,1],
+  cSimp2   =  m3Slow5.neg2[,1] - m3Slow55.neg2[,1],
+  cSimp3   =  m3Fast5.neg2[,1] - m3Slow5.neg2[,1],
+  cSimp4   =  m3Fast55.neg2[,1] - m3Slow55.neg2[,1],
+  cSimp5   =  m3Fast.neg2[,1] - m3Slow.neg2[,1],
+  cSimp6   =  m3Fast5.neg1[,1] - m3Fast55.neg1[,1],
+  cSimp7   =  m3Slow5.neg1[,1] - m3Slow55.neg1[,1],
+  cSimp8   =  m3Fast5.neg1[,1] - m3Slow5.neg1[,1],
+  cSimp9   =  m3Fast55.neg1[,1] - m3Slow55.neg1[,1],
+  cSimp10  =  m3Fast.neg1[,1] - m3Slow.neg1[,1],
+  cSimp11  =  m3Fast5.0[,1] - m3Fast55.0[,1],
+  cSimp12  =  m3Slow5.0[,1] - m3Slow55.0[,1],
+  cSimp13  =  m3Fast5.0[,1] - m3Slow5.0[,1],
+  cSimp14  =  m3Fast55.0[,1] - m3Slow55.0[,1],
+  cSimp15  =  m3Fast.0[,1] - m3Slow.0[,1],
+  cSimp16  =  m3Fast5.1[,1] - m3Fast55.1[,1],
+  cSimp17  =  m3Slow5.1[,1] - m3Slow55.1[,1],
+  cSimp18  =  m3Fast5.1[,1] - m3Slow5.1[,1],
+  cSimp19  =  m3Fast55.1[,1] - m3Slow55.1[,1],
+  cSimp20  =  m3Fast.1[,1] - m3Slow.1[,1],
+  cSimp21  =  m3Fast5.2[,1] - m3Fast55.2[,1],
+  cSimp22  =  m3Slow5.2[,1] - m3Slow55.2[,1],
+  cSimp23  =  m3Fast5.2[,1] - m3Slow5.2[,1],
+  cSimp24  =  m3Fast55.2[,1] - m3Slow55.2[,1],
+  cSimp25  =  m3Fast.2[,1] - m3Slow.2[,1]
+)
+
+pdf(file="./output/contrast_histograms2.pdf", height=18, width=20)
+par(mfrow=c(5,5), omi=rep(0.4,4))
+plotContr(density(simpContr[[1]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+proportionalLabel(-0.25, 0.5, expression(paste('x = -2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[2]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow.5 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[3]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Slow.5')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[4]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.55 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[5]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow - Fast')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+for (i in 6:25) {
+  plotContr(density(simpContr[[i]]))
+  if(i == 6)
+    proportionalLabel(-0.25, 0.5, expression(paste('x = -1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+  if(i == 11)
+    proportionalLabel(-0.25, 0.5, expression(paste('x = 0',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+  if(i == 16)
+    proportionalLabel(-0.25, 0.5, expression(paste('x = 1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+  if(i == 21)
+    proportionalLabel(-0.25, 0.5, expression(paste('x = 2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+}
+dev.off()
+
+
+plotContr(density(simpContr[[1]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+proportionalLabel(-0.25, 0.5, expression(paste('x = -2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[2]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow.5 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[3]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Slow.5')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[4]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.55 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+plotContr(density(simpContr[[5]]))
+proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast - Slow')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+
+
+
+
+###########################################################################
+###########################################################################
+## Main result from a posteriori contrasts:
+##
+##  There is a significant Rate x EggPos interaction for the Fast release
+##  rate intercept (remember, data is Z-transformed, so intercept refers
+##  to mean of nSperm_z, the center of the data). The slopes are not
+##  significantly different. 
+##
+##  There is no corresponding significant nSperm_z x EggPos interaction for 
+##  the Slow treatment. 
+## 
+##  There is a significant Rate effect, but this is only for the slopes,
+##  not the intercepts. Accordingly, the simple contrasts between the 
+##  predicted lines for Fast v. Slow treatments become significant only at
+##  sigma >= 1.
+##
+##  Given these results, my inclination is to plot the main effect for th
+##  Slow treatment (pooled regression line), but both 5cm and 55cm lines
+##  for the Fast treatment... with different intercepts, but overall slope.
+##  This should simplify the figure, and focus attention on the trend that 
+##  is driving the overall result: The higher intercept for the 55cm Fast
+##  regression line.
+##
+###########################################################################
+###########################################################################

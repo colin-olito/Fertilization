@@ -693,7 +693,8 @@ pval(c9)
 pval(c10)
 pval(c11)
 
-plotContr(density(c3))
+par
+plotContr(density(c4))
 
 
 
