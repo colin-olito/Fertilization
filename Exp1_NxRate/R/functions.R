@@ -202,3 +202,29 @@ transparentColor <- function(col, opacity=0.5) {
         rgb(tmp[1,], tmp[2,], tmp[3,], alpha=opacity)
     }
 }
+
+
+#' Quick calcualtion of pvalue from stan sample data
+#'
+#' @title Quick calcualtion of pvalue from stan sample data
+#' @param x relevant column of stan sample
+#' @export
+pval  <-  function(x) length(x[x < 0])/length(x)
+
+#' Makes density plot for contrasts 
+#'
+#' @title Makes density plot for contrasts 
+#' @param Dens density object that needs plotting
+#' @param name name for plot
+#' @export
+plotContr  <-  function(Dens, name="title") {
+  plot(NA, xlab=expression(paste(Delta)), type='n', axes=FALSE, ylab='Density', cex.lab=1.2, xlim=c(min(Dens$x), (max(Dens$x)+0.4*(max(Dens$x) - min(Dens$x)))), ylim=c(0, (max(Dens$y)+0.05*(max(Dens$y) - min(Dens$y)))), yaxs='i')
+  usr  <-  par('usr')
+  rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+  whiteGrid()
+  box()
+  polygon(c(Dens$x), c(Dens$y), col=transparentColor('dodgerblue2', 0.5), border='dodgerblue2')
+  abline(v=0, lwd=2,col=2)
+  axis(1, cex.axis=0.9)
+  axis(2, cex.axis=0.9, las=1)
+}

@@ -93,6 +93,57 @@ csvFiles  <-  c('./output/StanFits/NxRate_m5.csv1',
 m5        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
+csvFiles  <-  c('./output/StanFits/NxRate_m6.csv1',
+                './output/StanFits/NxRate_m6.csv2',
+                './output/StanFits/NxRate_m6.csv3')
+m6        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m6a.csv1',
+                './output/StanFits/NxRate_m6a.csv2',
+                './output/StanFits/NxRate_m6a.csv3')
+m6a        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m7.csv1',
+                './output/StanFits/NxRate_m7.csv2',
+                './output/StanFits/NxRate_m7.csv3')
+m7        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m7a.csv1',
+                './output/StanFits/NxRate_m7a.csv2',
+                './output/StanFits/NxRate_m7a.csv3')
+m7a        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+
+csvFiles  <-  c('./output/StanFits/NxRate_m8.csv1',
+                './output/StanFits/NxRate_m8.csv2',
+                './output/StanFits/NxRate_m8.csv3')
+m8        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+
+csvFiles  <-  c('./output/StanFits/NxRate_m8a.csv1',
+                './output/StanFits/NxRate_m8a.csv2',
+                './output/StanFits/NxRate_m8a.csv3')
+m8a        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+
+csvFiles  <-  c('./output/StanFits/NxRate_m9.csv1',
+                './output/StanFits/NxRate_m9.csv2',
+                './output/StanFits/NxRate_m9.csv3')
+m9        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+
+csvFiles  <-  c('./output/StanFits/NxRate_m9a.csv1',
+                './output/StanFits/NxRate_m9a.csv2',
+                './output/StanFits/NxRate_m9a.csv3')
+m9a        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
 
 
 
@@ -343,6 +394,7 @@ print(m3, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m3, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m3.df    <-  as.data.frame(extract(m3))
 m3.summ  <-  plyr:::adply(as.matrix(m3.df),2,MCMCsum)[-1,]
+m3.mcmc  <-  rstan:::as.mcmc.list.stanfit(m3)
 
 # Simple Diagnostic Plots
 plot(m3, pars="beta")
@@ -454,12 +506,11 @@ print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m3a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m3a.df    <-  as.data.frame(extract(m3a))
 m3a.summ  <-  plyr:::adply(as.matrix(m3a.df),2,MCMCsum)[-1,]
-
+m3a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m3a)
 
 # Simple Diagnostic Plots
 plot(m3a, pars="beta")
-plot(m3a, pars="gamma0")
-pairs(m3a, pars="gamma1")
+pairs(m3a, pars="gamma")
 rstan::traceplot(m3a, c("beta"), inc_warmup=FALSE)
 
 dev.off()
@@ -735,7 +786,7 @@ rstan::traceplot(m5, c("beta"), inc_warmup=FALSE)
 #########################################
 # LOO Log-likelihood for model selection
 
-m5LL  <-  extract_log_lik(m5, parameter_name = "log_lik")
+m5LL     <-  extract_log_lik(m5, parameter_name = "log_lik")
 m5Loo    <-  loo(m5LL)
 m5WAIC   <-  waic(m5LL)
 
@@ -788,9 +839,784 @@ X2sim5    <-  as.numeric(m5.df[,619])
 
 
 
+######################################################################################################
+######################################################################################################
+#  Models including random effects including EggPos
 
-###################################################
-###################################################
+
+
+
+##########################################################################
+# Model: m6
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m6)
+print(m6, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m6, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m6.df    <-  as.data.frame(extract(m6))
+m6.summ  <-  plyr:::adply(as.matrix(m6.df),2,MCMCsum)[-1,]
+m6.mcmc  <-  rstan:::as.mcmc.list.stanfit(m6)
+
+# Simple Diagnostic Plots
+plot(m6, pars="beta")
+pairs(m6, pars="beta")
+rstan::traceplot(m6, c("beta"), inc_warmup=FALSE)
+
+print(m6, pars="gamma")
+
+# Explore Correlation structure
+corrMat  <-  matrix(m6.summ[630:1029,2], ncol=20,nrow=20)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  corrMat[corrMat == 1]  = 0
+  }
+}
+
+corrplot(corrMat * 50, method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m6, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m6, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+rstan::plot(m6, pars="tau_run")
+rstan::traceplot(m6,pars="tau_run", inc_warmup=FALSE)
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m6LL     <-  extract_log_lik(m6, parameter_name = "log_lik")
+m6Loo    <-  loo(m6LL)
+m6WAIC   <-  waic(m6LL)
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m6.df[1,1871:1990])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m6.df[i,1871:1990])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m6.df[,1991], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m6.df[,1992]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m6.df[,1993]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m6.df[,1994]), xlim=c(min(m6.df[,1994],sd(data$nFert)),max(m6.df[,1994],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m6, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data6   <-  as.numeric(m6.df[,2359])
+X2sim6    <-  as.numeric(m6.df[,2360])
+
+
+
+
+
+
+##########################################################################
+# Model: m6a
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m6a)
+print(m6a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m6a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m6a.df    <-  as.data.frame(extract(m6a))
+m6a.summ  <-  plyr:::adply(as.matrix(m6a.df),2,MCMCsum)[-1,]
+m6a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m6a)
+
+# Simple Diagnostic Plots
+plot(m6a, pars="beta")
+plot(m6a, pars="gamma0")
+pairs(m6a, pars="gamma1")
+rstan::traceplot(m6a, c("beta"), inc_warmup=FALSE)
+
+dev.off()
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m6aLL     <-  extract_log_lik(m6a, parameter_name = "log_lik")
+m6aLoo    <-  loo(m6aLL)
+m6aWAIC   <-  waic(m6aLL)
+
+
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m6a.df[1,271:390])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m6a.df[i,271:390])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m6a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m6a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m6a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m6a.df[,394]), xlim=c(min(m6a.df[,394],sd(data$nFert)),max(m6a.df[,394],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m6a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data6a   <-  as.numeric(m6a.df[,759])
+X2sim6a    <-  as.numeric(m6a.df[,760])
+
+
+
+
+##########################################################################
+# Model: m7
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m7)
+print(m7, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m7, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m7.df    <-  as.data.frame(extract(m7))
+m7.summ  <-  plyr:::adply(as.matrix(m7.df),2,MCMCsum)[-1,]
+m7.mcmc  <-  rstan:::as.mcmc.list.stanfit(m7)
+
+# Simple Diagnostic Plots
+plot(m7, pars="beta")
+pairs(m7, pars="beta")
+rstan::traceplot(m7, c("beta"), inc_warmup=FALSE)
+
+print(m7, pars="gamma")
+
+# Explore Correlation structure
+corrMat  <-  matrix(m7.summ[630:1029,2], ncol=20,nrow=20)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  corrMat[corrMat == 1]  = 0
+  }
+}
+
+corrplot(corrMat * 50, method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m7, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m7, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+rstan::plot(m7, pars="tau_run")
+rstan::traceplot(m7,pars="tau_run", inc_warmup=FALSE)
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m7LL     <-  extract_log_lik(m7, parameter_name = "log_lik")
+m7Loo    <-  loo(m7LL)
+m7WAIC   <-  waic(m7LL)
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m7.df[1,1871:1990])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m7.df[i,1871:1990])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m7.df[,1991], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m7.df[,1992]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m7.df[,1993]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m7.df[,1994]), xlim=c(min(m7.df[,1994],sd(data$nFert)),max(m7.df[,1994],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m7, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data7   <-  as.numeric(m7.df[,2359])
+X2sim7    <-  as.numeric(m7.df[,2360])
+
+
+
+
+
+
+##########################################################################
+# Model: m7a
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m7a)
+print(m7a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m7a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m7a.df    <-  as.data.frame(extract(m7a))
+m7a.summ  <-  plyr:::adply(as.matrix(m7a.df),2,MCMCsum)[-1,]
+m7a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m7a)
+
+# Simple Diagnostic Plots
+plot(m7a, pars="beta")
+plot(m7a, pars="gamma0")
+pairs(m7a, pars="gamma1")
+rstan::traceplot(m7a, c("beta"), inc_warmup=FALSE)
+
+dev.off()
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m7aLL     <-  extract_log_lik(m7a, parameter_name = "log_lik")
+m7aLoo    <-  loo(m7aLL)
+m7aWAIC   <-  waic(m7aLL)
+
+
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m7a.df[1,271:390])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m7a.df[i,271:390])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m7a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m7a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m7a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m7a.df[,394]), xlim=c(min(m7a.df[,394],sd(data$nFert)),max(m7a.df[,394],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m7a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data7a   <-  as.numeric(m7a.df[,759])
+X2sim7a    <-  as.numeric(m7a.df[,760])
+
+
+
+
+##########################################################################
+# Model: m8
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m8)
+print(m8, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m8, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m8.df    <-  as.data.frame(extract(m8))
+m8.summ  <-  plyr:::adply(as.matrix(m8.df),2,MCMCsum)[-1,]
+m8.mcmc  <-  rstan:::as.mcmc.list.stanfit(m8)
+
+# Simple Diagnostic Plots
+plot(m8, pars="beta")
+pairs(m8, pars="beta")
+rstan::traceplot(m8, c("beta"), inc_warmup=FALSE)
+
+print(m8, pars="gamma")
+
+# Explore Correlation structure
+corrMat  <-  matrix(m8.summ[630:1029,2], ncol=20,nrow=20)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  corrMat[corrMat == 1]  = 0
+  }
+}
+
+corrplot(corrMat * 50, method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m8, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m8, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+rstan::plot(m8, pars="tau_run")
+rstan::traceplot(m8,pars="tau_run", inc_warmup=FALSE)
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m8LL     <-  extract_log_lik(m8, parameter_name = "log_lik")
+m8Loo    <-  loo(m8LL)
+m8WAIC   <-  waic(m8LL)
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m8.df[1,1871:1990])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m8.df[i,1871:1990])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m8.df[,1991], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m8.df[,1992]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m8.df[,1993]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m8.df[,1994]), xlim=c(min(m8.df[,1994],sd(data$nFert)),max(m8.df[,1994],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m8, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data8   <-  as.numeric(m8.df[,2359])
+X2sim8    <-  as.numeric(m8.df[,2360])
+
+
+
+
+
+
+##########################################################################
+# Model: m8a
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m8a)
+print(m8a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m8a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m8a.df    <-  as.data.frame(extract(m8a))
+m8a.summ  <-  plyr:::adply(as.matrix(m8a.df),2,MCMCsum)[-1,]
+m8a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m8a)
+
+# Simple Diagnostic Plots
+plot(m8a, pars="beta")
+pairs(m8a, pars="gamma")
+rstan::traceplot(m8a, c("beta"), inc_warmup=FALSE)
+
+dev.off()
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m8aLL     <-  extract_log_lik(m8a, parameter_name = "log_lik")
+m8aLoo    <-  loo(m8aLL)
+m8aWAIC   <-  waic(m8aLL)
+
+
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m8a.df[1,271:390])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m8a.df[i,271:390])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m8a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m8a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m8a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m8a.df[,394]), xlim=c(min(m8a.df[,394],sd(data$nFert)),max(m8a.df[,394],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m8a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data8a   <-  as.numeric(m8a.df[,759])
+X2sim8a    <-  as.numeric(m8a.df[,760])
+
+
+
+
+##########################################################################
+# Model: m9
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m9)
+print(m9, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m9, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m9.df    <-  as.data.frame(extract(m9))
+m9.summ  <-  plyr:::adply(as.matrix(m9.df),2,MCMCsum)[-1,]
+m9.mcmc  <-  rstan:::as.mcmc.list.stanfit(m9)
+
+# Simple Diagnostic Plots
+plot(m9, pars="beta")
+pairs(m9, pars="beta")
+rstan::traceplot(m9, c("beta"), inc_warmup=FALSE)
+
+print(m9, pars="gamma")
+
+# Explore Correlation structure
+corrMat  <-  matrix(m9.summ[630:1029,2], ncol=20,nrow=20)
+corrplot(corrMat , method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+for (i in 1:nrow(corrMat)) {
+  for (j in 1:ncol(corrMat)) {
+    if(i == j)
+      corrMat[i,j] = 0
+  corrMat[corrMat == 1]  = 0
+  }
+}
+
+corrplot(corrMat * 50, method='circle', type='upper')
+abline(v=10.5)
+abline(h=10.5)
+
+
+##  Most of the estimated covariances lie between 
+##  -0.015 and 0.015... with standard deviations
+##  in the neighborhood of 0.21... providing strong
+##  evidence that these correlations could be 0
+print(m9, c("corrs"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95),digits=3);
+
+##  But the standard deviations of unconditional 
+##  random effect distributions appear to be 
+##  different from 0
+print(m9, c("tau_run"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+rstan::plot(m9, pars="tau_run")
+rstan::traceplot(m9,pars="tau_run", inc_warmup=FALSE)
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m9LL     <-  extract_log_lik(m9, parameter_name = "log_lik")
+m9Loo    <-  loo(m9LL)
+m9WAIC   <-  waic(m9LL)
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m9.df[1,1871:1990])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m9.df[i,1871:1990])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m9.df[,1991], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m9.df[,1992]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m9.df[,1993]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m9.df[,1994]), xlim=c(min(m9.df[,1994],sd(data$nFert)),max(m9.df[,1994],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m9, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data9   <-  as.numeric(m9.df[,2359])
+X2sim9    <-  as.numeric(m9.df[,2360])
+
+
+
+
+
+
+##########################################################################
+# Model: m9a
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+# print(m9a)
+print(m9a, c("beta", "lp__"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+# print(m9a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+m9a.df    <-  as.data.frame(extract(m9a))
+m9a.summ  <-  plyr:::adply(as.matrix(m9a.df),2,MCMCsum)[-1,]
+m9a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m9a)
+
+# Simple Diagnostic Plots
+plot(m9a, pars="beta")
+pairs(m9a, pars="gamma")
+rstan::traceplot(m9a, c("beta"), inc_warmup=FALSE)
+
+dev.off()
+
+#########################################
+# LOO Log-likelihood for model selection
+
+m9aLL     <-  extract_log_lik(m9a, parameter_name = "log_lik")
+m9aLoo    <-  loo(m9aLL)
+m9aWAIC   <-  waic(m9aLL)
+
+
+
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m9a.df[1,271:390])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:500) {
+  rm(y)
+  y  <-  as.numeric(m9a.df[i,271:390])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m4.summ
+par(mfrow=c(2,2))
+plot(density(m9a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m9a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m9a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m9a.df[,394]), xlim=c(min(m9a.df[,394],sd(data$nFert)),max(m9a.df[,394],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m9a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+
+# Chi-squared goodness of fit measure of discrepancy
+# for simulated data ~ real data
+
+X2data9a   <-  as.numeric(m9a.df[,759])
+X2sim9a    <-  as.numeric(m9a.df[,760])
+
+
+
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
 #  Plot of Chi-squared discrepancy for all models
 
 # Plot Range for PPC plots
@@ -1227,18 +2053,18 @@ c10  <-  b0Fast55 - b0Slow55
 c11  <-  b1Fast55 - b1Slow55
 
 
-pval(c1)
-pval(c2)
-pval(c3)
-pval(c3b)
-pval(c4)
-pval(c5)
-pval(c6)
-pval(c7)
-pval(c8)
-pval(c9)
-pval(c10)
-pval(c11)
+pval(c1)     # b0Slow - b0Fast
+pval(c2)     # b1Slow - b1Fast
+pval(c3)     # b1Slow - 0
+pval(c3b)    # b1Fast - 0
+pval(c4)     # b0Fast5 - b0Fast55
+pval(c5)     # b1Fast5 - b1Fast55
+pval(c6)     # b0Slow5 - b0Slow55
+pval(c7)     # b1Slow5 - b1Slow55
+pval(c8)     # b0Fast5 - b0Slow5
+pval(c9)     # b1Fast5 - b1Slow5
+pval(c10)    # b0Fast55 - b0Slow55
+pval(c11)    # b1Fast55 - b1Slow55
 
 par(mfrow=c(4,4))
 plotContr(density(c1))

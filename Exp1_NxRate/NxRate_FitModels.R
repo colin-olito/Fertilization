@@ -216,7 +216,7 @@ rm(m3)
 
 
 ########################################################
-#  Model m3a: Random intercept & slopes x Run 
+#  Model m3a_2Z: Random intercept & slopes x Run 
 #			 --  Random Effects: Run + Run*nSperm_z
 #			 --  NO COVARIANCE MATRIX
 ########################################################
@@ -342,7 +342,7 @@ data.list  <-  list(N    =  nrow(data),
 
 ## Call to STAN
 m4 <- stan(data         =  data.list,
-           seed         =  567891234,
+           seed         =  678912345,
            file         =  './Stan/mat-logistic-1Z-cov.stan',
            sample_file  =  './output/StanFits/NxRate_m4.csv',
            chains       =  nChains,
@@ -387,7 +387,7 @@ data.list  <-  list(N   =  nrow(data),
 
 ## Call to STAN
 m4a <- stan(data        =  data.list,
-            seed         =  678912345,
+            seed         =  789123456,
             file        =  './Stan/mat-logistic-1Z.stan',
             sample_file  =  './output/StanFits/NxRate_m4a.csv',
             chains      =  nChains,
@@ -426,7 +426,7 @@ data.list  <-  list(N   =  nrow(data),
 
 # Call to STAN
 m5 <- stan(data         =  data.list,
-           seed         =  678912345,
+           seed         =  891234567,
            file         =  './Stan/mat-logistic-reg.stan',
            sample_file  =  './output/StanFits/NxRate_m5.csv',
            chains       =  nChains,
@@ -445,3 +445,384 @@ rm(m5)
 
 
 
+
+########################################################
+#  Model m6: Random intercept & slopes x Run and Run:Eggpos
+#      --  Random Effects: Run + Run*nSperm_z + 
+#                                Run:EggPos + Run:EggPos:nSperm_z
+#      --  WITH COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+#  Not enough observations to include EggPos ixns! Results in only 
+#  3 observations per run.
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z +
+                                data$Run:data$EggPos + 
+                                data$Run:data$EggPos:data$nSperm_z)
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+#  Create data.list for stan
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
+                   )
+
+
+# Call to STAN
+m6 <- stan(data         =  data.list,
+           seed         =  12345678,
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m6.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+           save_dso     =  TRUE
+          )
+
+#  Notification
+system('notify-send "Sampling for model m6 complete"')
+print("Sampling for model m6 complete")
+
+# garbage collection
+rm(data.list)
+rm(Z)
+rm(m6)
+
+
+########################################################
+#  Model m6a: Random intercept & slopes x Run and Run:Eggpos
+#      --  Random Effects: Run + Run*nSperm_z + 
+#                                Run:EggPos + Run:EggPos:nSperm_z
+#      --  NO COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z + 
+                                data$Run:data$EggPos + 
+                                data$Run:data$EggPos:data$nSperm_z)
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert - data$nControlFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+## Call to STAN
+m6a <- stan(data         =  data.list,
+           seed         =  23456781,
+           file         =  './Stan/mat-logistic-1Z.stan',
+           sample_file  =  './output/StanFits/NxRate_m6a.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+#           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m6a")
+system("notify-send \"STAN has finished fitting model m6a\"")
+
+
+########################################################
+#  Model m7: Random intercept & slopes x Run and Run:Eggpos
+#      --  Random Effects: Run + Run*nSperm_z + 
+#                                Run:EggPos 
+#      --  WITH COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+#  Not enough observations to include EggPos ixns! Results in only 
+#  3 observations per run.
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z +
+                                data$Run:data$EggPos)
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+#  Create data.list for stan
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
+                   )
+
+
+# Call to STAN
+m7 <- stan(data         =  data.list,
+           seed         =  34567812,
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m7.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+           save_dso     =  TRUE
+          )
+
+#  Notification
+system('notify-send "Sampling for model m7 complete"')
+print("Sampling for model m7 complete")
+
+# garbage collection
+rm(data.list)
+rm(Z)
+rm(m7)
+
+
+########################################################
+#  Model m7a: 
+#      --  Random Effects: Run + Run*nSperm_z + Run*EggPos
+#      --  NO COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z + 
+                                data$Run:data$EggPos)
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert - data$nControlFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+## Call to STAN
+m7a <- stan(data         =  data.list,
+           seed         =  45678123,
+           file         =  './Stan/mat-logistic-1Z.stan',
+           sample_file  =  './output/StanFits/NxRate_m7a.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+#           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m7a")
+system("notify-send \"STAN has finished fitting model m7a\"")
+
+# garbage collection
+rm(Z)
+rm(data.list)
+rm(m7a)
+
+
+
+
+
+
+########################################################
+#  Model m8: 
+#      --  Random Effects: Run + Run:EggPos + Run:EggPos:nSperm_z
+#      --  WITH COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+#  Not enough observations to include EggPos ixns! Results in only 
+#  3 observations per run.
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$EggPos + 
+                                data$Run:data$EggPos:data$nSperm_z)
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+#  Create data.list for stan
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
+                   )
+
+
+# Call to STAN
+m8 <- stan(data         =  data.list,
+           seed         =  56781234,
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m8.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+           save_dso     =  TRUE
+          )
+
+#  Notification
+system('notify-send "Sampling for model m8 complete"')
+print("Sampling for model m8 complete")
+
+# garbage collection
+rm(data.list)
+rm(Z)
+rm(m8)
+
+
+########################################################
+#  Model m8a:
+#      --  Random Effects: Run + Run:EggPos + Run:EggPos:nSperm_z
+#      --  NO COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$EggPos + 
+                                data$Run:data$EggPos:data$nSperm_z)
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert - data$nControlFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+## Call to STAN
+m8a <- stan(data         =  data.list,
+           seed         =  67812345,
+           file         =  './Stan/mat-logistic-1Z.stan',
+           sample_file  =  './output/StanFits/NxRate_m8a.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+#           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m8a")
+system("notify-send \"STAN has finished fitting model m8a\"")
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+#  Model m9:
+#      --  Random Effects: Run + Run:EggPos
+#      --  WITH COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+#  Not enough observations to include EggPos ixns! Results in only 
+#  3 observations per run.
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$EggPos)
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+#  Create data.list for stan
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
+                   )
+
+
+# Call to STAN
+m9 <- stan(data         =  data.list,
+           seed         =  78123456,
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m9.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+           save_dso     =  TRUE
+          )
+
+#  Notification
+system('notify-send "Sampling for model m9 complete"')
+print("Sampling for model m9 complete")
+
+# garbage collection
+rm(data.list)
+rm(Z)
+rm(m9)
+
+
+########################################################
+#  Model m9a:
+#      --  Random Effects: Run + Run:EggPos
+#      --  NO COVARIANCE MATRIX
+########################################################
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$EggPos )
+Znames  <-  dimnames(Z)[[2]]
+Z       <-  unname(Z)
+attr(Z,"assign") <- NULL
+
+##  Assemble data for stan
+data.list  <-  list(N   =  nrow(data),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  data$nEggs,
+                    nS  =  data$nFert - data$nControlFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+## Call to STAN
+m9a <- stan(data         =  data.list,
+           seed         =  81234567,
+           file         =  './Stan/mat-logistic-1Z.stan',
+           sample_file  =  './output/StanFits/NxRate_m9a.csv',
+           chains       =  nChains,
+           iter         =  nIter,
+           thin         =  thinSteps,
+#           control      =  list(adapt_delta = 0.9) # default adapt_delta of 0.8 threw many divergent transitions. 
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m9a")
+system("notify-send \"STAN has finished fitting model m9a\"")
