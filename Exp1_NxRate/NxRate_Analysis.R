@@ -117,13 +117,11 @@ csvFiles  <-  c('./output/StanFits/NxRate_m7a.csv1',
 m7a        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
-
 csvFiles  <-  c('./output/StanFits/NxRate_m8.csv1',
                 './output/StanFits/NxRate_m8.csv2',
                 './output/StanFits/NxRate_m8.csv3')
 m8        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
-
 
 csvFiles  <-  c('./output/StanFits/NxRate_m8a.csv1',
                 './output/StanFits/NxRate_m8a.csv2',
@@ -131,13 +129,11 @@ csvFiles  <-  c('./output/StanFits/NxRate_m8a.csv1',
 m8a        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
-
 csvFiles  <-  c('./output/StanFits/NxRate_m9.csv1',
                 './output/StanFits/NxRate_m9.csv2',
                 './output/StanFits/NxRate_m9.csv3')
 m9        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
-
 
 csvFiles  <-  c('./output/StanFits/NxRate_m9a.csv1',
                 './output/StanFits/NxRate_m9a.csv2',
@@ -265,7 +261,6 @@ dev.off()
 
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
-
 X2data1   <-  as.numeric(m1.df[,6379])
 X2sim1    <-  as.numeric(m1.df[,6380])
 
@@ -971,12 +966,11 @@ print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m6a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m6a.df    <-  as.data.frame(extract(m6a))
 m6a.summ  <-  plyr:::adply(as.matrix(m6a.df),2,MCMCsum)[-1,]
-m6a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m6a)
+# m6a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m6a)
 
 # Simple Diagnostic Plots
 plot(m6a, pars="beta")
-plot(m6a, pars="gamma0")
-pairs(m6a, pars="gamma1")
+plot(m6a, pars="gamma")
 rstan::traceplot(m6a, c("beta"), inc_warmup=FALSE)
 
 dev.off()
@@ -997,13 +991,13 @@ m6aWAIC   <-  waic(m6aLL)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m6a.df[1,271:390])/data$nEggs
+y  <-  as.numeric(m6a.df[1,291:410])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:500) {
   rm(y)
-  y  <-  as.numeric(m6a.df[i,271:390])/data$nEggs
+  y  <-  as.numeric(m6a.df[i,291:410])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -1013,16 +1007,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m6a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m6a.df[,411], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m6a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m6a.df[,412]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m6a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m6a.df[,413]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m6a.df[,394]), xlim=c(min(m6a.df[,394],sd(data$nFert)),max(m6a.df[,394],sd(data$nFert))),
+plot(density(m6a.df[,414]), xlim=c(min(m6a.df[,414],sd(data$nFert)),max(m6a.df[,414],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -1032,8 +1026,8 @@ print(m6a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-X2data6a   <-  as.numeric(m6a.df[,759])
-X2sim6a    <-  as.numeric(m6a.df[,760])
+X2data6a   <-  as.numeric(m6a.df[,779])
+X2sim6a    <-  as.numeric(m6a.df[,780])
 
 
 
@@ -1163,7 +1157,7 @@ print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m7a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m7a.df    <-  as.data.frame(extract(m7a))
 m7a.summ  <-  plyr:::adply(as.matrix(m7a.df),2,MCMCsum)[-1,]
-m7a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m7a)
+# m7a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m7a)
 
 # Simple Diagnostic Plots
 plot(m7a, pars="beta")
@@ -1189,13 +1183,13 @@ m7aWAIC   <-  waic(m7aLL)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m7a.df[1,271:390])/data$nEggs
+y  <-  as.numeric(m7a.df[1,281:400])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:500) {
   rm(y)
-  y  <-  as.numeric(m7a.df[i,271:390])/data$nEggs
+  y  <-  as.numeric(m7a.df[i,281:400])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -1205,16 +1199,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m7a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m7a.df[,401], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m7a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m7a.df[,402]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m7a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m7a.df[,403]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m7a.df[,394]), xlim=c(min(m7a.df[,394],sd(data$nFert)),max(m7a.df[,394],sd(data$nFert))),
+plot(density(m7a.df[,404]), xlim=c(min(m7a.df[,404],sd(data$nFert)),max(m7a.df[,404],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -1224,8 +1218,8 @@ print(m7a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-X2data7a   <-  as.numeric(m7a.df[,759])
-X2sim7a    <-  as.numeric(m7a.df[,760])
+X2data7a   <-  as.numeric(m7a.df[,769])
+X2sim7a    <-  as.numeric(m7a.df[,770])
 
 
 
@@ -1355,7 +1349,7 @@ print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m8a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m8a.df    <-  as.data.frame(extract(m8a))
 m8a.summ  <-  plyr:::adply(as.matrix(m8a.df),2,MCMCsum)[-1,]
-m8a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m8a)
+# m8a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m8a)
 
 # Simple Diagnostic Plots
 plot(m8a, pars="beta")
@@ -1380,13 +1374,13 @@ m8aWAIC   <-  waic(m8aLL)
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m8a.df[1,271:390])/data$nEggs
+y  <-  as.numeric(m8a.df[1,291:410])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:500) {
   rm(y)
-  y  <-  as.numeric(m8a.df[i,271:390])/data$nEggs
+  y  <-  as.numeric(m8a.df[i,291:410])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -1396,16 +1390,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m8a.df[,391], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m8a.df[,411], adjust=4), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m8a.df[,392]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m8a.df[,412]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m8a.df[,393]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m8a.df[,413]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m8a.df[,394]), xlim=c(min(m8a.df[,394],sd(data$nFert)),max(m8a.df[,394],sd(data$nFert))),
+plot(density(m8a.df[,414]), xlim=c(min(m8a.df[,414],sd(data$nFert)),max(m8a.df[,414],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -1415,8 +1409,8 @@ print(m8a, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 # Chi-squared goodness of fit measure of discrepancy
 # for simulated data ~ real data
 
-X2data8a   <-  as.numeric(m8a.df[,759])
-X2sim8a    <-  as.numeric(m8a.df[,760])
+X2data8a   <-  as.numeric(m8a.df[,779])
+X2sim8a    <-  as.numeric(m8a.df[,780])
 
 
 
@@ -1546,7 +1540,7 @@ print(m3, c("gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # print(m9a, c("y_rep"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 m9a.df    <-  as.data.frame(extract(m9a))
 m9a.summ  <-  plyr:::adply(as.matrix(m9a.df),2,MCMCsum)[-1,]
-m9a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m9a)
+# m9a.mcmc  <-  rstan:::as.mcmc.list.stanfit(m9a)
 
 # Simple Diagnostic Plots
 plot(m9a, pars="beta")
@@ -1616,6 +1610,56 @@ X2sim9a    <-  as.numeric(m9a.df[,760])
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
+
+
+
+
+##########################################################################################
+##########################################################################################
+# Model selection using LOO cross-validation
+##########################################################################################
+##########################################################################################
+
+##  Overall comparison of all models
+looDiff   <-  compare(m1Loo, m2Loo, m3Loo, m3aLoo, m4Loo, m4aLoo, m5Loo,
+#                      m6Loo, m6aLoo, m7Loo, m7aLoo, m8Loo, m8aLoo, m9Loo, m9aLoo)
+                      m6aLoo, m7aLoo, m8aLoo, m9aLoo)
+#waicDiff  <-  compare(m1WAIC, m2WAIC, m3WAIC, m3aWAIC, m4WAIC, m4aWAIC, m5WAIC)
+
+print(looDiff, digits=4)
+#print(waicDiff, digits=4)
+
+# LOO Results Summary Table
+LooDiff  <-  makeLooTable(looDiff)
+(LooDiff)
+
+###########################################################################
+###########################################################################
+## Main result from LOO model comparison:
+##
+##  Model m3a:  Random intercept & slopes x Run w/out covariance matrix
+##               is the most parsimonious model for this analysis.
+##
+##  While model m2 provides a slightly better fit to the data over model
+##  m3a, this does not appear to be of statistical significance (LooDiff
+##  pValue = 0.676). 
+##
+##  Modelling the covariance structure for model m3a (m3a vs. m3) has  
+##  almost no effect on the overall fit (LooDiff pValue = 0.289), and model
+##  3a, in fact, fits slightly better . 
+##
+##  These results are reflected in the Chi-squared discrepancy posterior
+##  predictive checks, where models 3a & 3 are almost perfectly overlapping. 
+##  Models m1 and m2 appear to marginally improve the X^2 discrepancy 
+##  compared to model 3a, but given the MUCH lower model complexity for m3a,
+##  combined with the LOO results, model m3a seems the most appropriate
+##  choice for the final model upon which to base our inference.
+##
+###########################################################################
+###########################################################################
+
+
+
 
 #  Plot of Chi-squared discrepancy for all models
 
@@ -1693,50 +1737,6 @@ axis(1)
 # dev.off()
 
 
-
-
-
-##########################################################################################
-##########################################################################################
-# Model selection using LOO cross-validation
-##########################################################################################
-##########################################################################################
-
-##  Overall comparison of all models
-looDiff   <-  compare(m1Loo, m2Loo, m3Loo, m3aLoo, m4Loo, m4aLoo, m5Loo)
-waicDiff  <-  compare(m1WAIC, m2WAIC, m3WAIC, m3aWAIC, m4WAIC, m4aWAIC, m5WAIC)
-
-print(looDiff, digits=4)
-print(waicDiff, digits=4)
-
-# LOO Results Summary Table
-LooDiff  <-  makeLooTable(looDiff)
-(LooDiff)
-
-###########################################################################
-###########################################################################
-## Main result from LOO model comparison:
-##
-##  Model m3a:  Random intercept & slopes x Run w/out covariance matrix
-##               is the most parsimonious model for this analysis.
-##
-##  While model m2 provides a slightly better fit to the data over model
-##  m3a, this does not appear to be of statistical significance (LooDiff
-##  pValue = 0.676). 
-##
-##  Modelling the covariance structure for model m3a (m3a vs. m3) has  
-##  almost no effect on the overall fit (LooDiff pValue = 0.289), and model
-##  3a, in fact, fits slightly better . 
-##
-##  These results are reflected in the Chi-squared discrepancy posterior
-##  predictive checks, where models 3a & 3 are almost perfectly overlapping. 
-##  Models m1 and m2 appear to marginally improve the X^2 discrepancy 
-##  compared to model 3a, but given the MUCH lower model complexity for m3a,
-##  combined with the LOO results, model m3a seems the most appropriate
-##  choice for the final model upon which to base our inference.
-##
-###########################################################################
-###########################################################################
 
 
 ######################################################
@@ -2213,3 +2213,137 @@ proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast - Slow')), xp
 ##
 ###########################################################################
 ###########################################################################
+
+X       <-  model.matrix(~ 1 + nSperm_z*Rate*EggPos, data=data)
+Xnames  <-  dimnames(X)[[2]]
+
+
+#  Random Effects Model Matrix
+Z       <-  model.matrix(~ -1 + data$Run +
+                                data$Run:data$nSperm_z)
+Znames  <-  dimnames(Z)[[2]]
+
+
+coefs.a <- as.matrix(m3a.mcmc)[,2:9]
+dim(coefs.a)
+head(coefs.a[,-c(2,5,6,8)])
+Xmatr <- as.matrix(ddply(data.frame(X), ~interaction(data$nSperm_z), colwise(mean))[, -1])
+Xmatr[1,-c(2,5,6,8)]
+Xmatr  <-  matrix(Xmatr[1,-c(2,5,6,8)], nrow=nrow(coefs.a), ncol=4, byrow=TRUE)
+head(Xmatr)
+Xnames
+
+gammas.a <- as.matrix(m3a.mcmc)[,10:29]
+dim(gammas.a)
+head(gammas.a)
+Zmatr <- as.matrix(ddply(data.frame(Z), ~interaction(data$nSperm_z), colwise(mean))[, -1])
+Zmatr  <-  matrix(Zmatr, nrow=nrow(gammas.a), ncol=20, byrow=TRUE)
+head(Zmatr)
+Znames
+
+
+inv_logit(X %*% m3a.betas + Z %*% m3a.gammas) - ((data$nFert - data$nControlFert)/data$nEggs)
+
+inv_logit(Z %*% m3a.gammas) - ((data$nFert - data$nControlFert)/data$nEggs)
+
+
+
+m3a.betas    <-  m3a.summ$Mean[1:8]
+m3a.gammas   <-  m3a.summ$Mean[9:28]
+
+# Back calculations for each fixed-effect regression coefficient
+# b0Fast    <-  inv_logit((m3a.betas[1] + (m3a.betas[4])/2))
+# b0Slow    <-  inv_logit((m3a.betas[1] + m3a.betas[3] + (0.5*(m3a.betas[7]))))
+# b0Fast5   <-  inv_logit(m3a.betas[1])
+# b0Fast55  <-  inv_logit((m3a.betas[1] + m3a.betas[4]))
+# b0Slow5   <-  inv_logit((m3a.betas[1] + m3a.betas[3]))
+# b0Slow55  <-  inv_logit((m3a.betas[1] + m3a.betas[3] + m3a.betas[7]))
+# b1Fast    <-  inv_logit((m3a.betas[2] + (m3a.betas[6])/2))
+# b1Slow    <-  inv_logit((m3a.betas[2] + m3a.betas[5] + (0.5*(m3a.betas[8]))))
+# b1Fast5   <-  inv_logit(m3a.betas[2])
+# b1Fast55  <-  inv_logit((m3a.betas[2] + m3a.betas[6]))
+# b1Slow5   <-  inv_logit((m3a.betas[2] + m3a.betas[5]))
+# b1Slow55  <-  inv_logit((m3a.betas[2] + m3a.betas[5] + m3a.betas[8]))
+
+# Predicted lines for Fast (with pooled slopes) & the overall Slow
+# m3aFast5   <-  inv_logit(m3a.betas[1] + 
+#                          (m3a.betas[2] * data$nSperm_z))
+# m3aFast55  <-  inv_logit((m3a.betas[1] + m3a.betas[4]) +
+#                          (m3a.betas[2] + (m3a.betas[6])) * data$nSperm_z)
+m3aFast5   <-  inv_logit((m3a.betas[1] + 
+                         (m3a.betas[2] + (m3a.betas[6])/2) * data$nSperm_z))
+m3aFast55  <-  inv_logit((m3a.betas[1] + m3a.betas[4]) +
+                         (m3a.betas[2] + ((m3a.betas[6])/2)) * data$nSperm_z)
+m3aSlow    <-  inv_logit((m3a.betas[1] + m3a.betas[3] + (0.5*(m3a.betas[7]))) + 
+                         (m3a.betas[2] + m3a.betas[5] + (0.5*(m3a.betas[8]))) * data$nSperm_z)
+
+
+# Residuals for fixed-effect predicted lines
+ys  <-  ((data$nFert - data$nControlFert)/data$nEggs) 
+m3aFast5_Resids   <-  m3aFast5  - ys 
+m3aFast55_Resids  <-  m3aFast55 - ys 
+m3aSlow_Resids    <-  m3aSlow   - ys 
+
+m3aFast5_yAdj   <-  m3aFast5  + inv_logit((m3a.betas[1] + (m3a.betas[2] + (m3a.betas[6])/2) * data$nSperm_z) + Z %*% m3a.gammas) - ys 
+m3aFast55_yAdj  <-  m3aFast55 + inv_logit((m3a.betas[1] + m3a.betas[4]) + (m3a.betas[2] + ((m3a.betas[6])/2)) * data$nSperm_z + Z %*% m3a.gammas) - ys
+m3aSlow_yAdj    <-  m3aSlow   + inv_logit((m3a.betas[1] + m3a.betas[3] + (0.5*(m3a.betas[7]))) + 
+                                          ((m3a.betas[2] + m3a.betas[5] + (0.5*(m3a.betas[8]))) * data$nSperm_z) + Z %*% m3a.gammas) - ys 
+
+plot(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ m3aFast5[data$Rate == "Fast" & data$EggPos == "5"])
+abline(a=0, b=1,lwd=3,col=2)
+plot(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ m3aFast55[data$Rate == "Fast" & data$EggPos == "55"])
+abline(a=0, b=1,lwd=3,col=2)
+plot(m3aSlow_yAdj[data$Rate == "Slow"] ~ m3aSlow[data$Rate == "Slow"])
+abline(a=0, b=1,lwd=3,col=2)
+
+
+
+
+
+plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
+    xlab='', ylab='', 
+    type='n', axes=FALSE, ylim=c(-0.05,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+usr  <-  par('usr')
+rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+whiteGrid()
+box()
+# plot regression lines
+#lines(m3aFast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+#                  col='dodgerblue1', lwd=3)
+#lines(m3aFast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+#                  col='dodgerblue1', lty=2, lwd=3)
+lines(m3aSlow[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='orangered1', lwd=3)
+lines(m3aFast5_pool[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lwd=3)
+lines(m3aFast55_pool[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+                  col='dodgerblue1', lty=2, lwd=3)
+points(m3aSlow_yAdj[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+        bg=transparentColor('orangered1', 0.7),
+        col=transparentColor('orangered4', 0.9), cex=1.1)
+points(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.7),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+points(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
+        bg=transparentColor('dodgerblue1', 0.2),
+        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+axis(2, las=1)
+axis(1)
+proportionalLabel(-0.15, 0.5, expression(paste("Adjusted Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+    legend(
+          x       =  usr[2]*0.3,
+          y       =  usr[4],
+          legend  =  c(
+                      expression(paste(Fast:~5~cm)),
+                      expression(paste(Fast:~55~cm)),
+                      expression(paste(Slow))),
+          pch     =  c(21,21,21),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7)),
+          col     =  c('dodgerblue4','dodgerblue4','orangered4'),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
