@@ -833,6 +833,7 @@ Xmatr[1,-c(2,5,6,8)]
 Xmatr  <-  matrix(Xmatr[1,-c(2,5,6,8)], nrow=nrow(coefs), ncol=4, byrow=TRUE)
 head(Xmatr)
 Xnames
+
 int  <-  rowSums(coefs[,-c(2,5,6,8)] * Xmatr)
 hist(inv_logit(int))
 mean(int)
@@ -851,11 +852,12 @@ Xmatr[1,-c(2,5,6,8)]
 Xmatr  <-  matrix(Xmatr[1,-c(2,5,6,8)], nrow=nrow(coefs.a), ncol=4, byrow=TRUE)
 head(Xmatr)
 Xnames
+
 int  <-  rowSums(coefs.a[,-c(2,5,6,8)] * Xmatr)
 hist(inv_logit(int))
 mean(int)
 
-slope  <-  rowSums(coefs[,c(2,5,6,8)] * Xmatr)
+slope  <-  rowSums(coefs.a[,c(2,5,6,8)] * Xmatr)
 hist(inv_logit(slope))
 mean(slope)
 
@@ -896,28 +898,28 @@ m3.ranef    <-  m3.summ$Mean[c(1550,1561,1572,1583,1594,1605,1616,1627,1638,1649
 m3a.ranef   <-  m3a.summ$Mean[9:28]
 
 Runs  <-  list(
-"m3.r1"  =  inv_logit((mean(int) + m3.ranef[1]) + (mean(slope) + m3.ranef[11]) * data$nSperm_z),
-"m3.r2"  =  inv_logit((mean(int) + m3.ranef[2]) + (mean(slope) + m3.ranef[12]) * data$nSperm_z),
-"m3.r3"  =  inv_logit((mean(int) + m3.ranef[3]) + (mean(slope) + m3.ranef[13]) * data$nSperm_z),
-"m3.r4"  =  inv_logit((mean(int) + m3.ranef[4]) + (mean(slope) + m3.ranef[14]) * data$nSperm_z),
-"m3.r5"  =  inv_logit((mean(int) + m3.ranef[5]) + (mean(slope) + m3.ranef[15]) * data$nSperm_z),
-"m3.r6"  =  inv_logit((mean(int) + m3.ranef[6]) + (mean(slope) + m3.ranef[16]) * data$nSperm_z),
-"m3.r7"  =  inv_logit((mean(int) + m3.ranef[7]) + (mean(slope) + m3.ranef[17]) * data$nSperm_z),
-"m3.r8"  =  inv_logit((mean(int) + m3.ranef[8]) + (mean(slope) + m3.ranef[18]) * data$nSperm_z),
-"m3.r9"  =  inv_logit((mean(int) + m3.ranef[9]) + (mean(slope) + m3.ranef[19]) * data$nSperm_z),
+"m3.r1"  =  inv_logit((mean(int) + m3.ranef[1])  + (mean(slope) + m3.ranef[11]) * data$nSperm_z),
+"m3.r2"  =  inv_logit((mean(int) + m3.ranef[2])  + (mean(slope) + m3.ranef[12]) * data$nSperm_z),
+"m3.r3"  =  inv_logit((mean(int) + m3.ranef[3])  + (mean(slope) + m3.ranef[13]) * data$nSperm_z),
+"m3.r4"  =  inv_logit((mean(int) + m3.ranef[4])  + (mean(slope) + m3.ranef[14]) * data$nSperm_z),
+"m3.r5"  =  inv_logit((mean(int) + m3.ranef[5])  + (mean(slope) + m3.ranef[15]) * data$nSperm_z),
+"m3.r6"  =  inv_logit((mean(int) + m3.ranef[6])  + (mean(slope) + m3.ranef[16]) * data$nSperm_z),
+"m3.r7"  =  inv_logit((mean(int) + m3.ranef[7])  + (mean(slope) + m3.ranef[17]) * data$nSperm_z),
+"m3.r8"  =  inv_logit((mean(int) + m3.ranef[8])  + (mean(slope) + m3.ranef[18]) * data$nSperm_z),
+"m3.r9"  =  inv_logit((mean(int) + m3.ranef[9])  + (mean(slope) + m3.ranef[19]) * data$nSperm_z),
 "m3.r10" =  inv_logit((mean(int) + m3.ranef[10]) + (mean(slope) + m3.ranef[20]) * data$nSperm_z)
 )
 
 Runs.a  <-  list(
-"m3a.r1"  =  inv_logit((mean(int) + m3a.ranef[1]) + (mean(slope) + m3a.ranef[11]) * data$nSperm_z),
-"m3a.r2"  =  inv_logit((mean(int) + m3a.ranef[2]) + (mean(slope) + m3a.ranef[12]) * data$nSperm_z),
-"m3a.r3"  =  inv_logit((mean(int) + m3a.ranef[3]) + (mean(slope) + m3a.ranef[13]) * data$nSperm_z),
-"m3a.r4"  =  inv_logit((mean(int) + m3a.ranef[4]) + (mean(slope) + m3a.ranef[14]) * data$nSperm_z),
-"m3a.r5"  =  inv_logit((mean(int) + m3a.ranef[5]) + (mean(slope) + m3a.ranef[15]) * data$nSperm_z),
-"m3a.r6"  =  inv_logit((mean(int) + m3a.ranef[6]) + (mean(slope) + m3a.ranef[16]) * data$nSperm_z),
-"m3a.r7"  =  inv_logit((mean(int) + m3a.ranef[7]) + (mean(slope) + m3a.ranef[17]) * data$nSperm_z),
-"m3a.r8"  =  inv_logit((mean(int) + m3a.ranef[8]) + (mean(slope) + m3a.ranef[18]) * data$nSperm_z),
-"m3a.r9"  =  inv_logit((mean(int) + m3a.ranef[9]) + (mean(slope) + m3a.ranef[19]) * data$nSperm_z),
+"m3a.r1"  =  inv_logit((mean(int) + m3a.ranef[1])  + (mean(slope) + m3a.ranef[11]) * data$nSperm_z),
+"m3a.r2"  =  inv_logit((mean(int) + m3a.ranef[2])  + (mean(slope) + m3a.ranef[12]) * data$nSperm_z),
+"m3a.r3"  =  inv_logit((mean(int) + m3a.ranef[3])  + (mean(slope) + m3a.ranef[13]) * data$nSperm_z),
+"m3a.r4"  =  inv_logit((mean(int) + m3a.ranef[4])  + (mean(slope) + m3a.ranef[14]) * data$nSperm_z),
+"m3a.r5"  =  inv_logit((mean(int) + m3a.ranef[5])  + (mean(slope) + m3a.ranef[15]) * data$nSperm_z),
+"m3a.r6"  =  inv_logit((mean(int) + m3a.ranef[6])  + (mean(slope) + m3a.ranef[16]) * data$nSperm_z),
+"m3a.r7"  =  inv_logit((mean(int) + m3a.ranef[7])  + (mean(slope) + m3a.ranef[17]) * data$nSperm_z),
+"m3a.r8"  =  inv_logit((mean(int) + m3a.ranef[8])  + (mean(slope) + m3a.ranef[18]) * data$nSperm_z),
+"m3a.r9"  =  inv_logit((mean(int) + m3a.ranef[9])  + (mean(slope) + m3a.ranef[19]) * data$nSperm_z),
 "m3a.r10" =  inv_logit((mean(int) + m3a.ranef[10]) + (mean(slope) + m3a.ranef[20]) * data$nSperm_z)
 )
 
@@ -1237,7 +1239,7 @@ axis(1)
 
 ##  Adjusting y-values to account for Run effect.
 ##  Plot of all 4 regression lines for Rate x EggPos
- pdf(file='output/NxRatexEggPos_m3a_adj.pdf', height=7, width=7)
+# pdf(file='output/NxRatexEggPos_m3a_adj.pdf', height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
     xlab='Sperm released', ylab=substitute('Fertilization rate'), 
@@ -1280,4 +1282,4 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-graphics.off()
+# graphics.off()

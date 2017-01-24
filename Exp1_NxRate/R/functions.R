@@ -52,8 +52,13 @@ options(mc.cores = parallel::detectCores())
 # SUMMARIZE MCMC RESULTS
 ########################
 MCMCsum <- function(x) {
-   data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,na.rm=TRUE)), HPDinterval(as.mcmc(x)))
+   data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,probs=c(0,0.2,0.25,0.5,0.75,0.8,1),na.rm=TRUE)), HPDinterval(as.mcmc(x)))
 }
+
+aMCMCsum <- function(x) {
+   c(mean(x, na.rm=TRUE) , median(x, na.rm=TRUE), t(quantile(x, probs=c(0,0.2,0.25,0.5,0.75,0.8,1),na.rm=TRUE)), HPDinterval(as.mcmc(x))[1:2])
+}
+
 
 #######################
 # SUMMARIZE LOO RESULTS
