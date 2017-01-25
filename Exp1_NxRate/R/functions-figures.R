@@ -319,11 +319,13 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
 
     ###################################################
     # Create plotting objects for each regression line
-    m2.plt         <-  m2Invest.plots(m2.summ, data)
+    m2.plt         <-  m2Invest.plots(m2.summ, data=NinvData)
     m3aFast5.plt   <-  m3aFast5.plots(m3a.betas, m3a.allBetas, m3a.gammas, data)
     m3aFast55.plt  <-  m3aFast55.plots(m3a.betas, m3a.allBetas, m3a.gammas, data)
     m3aSlow.plt    <-  m3aSlow.plots(m3a.betas, m3a.allBetas, m3a.gammas, data)
 
+    ###################################################
+    # MAKE PLOTS
 
     # Set plot layout
     layout.mat <- matrix(c(1,2), nrow=2, ncol=1, byrow=TRUE)
@@ -331,34 +333,33 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
 
     ############
     # N_invPlot
-    par(omi=rep(0.5, 4), mar = c(3,3,0.5,0.5), bty='o', xaxt='s', yaxt='s')
-    plot((data$nFert/data$nEggs) ~ data$nSperm_z, 
-        xlab='', ylab=substitute(''), 
-        type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(nSperm),max(nSperm)), data = data)
+    par(omi=rep(0.5, 4), mar = c(4,4,1,1), bty='o', xaxt='s', yaxt='s')
+    plot((nFert/nEggs) ~ nSperm_z, xlab='', ylab=substitute(''), type='n', axes=FALSE, 
+    	  ylim=c(0,1), xlim=c(min(nSperm),max(nSperm)), data = NinvData)
     usr  <-  par('usr')
     rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
     whiteGrid()
     box()
-
     # plot all regression lines from MCMC chains
     # apply(m2.df, 1, function(x, data, nSperm_z){
     #     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
     #     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
     #     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
-    # }, data=data, nSperm_z=data$nSperm_z)
+    # }, data=NinvData, nSperm_z=NinvData$nSperm_z)
     # plot run-specific regression lines
      for(i in 1:8) {
        lines(m2.plt$runs[[i]] ~ m2.plt$runs[[i+8]],col='grey75', lwd=3)
      }
     # plot main regression line
     lines(m2.plt$yHats ~ m2.plt$xRaw, col='black', lwd=3)
-    points((data$nFert/data$nEggs) ~ data$nSperm, pch=16, col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-    points((data$nFert/data$nEggs) ~ data$nSperm, pch=1,  col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+    points((NinvData$nFert/NinvData$nEggs) ~ NinvData$nSperm, pch=16, col=transparentColor('dodgerblue1', 0.7), cex=1.1)
+    points((NinvData$nFert/NinvData$nEggs) ~ NinvData$nSperm, pch=1,  col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
     proportionalLabel(-0.15, 0.5, expression(paste("Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
-    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+#    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
+
 
     #############
     # NxRate Plot
