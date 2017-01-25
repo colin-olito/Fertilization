@@ -22,21 +22,6 @@ options("menu.graphics"=FALSE)
 # DEPENDENCIES
 source('R/functions.R')
 
-#*******************
-# Import Data
-data <- read.csv('data/Ninvest_master.csv', header=TRUE, stringsAsFactors=FALSE)
-data <- data.frame(data)
-# head(data)
-
-# Convert grouping variables to factors; Correct Dates
-data$Run       <-  factor(data$Run)
-data$Colony    <-  factor(data$Colony)
-data$N         <-  factor(data$N)
-data$Lane      <-  factor(data$Lane)
-data$nSperm_c  <-  data$nSperm - mean(data$nSperm)
-data$Date      <-  dmy(data$Date)
-data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
-
 # str(data)
 
 
@@ -49,7 +34,7 @@ data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
 
 #  Fixed Effects Model Matrix (Same for all models)
-X       <-  model.matrix(~ 1 + nSperm_z, data=data)
+X       <-  model.matrix(~ 1 + nSperm_z, data=NinvData)
 X       <-  unname(X)
 attr(X,"assign") <- NULL
 
@@ -69,10 +54,10 @@ nSavedSteps  = (nIter/2)*nChains
 ########################################################
 
 # create data.list
-data.list  <-  list(N   =  nrow(data),
+data.list  <-  list(N   =  nrow(NinvData),
                     P   =  ncol(X), 
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert,
+                    nT  = NinvDatanEggs,
+                    nS  =  NinvData$nFert,
                     X   =  X
                    )
 
@@ -102,17 +87,17 @@ rm(m1)
 ########################################################
 
 # 'random effects'
-Z  <-  unname(model.matrix(~ data$Run -1, data=data))
+Z  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))
 attr(Z,"assign") <- NULL
 # str(Z)
 # head(Z)
 
 # create data.list
-data.list  <-  list(N   =  nrow(data),
+data.list  <-  list(N   =  nrow(NinvData),
                     P   =  ncol(X), 
                     K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert,
+                    nT  =  NinvData$nEggs,
+                    nS  =  NinvData$nFert,
                     X   =  X,
                     Z   =  Z
                    )
@@ -146,17 +131,17 @@ rm(m2)
 #       --  Alternative cell-mean model specification
 ########################################################
 
-Z  <-  unname(model.matrix(~ data$Run -1, data=data))
+Z  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))
 attr(Z,"assign") <- NULL
 # str(Z)
 # head(Z)
 
 # create data.list
-data.list  <-  list(N   =  nrow(data),
+data.list  <-  list(N   =  nrow(NinvData),
                     P   =  ncol(X), 
                     K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert,
+                    nT  =  NinvData$nEggs,
+                    nS  =  NinvData$nFert,
                     X   =  X,
                     Z   =  Z
                    )
@@ -191,24 +176,24 @@ rm(m2b)
 #       --  random slopes for Run x nSperm
 ########################################################
 
-Z0  <-  unname(model.matrix(~ data$Run -1, data=data))[,-c(9:16)]
+Z0  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))[,-c(9:16)]
 attr(Z0,"assign") <- NULL
 # str(Z0)
 # head(Z0)
 
-Z1  <-  unname(model.matrix(~ data$Run * nSperm_z , data=data))[,-c(1:8)]
+Z1  <-  unname(model.matrix(~ NinvData$Run * nSperm_z , data=NinvData))[,-c(1:8)]
 attr(Z1,"assign") <- NULL
 # str(Z1)
 Z1[7:nrow(Z1),1]  <-  0
 # Z1[1:20,]
 
 # create data.list
-data.list  <-  list(N   =  nrow(data),
+data.list  <-  list(N   =  nrow(NinvData),
                     P   =  ncol(X), 
                     K0  =  ncol(Z0),
                     K1  =  ncol(Z1),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert,
+                    nT  =  NinvData$nEggs,
+                    nS  =  NinvData$nFert,
                     Z0  =  Z0,
                     Z1  =  Z1
                    )
@@ -245,19 +230,19 @@ rm(m3)
 ## -- Estimate covariance matrix
 ########################################################
 
-Z  <-  unname(model.matrix(~ data$Run *nSperm_z -1, data=data))
+Z  <-  unname(model.matrix(~ NinvData$Run *nSperm_z -1, data=NinvData))
 attr(Z,"assign") <- NULL
 # str(Z)
 # Z[1:20,]
 
 # create data.list
-data.list  <-  list(N    =  nrow(data),
+data.list  <-  list(N    =  nrow(NinvData),
                     P    =  ncol(X),
-                    J    =  max(as.numeric(data$Run)),
+                    J    =  max(as.numeric(NinvData$Run)),
                     K    =  ncol(Z),
-                    grp  =  as.numeric(data$Run),
-                    nT   =  data$nEggs,
-                    nS   =  data$nFert,
+                    grp  =  as.numeric(NinvData$Run),
+                    nT   =  NinvData$nEggs,
+                    nS   =  NinvData$nFert,
                     X    =  X,
                     Z    =  Z
                    )
