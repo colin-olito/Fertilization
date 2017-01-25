@@ -42,3 +42,7 @@ embed_fonts(figPath(name='NxRate_Regression.pdf'))
 
 toPdf(regressionPlot(NinvData=NinvData, data=data), figPath(name='fertPlots.pdf'), width=7, height=14)
 embed_fonts(figPath(name='fertPlots.pdf'))
+
+toPdf(perGameteFertPlot(stanfit = m3a, data=data), figPath(name='perGametePlot.pdf'), width=7, height=7)
+embed_fonts(figPath(name='perGametePlot.pdf'))
+

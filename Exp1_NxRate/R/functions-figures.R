@@ -14,20 +14,29 @@
 ###############################
 
 
+
 m3aFast5.ci   <-  function(x) {
-  dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "5"]), 
-                  to   = max(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "5"]), length=500)
-  inv_logit((x[1] + (x[2] + (x[6])/2) * dummyX))
+    dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "5"]), 
+                    to   = max(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "5"]), length=500)
+    inv_logit((x[1] + (x[2] + (x[6])/2) * dummyX))
                   }
+
 m3aFast55.ci   <-  function(x) {
-  dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "55"]), 
-                  to   = max(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "55"]), length=500);
-  inv_logit((x[1] + x[4]) + (x[2] + ((x[6])/2)) * dummyX)
+    dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "55"]), 
+                    to   = max(data$nSperm_z[data$Rate == "Fast" & data$EggPos == "55"]), length=500);
+    inv_logit((x[1] + x[4]) + (x[2] + ((x[6])/2)) * dummyX)
                   }
+
+m3aFast.ci   <-  function(x) {
+    dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Slow"]), 
+                    to   = max(data$nSperm_z[data$Rate == "Slow"]), length=500)
+    inv_logit((x[1] + (x[4])/2) + (x[2] + (x[6])/2) * dummyX)
+                  }
+
 m3aSlow.ci   <-  function(x) {
-  dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Slow"]), 
-                  to   = max(data$nSperm_z[data$Rate == "Slow"]), length=500)
-  inv_logit((x[1] + x[3] + (0.5*(x[7]))) + (x[2] + x[5] + (0.5*(x[8]))) * dummyX)
+    dummyX  <-  seq(from = min(data$nSperm_z[data$Rate == "Slow"]), 
+                    to   = max(data$nSperm_z[data$Rate == "Slow"]), length=500)
+    inv_logit((x[1] + x[3] + (0.5*(x[7]))) + (x[2] + x[5] + (0.5*(x[8]))) * dummyX)
                   }
 
 m3aFast5.plots  <-  function(betas, allBetas, gammas, data) {
@@ -76,6 +85,29 @@ m3aFast55.plots  <-  function(betas, allBetas, gammas, data) {
         )
 }
 
+m3aFast.plots  <-  function(betas, allBetas, gammas, data) {
+    dummyX     <-  seq(from = min(data$nSperm_z[data$Rate == "Slow"]), 
+                    to   = max(data$nSperm_z[data$Rate == "Slow"]), length=500)
+    dummyXRaw  <-  seq(from = min(data$nSperm[data$Rate == "Slow"]), 
+                    to   = max(data$nSperm[data$Rate == "Slow"]), length=500)
+    y          <-  inv_logit((betas[1] + (betas[4])/2) + (betas[2] + (betas[6])/2) * dummyX)
+    preds      <-  unname(as.matrix(plyr:::aaply(as.matrix(allBetas), 1, m3aFast.ci)))
+    CIs        <-  plyr:::adply(preds, 2, MCMCsum)
+    # Calculate adjusted y-values
+    Z          <-  model.matrix(~ -1 + data$Run + data$Run:data$nSperm_z)
+ 	realYs     <-  ((data$nFert - data$nControlFert)/data$nEggs) 
+ 	yHats      <-  inv_logit((betas[1] + (betas[4])/2) + (betas[2] + (betas[6])/2) * data$nSperm_z)
+    yAdj       <-  yHats  + inv_logit((betas[1] + (betas[4])/2) + ((betas[2] + (betas[6])/2) * data$nSperm_z) + Z %*% gammas) - realYs 
+    list("y"      =  y,
+         "yAdj"   =  yAdj,
+         "xReal"  =  data$nSperm,
+         "x"      =  dummyX,
+         "xRaw"   =  dummyXRaw,
+         "preds"  =  preds,
+         "CIs"    =  CIs
+        )
+}
+
 m3aSlow.plots  <-  function(betas, allBetas, gammas, data) {
     dummyX     <-  seq(from = min(data$nSperm_z[data$Rate == "Slow"]), 
                     to   = max(data$nSperm_z[data$Rate == "Slow"]), length=500)
@@ -98,7 +130,6 @@ m3aSlow.plots  <-  function(betas, allBetas, gammas, data) {
          "CIs"    =  CIs
         )
 }
-
 
 m2Invest.plots  <-  function(m2.summ, data) {
     dummyX     <-  seq(from = min(data$nSperm_z), to   = max(data$nSperm_z), length=500)
@@ -137,6 +168,7 @@ m2Invest.plots  <-  function(m2.summ, data) {
     	 "xRaw"   =  dummyXRaw
     	 )
 }
+
 
 ###############################
 # OUTPUT PLOTTING FUNCTIONS
@@ -189,8 +221,8 @@ N_investPlot  <-  function(stanfit = NIm2, data = NinvData) {
     points((data$nFert/data$nEggs) ~ data$nSperm, pch=1,  col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
-    proportionalLabel(-0.15, 0.5, expression(paste("Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
-    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+    proportionalLabel(-0.15, 0.5, expression(paste("Fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
 }
 
@@ -262,8 +294,8 @@ NxRate_Plot  <-  function(stanfit = m3a, data) {
             col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
-    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
-    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'B', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
         legend(
               x       =  usr[2]*0.3,
@@ -333,7 +365,7 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
 
     ############
     # N_invPlot
-    par(omi=rep(0.5, 4), mar = c(4,4,1,1), bty='o', xaxt='s', yaxt='s')
+    par(omi=rep(0.5, 4), mar = c(4,4,1,2), bty='o', xaxt='s', yaxt='s')
     plot((nFert/nEggs) ~ nSperm_z, xlab='', ylab=substitute(''), type='n', axes=FALSE, 
     	  ylim=c(0,1), xlim=c(min(nSperm),max(nSperm)), data = NinvData)
     usr  <-  par('usr')
@@ -356,7 +388,7 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
     points((NinvData$nFert/NinvData$nEggs) ~ NinvData$nSperm, pch=1,  col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
-    proportionalLabel(-0.15, 0.5, expression(paste("Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(-0.15, 0.5, expression(paste("Fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
 #    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
 
@@ -395,8 +427,8 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
             col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
-    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted Fertilization Rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
-    proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'B', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
         legend(
               x       =  usr[2]*0.3,
@@ -408,6 +440,86 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
               pch     =  c(21,21,21),
               pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7)),
               col     =  c('dodgerblue4','dodgerblue4','orangered4'),
+              cex     =  1,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
+}
+
+
+
+
+#' Plot gamete fertilization success for pooled Fast & Slow regression results.
+#'
+#' @title Plot gamete fertilization success for pooled Fast & Slow regression results.
+#' @param stanfit Stanfit object for the best model from the NxRate analysis
+#' @param data The NxRate data frame (data).
+#' @return A plot of the Fast & Slow regression lines with credible intervals, transformed
+#'         into per-capita fertilization success.
+#' @author Colin Olito.
+perGameteFertPlot  <-  function(stanfit = m3a, data) {
+
+    ####################
+    # Process Stanfit
+    m3a.df         <-  as.data.frame(extract(m3a))
+    m3a.summ       <-  plyr:::adply(as.matrix(m3a.df),2,MCMCsum)[-1,]
+    m3a.allBetas   <-  m3a.df[2:9]
+    m3a.betas      <-  m3a.summ$Mean[1:8]
+    m3a.allBetas   <-  m3a.df[2:9]
+    m3a.gammas     <-  m3a.summ$Mean[9:28]
+    m3a.allGammas  <-  m3a.df[10:29]
+
+    ###################################################
+    # Create plotting objects for each regression line
+    m3aFast.plt  <-  m3aFast.plots(m3a.betas, m3a.allBetas, m3a.gammas, data)
+    m3aSlow.plt  <-  m3aSlow.plots(m3a.betas, m3a.allBetas, m3a.gammas, data)
+
+    datPerGamete  <-  (((data$nFert - data$nControlFert)/data$nEggs) / data$nSperm)
+
+    ################
+    # Make the plot
+    par(omi=rep(0.5, 4), mar = c(3,3,0.5,0.5), bty='o', xaxt='s', yaxt='s')
+    plot(datPerGamete ~ data$nSperm_z, 
+        xlab='', ylab='', type='n', axes=FALSE, 
+        ylim=c(min(datPerGamete), max(datPerGamete)), xlim=c(min(data$nSperm),max(data$nSperm)))
+    usr  <-  par('usr')
+    rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+    whiteGrid()
+    box()
+    # plot regression lines
+    polygon(x=c(m3aSlow.plt$xRaw, rev(m3aSlow.plt$xRaw)), 
+            y=c((m3aSlow.plt$CIs$X20 / m3aSlow.plt$xRaw), rev((m3aSlow.plt$CIs$X80 / m3aSlow.plt$xRaw))), 
+            col=transparentColor('orangered1', 0.05), border=transparentColor('orangered4',0.2))
+    polygon(x=c(m3aFast.plt$xRaw, rev(m3aFast.plt$xRaw)), 
+            y=c((m3aFast.plt$CIs$X20 / m3aFast.plt$xRaw), rev((m3aFast.plt$CIs$X80 / m3aFast.plt$xRaw))), 
+            col=transparentColor('dodgerblue1', 0.05), border=transparentColor('dodgerblue4',0.2))
+    lines((m3aSlow.plt$y / m3aSlow.plt$xRaw) ~ m3aSlow.plt$xRaw, col='orangered1', lwd=3)
+    lines((m3aFast.plt$y / m3aFast.plt$xRaw) ~ m3aFast.plt$xRaw, col='dodgerblue1', lwd=3, lty=1)
+    points((m3aSlow.plt$yAdj / m3aSlow.plt$xReal)[data$Rate == "Slow"] ~ m3aSlow.plt$xReal[data$Rate == "Slow"], pch=16, 
+            col=transparentColor('orangered1', 0.7), cex=1.1)
+    points((m3aSlow.plt$yAdj / m3aSlow.plt$xReal)[data$Rate == "Slow"] ~ m3aSlow.plt$xReal[data$Rate == "Slow"], pch=1, 
+            col=transparentColor('orangered4', 0.9), cex=1.1)
+    points((m3aFast.plt$yAdj / m3aFast.plt$xReal)[data$Rate == "Fast"] ~ m3aFast.plt$xReal[data$Rate == "Fast"], pch=21, 
+            bg=transparentColor('dodgerblue1', 0.7), col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+    axis(2, las=1)
+    axis(1)
+    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted per-gamete fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+        legend(
+              x       =  usr[2]*0.975,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste(Fast)),
+                          expression(paste(Slow))),
+              pch     =  c(21,21),
+              pt.bg   =  c(
+              	           transparentColor('dodgerblue1',0.7),
+              	           transparentColor('orangered1',0.7)),
+              col     =  c(
+              	           'dodgerblue4',
+              	           'orangered4'),
               cex     =  1,
               xjust   =  1,
               yjust   =  1,

@@ -2179,7 +2179,6 @@ m7a.allGammas  <-  as.matrix(m3a.df[10:39])
 # b1Slow55  <-  inv_logit((m3a.betas[2] + m3a.betas[5] + m3a.betas[8]))
 
 
-
 # Predicted lines for Fast (with pooled slopes) & the overall Slow
 # Create plotting objects for each regression line
 m3aFast5.plt   <-  m3aFast5.plots(m3a.betas, m3a.allBetas, data)
