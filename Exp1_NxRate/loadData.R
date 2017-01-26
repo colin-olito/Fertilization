@@ -21,6 +21,7 @@ source('R/functions-figures.R')
 
 #********************
 #  N_invest Data Set
+print('Importing N_invest Data Set')
 NinvData <- read.csv('data/Ninvest_master.csv', header=TRUE, stringsAsFactors=FALSE)
 NinvData <- data.frame(NinvData)
 
@@ -35,6 +36,7 @@ NinvData$nSperm_z  <-  (NinvData$nSperm - mean(NinvData$nSperm))/sd(NinvData$nSp
 
 #******************
 #  NxRate Data Set
+print('Importing NxRate Data Set')
 data <- read.csv('data/NxRate_master.csv', header=TRUE, stringsAsFactors=FALSE)
 data <- data.frame(data)
 
@@ -49,21 +51,61 @@ data$nSperm_c  <-  data$nSperm - mean(data$nSperm)
 data$Date      <-  dmy(data$Date)
 data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
-# Plot Colors for X^2 Posterior Predictive Check Plots
-COLS  <-  c("#009ce0",
-            "#f9684a",
-            "#8be36a",
-            "#7a0058",
-            "#9fa3ff",
-            "#be0042",
-            "#2d1956"
-)
 
+#*****************************
+#  Spawning Duration Data Set
+print('Importing inSitu Spawning Duration Data Set')
+spwnData <- read.csv('data/inSitu-SpawnDuration.csv', header=TRUE, stringsAsFactors=FALSE)
+spwnData <- data.frame(spwnData)
+
+# Convert grouping variables to factors; Correct Dates
+spwnData$Ind    <-  factor(spwnData$Ind)
+spwnData$Run    <-  factor(spwnData$Run)
+spwnData$Start  <-  hms(spwnData$Start)
+spwnData$End    <-  hms(spwnData$End)
+spwnData$Dur    <-  hms(spwnData$Dur)
+# Check that duration column is equivalent to End - Start.
+# as.numeric(seconds(spwnData$Dur)) == as.numeric(seconds(spwnData$End - spwnData$Start))
+spwnData$start  <-  as.numeric(seconds(spwnData$Start))
+spwnData$end    <-  as.numeric(seconds(spwnData$End))
+spwnData$dur    <-  as.numeric(seconds(spwnData$Dur))
+
+
+############################################
+# Import Spawning Duration model results 
+# from the stan sample_files for further analysis 
+############################################
+print('Loading Spawning Duration stanfits')
+
+csvFiles  <-  c('./output/StanFits/spawnDur_m1.csv1',
+                './output/StanFits/spawnDur_m1.csv2',
+                './output/StanFits/spawnDur_m1.csv3')
+SDm1        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/spawnDur_m2.csv1',
+                './output/StanFits/spawnDur_m2.csv2',
+                './output/StanFits/spawnDur_m2.csv3')
+SDm2        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/spawnDur_m2b.csv1',
+                './output/StanFits/spawnDur_m2b.csv2',
+                './output/StanFits/spawnDur_m2b.csv3')
+SDm3        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+csvFiles  <-  c('./output/StanFits/spawnDur_m3.csv1',
+                './output/StanFits/spawnDur_m3.csv2',
+                './output/StanFits/spawnDur_m3.csv3')
+SDm4        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
 
 ############################################
 # Import N_invest model results from the stan 
 # sample_files for further analysis 
 ############################################
+print('Loading N_invest stanfits')
 
 csvFiles  <-  c('./output/StanFits/N_invest_m1.csv1',
                 './output/StanFits/N_invest_m1.csv2',
@@ -99,7 +141,7 @@ rm(csvFiles)
 # Import NxRate model results from the stan 
 # sample_files for further analysis 
 ############################################
-
+print('Loading NxRate stanfits')
 csvFiles  <-  c('./output/StanFits/NxRate_m1.csv1',
                 './output/StanFits/NxRate_m1.csv2',
                 './output/StanFits/NxRate_m1.csv3')
@@ -196,6 +238,7 @@ rm(csvFiles)
 ################################################
 ##  Extract Samples into data frames, summarize
 ################################################
+print('Extracting stanfits into data frames, etc.')
 m1.df     <-  as.data.frame(extract(m1))  
 m1.summ   <-  plyr:::adply(as.matrix(m1.df),2,MCMCsum)[-1,]
 m2.df     <-  as.data.frame(extract(m2))
@@ -234,7 +277,6 @@ m9a.summ  <-  plyr:::adply(as.matrix(m9a.df),2,MCMCsum)[-1,]
 #########################################
 # LOO Log-likelihood for model selection
 #########################################
-
 m1LL     <-  extract_log_lik(m1, parameter_name = "log_lik")
 m1Loo    <-  loo(m1LL)
 m1WAIC   <-  waic(m1LL)
@@ -319,3 +361,15 @@ X2sim8a   <-  as.numeric(m8a.df[,780])
 # X2sim9    <-  as.numeric(m9.df[,2360])
 X2data9a  <-  as.numeric(m9a.df[,759])
 X2sim9a   <-  as.numeric(m9a.df[,760])
+
+
+# Plot Colors for X^2 Posterior Predictive Check Plots
+COLS  <-  c("#009ce0",
+            "#f9684a",
+            "#8be36a",
+            "#7a0058",
+            "#9fa3ff",
+            "#be0042",
+            "#2d1956"
+)
+

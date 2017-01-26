@@ -431,15 +431,42 @@ regressionPlot  <-  function(stanfits = list(NIm2, m3a), NinvData, data) {
     proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
     proportionalLabel(0.02, 1.05, 'B', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
         legend(
-              x       =  usr[2]*0.3,
+              x       =  usr[2]*0.225,
               y       =  usr[4],
               legend  =  c(
-                          expression(paste(Fast:~5~cm)),
-                          expression(paste(Fast:~55~cm)),
-                          expression(paste(Slow))),
+                          expression(paste('')),
+                          expression(paste('')),
+                          expression(paste(''))),
+              lty     =  c(1,2,1),
+              lwd     =  c(2,2,2),
+              seg.len =  3,
+              col     =  c(
+              	           'dodgerblue1',
+              	           'dodgerblue1',
+              	           'orangered1'),
+              cex     =  1,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
+        legend(
+              x       =  usr[2]*0.398,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste(~~~Fast:~5~cm)),
+                          expression(paste(~~~Fast:~55~cm)),
+                          expression(paste(~~~Slow))),
               pch     =  c(21,21,21),
-              pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7)),
-              col     =  c('dodgerblue4','dodgerblue4','orangered4'),
+              pt.bg   =  c(
+              	           transparentColor('dodgerblue1',0.7),
+              	           transparentColor('dodgerblue1',0.2),
+              	           transparentColor('orangered1',0.7)),
+              col     =  c(
+              	           'dodgerblue4',
+              	           'dodgerblue4',
+              	           'orangered4'),
+              pt.cex  =  1.25,
               cex     =  1,
               xjust   =  1,
               yjust   =  1,
@@ -483,7 +510,7 @@ perGameteFertPlot  <-  function(stanfit = m3a, data) {
     par(omi=rep(0.5, 4), mar = c(3,3,0.5,0.5), bty='o', xaxt='s', yaxt='s')
     plot(datPerGamete ~ data$nSperm_z, 
         xlab='', ylab='', type='n', axes=FALSE, 
-        ylim=c(min(datPerGamete), max(datPerGamete)), xlim=c(min(data$nSperm),max(data$nSperm)))
+        ylim=c((min(datPerGamete)*0.9), (max(datPerGamete)*1.05)), xlim=c(min(data$nSperm),max(data$nSperm)))
     usr  <-  par('usr')
     rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
     whiteGrid()
@@ -505,14 +532,32 @@ perGameteFertPlot  <-  function(stanfit = m3a, data) {
             bg=transparentColor('dodgerblue1', 0.7), col=transparentColor('dodgerblue4', 0.9), cex=1.1)
     axis(2, las=1)
     axis(1)
-    proportionalLabel(-0.15, 0.5, expression(paste("Adjusted per-gamete fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(-0.175, 0.5, expression(paste("Adjusted per-gamete fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
     proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
         legend(
-              x       =  usr[2]*0.975,
+              x       =  usr[2]*0.93,
               y       =  usr[4],
               legend  =  c(
-                          expression(paste(Fast)),
-                          expression(paste(Slow))),
+                          expression(paste('')),
+                          expression(paste(''))),
+              lty     =  c(1,1),
+              lwd     =  2,
+              seg.len = 3,
+              col     =  c(
+              	           'dodgerblue1',
+              	           'orangered1'),
+              cex     =  1,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
+        legend(
+              x       =  usr[2]*0.9825,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste(~~~Fast)),
+                          expression(paste(~~~Slow))),
               pch     =  c(21,21),
               pt.bg   =  c(
               	           transparentColor('dodgerblue1',0.7),
@@ -520,6 +565,7 @@ perGameteFertPlot  <-  function(stanfit = m3a, data) {
               col     =  c(
               	           'dodgerblue4',
               	           'orangered4'),
+              pt.cex  =  1.25,
               cex     =  1,
               xjust   =  1,
               yjust   =  1,
