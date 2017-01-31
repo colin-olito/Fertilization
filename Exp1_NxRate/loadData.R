@@ -89,11 +89,11 @@ csvFiles  <-  c('./output/StanFits/spawnDur_m2.csv1',
 SDm2        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 
-csvFiles  <-  c('./output/StanFits/spawnDur_m2b.csv1',
-                './output/StanFits/spawnDur_m2b.csv2',
-                './output/StanFits/spawnDur_m2b.csv3')
-SDm3        <-  read_stan_csv(csvFiles, col_major = TRUE)
-rm(csvFiles)
+# csvFiles  <-  c('./output/StanFits/spawnDur_m2b.csv1',
+#                 './output/StanFits/spawnDur_m2b.csv2',
+#                 './output/StanFits/spawnDur_m2b.csv3')
+# SDm3        <-  read_stan_csv(csvFiles, col_major = TRUE)
+# rm(csvFiles)
 
 csvFiles  <-  c('./output/StanFits/spawnDur_m3.csv1',
                 './output/StanFits/spawnDur_m3.csv2',
