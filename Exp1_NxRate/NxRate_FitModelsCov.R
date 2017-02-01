@@ -41,6 +41,9 @@ data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
 
 
+
+
+
 ########################################################
 ########################################################
 ## FIT THE MODELS
@@ -57,28 +60,28 @@ attr(X,"assign") <- NULL
 # Options for the STAN analyses
 nChains       = 3
 thinSteps     = 1
-nIter         = 3000 * thinSteps #for each chain
+nIter         = 2000 * thinSteps #for each chain
 burnInSteps   = nIter / 2
 nSavedSteps  = ((nIter/thinSteps)/2)*nChains
 (nSavedSteps)
 
 # Create pseudo-random seeds for Stan 
-set.seed(123456789)
+set.seed(234567891)
 randos  <- as.integer(runif(n=49) * 1e8)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ########################################################
-##  NESTED MODEL SET, WITHOUT MODELING COVARIANCE
-##  STRUCTURE
+##  NESTED MODEL SET
+##   Modeling Covariance Structure Using 
+##   Spherical Random Effects
 ########################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 ########################################################
-#  Model m1: MAXIMAL MODEL
+#  Model m1a: MAXIMAL MODEL
 #      --  Random Effects: (1 + nSperm_z | Run : Rate : EggPos)
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -95,41 +98,44 @@ Znames  <-  dimnames(Z)[[2]]
 Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
-##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+#  Create data.list for stan
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
+
 ## Call to STAN
-m1 <- stan(data         =  data.list,
+m1a <- stan(data         =  data.list,
            seed         =  randos[1],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m1.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m1a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
+#           control      =  list(adapt_delta = 0.9), # increase adapt_delta above 0.8 if many divergent transitions. 
            save_dso     =  TRUE
           )
 
 # message
-message("STAN has finished fitting model m1")
-system("notify-send \"STAN has finished fitting model m1\"")
+message("STAN has finished fitting model m1a")
+system("notify-send \"STAN has finished fitting model m1a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m1)
+rm(m1a)
 
 ########################################################
-#  Model m2: 
+#  Model m2a: 
 #      --  Maximal model, remove Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -146,20 +152,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m2 <- stan(data         =  data.list,
+m2a <- stan(data         =  data.list,
            seed         =  randos[2],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m2.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m2a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -168,18 +176,18 @@ m2 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m2")
-system("notify-send \"STAN has finished fitting model m2\"")
+message("STAN has finished fitting model m2a")
+system("notify-send \"STAN has finished fitting model m2a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m2)
+rm(m2a)
 
 ########################################################
-#  Model m3: 
+#  Model m3a: 
 #      --  remove 4-way interaction term
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -196,20 +204,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m3 <- stan(data         =  data.list,
+m3a <- stan(data         =  data.list,
            seed         =  randos[3],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m3.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m3a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -218,19 +228,19 @@ m3 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m3")
-system("notify-send \"STAN has finished fitting model m3\"")
+message("STAN has finished fitting model m3a")
+system("notify-send \"STAN has finished fitting model m3a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m3)
+rm(m3a)
 
 ########################################################
-#  Model m4: 
+#  Model m4a: 
 #      --  remove 4-way interaction term
 #      --  remove Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -246,40 +256,42 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m4 <- stan(data         =  data.list,
-           seed         =  randos[4],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m4.csv',
-           chains       =  nChains,
-           iter         =  nIter,
-           thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
-           save_dso     =  TRUE
-          )
+m4a <- stan(data         =  data.list,
+            seed         =  randos[4],
+            file         =  './Stan/mat-logistic-1Z-cov.stan',
+            sample_file  =  './output/StanFits/NxRate_m4a.csv',
+            chains       =  nChains,
+            iter         =  nIter,
+            thin         =  thinSteps,
+#            control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
+            save_dso     =  TRUE
+           )
 
 # message
-message("STAN has finished fitting model m4")
-system("notify-send \"STAN has finished fitting model m4\"")
+message("STAN has finished fitting model m4a")
+system("notify-send \"STAN has finished fitting model m4a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m4)
+rm(m4a)
 
 ########################################################
-#  Model m5: 
+#  Model m5a: 
 #      --  #  Remove ONE 3-way term: Run : Rate : EggPos
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -295,20 +307,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m5 <- stan(data         =  data.list,
+m5a <- stan(data         =  data.list,
            seed         =  randos[5],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m5.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m5a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -317,18 +331,18 @@ m5 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m5")
-system("notify-send \"STAN has finished fitting model m5\"")
+message("STAN has finished fitting model m5a")
+system("notify-send \"STAN has finished fitting model m5a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m5)
+rm(m5a)
 
 ########################################################
-#  Model m6: 
+#  Model m6a: 
 #      --  #  Remove ONE 3-way term: Run : EggPos : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -344,20 +358,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m6 <- stan(data         =  data.list,
+m6a <- stan(data         =  data.list,
            seed         =  randos[6],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m6.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m6a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -366,18 +382,18 @@ m6 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m6")
-system("notify-send \"STAN has finished fitting model m6\"")
+message("STAN has finished fitting model m6a")
+system("notify-send \"STAN has finished fitting model m6a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m6)
+rm(m6a)
 
 ########################################################
-#  Model m7: 
+#  Model m7a: 
 #      --  #  Remove ONE 3-way term: Run : Rate   : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -393,20 +409,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m7 <- stan(data         =  data.list,
+m7a <- stan(data         =  data.list,
            seed         =  randos[7],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m7.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m7a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -415,18 +433,18 @@ m7 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m7")
-system("notify-send \"STAN has finished fitting model m7\"")
+message("STAN has finished fitting model m7a")
+system("notify-send \"STAN has finished fitting model m7a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m7)
+rm(m7a)
 
 ########################################################
-#  Model m8: 
+#  Model m8a: 
 #      --  #  Remove ONE 3-way term: Run : Rate : EggPos
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -441,20 +459,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m8 <- stan(data         =  data.list,
+m8a <- stan(data         =  data.list,
            seed         =  randos[8],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m8.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m8a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -463,18 +483,18 @@ m8 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m8")
-system("notify-send \"STAN has finished fitting model m8\"")
+message("STAN has finished fitting model m8a")
+system("notify-send \"STAN has finished fitting model m8a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m8)
+rm(m8a)
 
 ########################################################
-#  Model m9: 
+#  Model m9a: 
 #      --  #  Remove ONE 3-way term: Run : EggPos : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -489,20 +509,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m9 <- stan(data         =  data.list,
+m9a <- stan(data         =  data.list,
            seed         =  randos[9],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m9.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m9a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -511,19 +533,19 @@ m9 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m9")
-system("notify-send \"STAN has finished fitting model m9\"")
+message("STAN has finished fitting model m9a")
+system("notify-send \"STAN has finished fitting model m9a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m9)
+rm(m9a)
 
 ########################################################
-#  Model m10: 
+#  Model m10a: 
 #      --  #  Remove ONE 3-way term: Run : Rate   : nSperm_z
 #      --  #  Remove Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -538,20 +560,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m10 <- stan(data         =  data.list,
+m10a <- stan(data         =  data.list,
            seed         =  randos[10],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m10.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m10a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -560,20 +584,20 @@ m10 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m10")
-system("notify-send \"STAN has finished fitting model m10\"")
+message("STAN has finished fitting model m10a")
+system("notify-send \"STAN has finished fitting model m10a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m10)
+rm(m10a)
 
 ########################################################
-#  Model m11: 
+#  Model m11a: 
 #      --  #  Remove TWO 3-way terms :
 #                Run : Rate : EggPos
 #                Run : EggPos : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -588,20 +612,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m11 <- stan(data         =  data.list,
+m11a <- stan(data         =  data.list,
            seed         =  randos[11],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m11.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m11a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -610,20 +636,20 @@ m11 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m11")
-system("notify-send \"STAN has finished fitting model m11\"")
+message("STAN has finished fitting model m11a")
+system("notify-send \"STAN has finished fitting model m11a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m11)
+rm(m11a)
 
 ########################################################
-#  Model m12: 
+#  Model m12a: 
 #      --  #  Remove TWO 3-way terms
 #                Run : Rate : nSperm_z
 #                Run : EggPos : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -638,20 +664,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m12 <- stan(data         =  data.list,
+m12a <- stan(data         =  data.list,
            seed         =  randos[12],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m12.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m12a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -660,20 +688,20 @@ m12 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m12")
-system("notify-send \"STAN has finished fitting model m12\"")
+message("STAN has finished fitting model m12a")
+system("notify-send \"STAN has finished fitting model m12a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m12)
+rm(m12a)
 
 ########################################################
-#  Model m13: 
+#  Model m13a: 
 #      --  #  Remove TWO 3-way terms
 #                Run : Rate : EggPos
 #                Run : Rate : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -688,20 +716,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m13 <- stan(data         =  data.list,
+m13a <- stan(data         =  data.list,
            seed         =  randos[13],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m13.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m13a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -710,21 +740,21 @@ m13 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m13")
-system("notify-send \"STAN has finished fitting model m13\"")
+message("STAN has finished fitting model m13a")
+system("notify-send \"STAN has finished fitting model m13a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m13)
+rm(m13a)
 
 ########################################################
-#  Model m14: 
+#  Model m14a: 
 #      --  #  Remove TWO 3-way terms :
 #                Run : Rate : EggPos
 #                Run : EggPos : nSperm_z
 #      --  #  Remove Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -738,20 +768,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m14 <- stan(data         =  data.list,
+m14a <- stan(data         =  data.list,
            seed         =  randos[14],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m14.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m14a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -760,21 +792,21 @@ m14 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m14")
-system("notify-send \"STAN has finished fitting model m14\"")
+message("STAN has finished fitting model m14a")
+system("notify-send \"STAN has finished fitting model m14a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m14)
+rm(m14a)
 
 ########################################################
-#  Model m15: 
+#  Model m15a: 
 #      --  #  Remove TWO 3-way terms
 #                Run : Rate : nSperm_z
 #                Run : EggPos : nSperm_z
 #      --  #  Remove Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -788,20 +820,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m15 <- stan(data         =  data.list,
+m15a <- stan(data         =  data.list,
            seed         =  randos[15],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m15.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m15a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -810,20 +844,20 @@ m15 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m15")
-system("notify-send \"STAN has finished fitting model m15\"")
+message("STAN has finished fitting model m15a")
+system("notify-send \"STAN has finished fitting model m15a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m15)
+rm(m15a)
 
 ########################################################
-#  Model m16: 
+#  Model m16a: 
 #      --  #  Remove TWO 3-way terms
 #                Run : Rate : EggPos
 #                Run : Rate : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -837,20 +871,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m16 <- stan(data         =  data.list,
+m16a <- stan(data         =  data.list,
            seed         =  randos[16],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m16.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m16a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -859,18 +895,18 @@ m16 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m16")
-system("notify-send \"STAN has finished fitting model m16\"")
+message("STAN has finished fitting model m16a")
+system("notify-send \"STAN has finished fitting model m16a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m16)
+rm(m16a)
 
 ########################################################
-#  Model m17: 
+#  Model m17a: 
 #      --  #  Remove ALL 3-way terms
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -884,20 +920,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m17 <- stan(data         =  data.list,
+m17a <- stan(data         =  data.list,
            seed         =  randos[17],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m17.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m17a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -906,18 +944,18 @@ m17 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m17")
-system("notify-send \"STAN has finished fitting model m17\"")
+message("STAN has finished fitting model m17a")
+system("notify-send \"STAN has finished fitting model m17a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m17)
+rm(m17a)
 
 ########################################################
-#  Model m18: 
+#  Model m18a: 
 #      --  #  Remove ONE 2-way term : Run: EggPos
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -930,20 +968,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m18 <- stan(data         =  data.list,
+m18a <- stan(data         =  data.list,
            seed         =  randos[18],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m18.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m18a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -952,18 +992,18 @@ m18 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m18")
-system("notify-send \"STAN has finished fitting model m18\"")
+message("STAN has finished fitting model m18a")
+system("notify-send \"STAN has finished fitting model m18a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m18)
+rm(m18a)
 
 ########################################################
-#  Model m19: 
+#  Model m19a: 
 #      --  #  Remove ONE 2-way term : Run: Rate
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -976,20 +1016,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m19 <- stan(data         =  data.list,
+m19a <- stan(data         =  data.list,
            seed         =  randos[19],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m19.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m19a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -998,18 +1040,18 @@ m19 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m19")
-system("notify-send \"STAN has finished fitting model m19\"")
+message("STAN has finished fitting model m19a")
+system("notify-send \"STAN has finished fitting model m19a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m19)
+rm(m19a)
 
 ########################################################
-#  Model m20: 
+#  Model m20a: 
 #      --  #  Remove ONE 2-way term : Run: nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -1022,20 +1064,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m20 <- stan(data         =  data.list,
+m20a <- stan(data         =  data.list,
            seed         =  randos[20],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m20.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m20a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -1044,21 +1088,21 @@ m20 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m20")
-system("notify-send \"STAN has finished fitting model m20\"")
+message("STAN has finished fitting model m20a")
+system("notify-send \"STAN has finished fitting model m20a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m20)
+rm(m20a)
 
 ########################################################
-#  Model m21: 
+#  Model m21a: 
 #      --  #  Remove Two 2-way terms: 
 #               Run : Rate
 #               Run : EggPos
 #      --  Random intercept & slope ~ Run
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -1070,20 +1114,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m21 <- stan(data         =  data.list,
+m21a <- stan(data         =  data.list,
            seed         =  randos[21],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m21.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m21a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -1092,20 +1138,20 @@ m21 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m21")
-system("notify-send \"STAN has finished fitting model m21\"")
+message("STAN has finished fitting model m21a")
+system("notify-send \"STAN has finished fitting model m21a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m21)
+rm(m21a)
 
 ########################################################
-#  Model m22: 
+#  Model m22a: 
 #      --  #  Remove Two 2-way terms: 
 #               Run : Rate
 #               Run : nSperm_z
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -1117,20 +1163,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m22 <- stan(data         =  data.list,
+m22a <- stan(data         =  data.list,
            seed         =  randos[22],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m22.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m22a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -1139,20 +1187,20 @@ m22 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m22")
-system("notify-send \"STAN has finished fitting model m22\"")
+message("STAN has finished fitting model m22a")
+system("notify-send \"STAN has finished fitting model m22a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m22)
+rm(m22a)
 
 ########################################################
-#  Model m23: 
+#  Model m23a: 
 #      --  #  Remove Two 2-way terms: 
 #               Run : nSperm_z
 #               Run : EggPos
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -1164,20 +1212,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m23 <- stan(data         =  data.list,
+m23a <- stan(data         =  data.list,
            seed         =  randos[23],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m23.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m23a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -1186,19 +1236,19 @@ m23 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m23")
-system("notify-send \"STAN has finished fitting model m23\"")
+message("STAN has finished fitting model m23a")
+system("notify-send \"STAN has finished fitting model m23a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m23)
+rm(m23a)
 
 ########################################################
-#  Model m24: 
+#  Model m24a: 
 #      --  #  Remove All 2-way terms: 
 #               Random intercept ~ Run
-#      --  NO COVARIANCE MATRIX
+#      --  w/ ESTIMATED COVARIANCE MATRIX
 ########################################################
 
 #  Random Effects Model Matrix
@@ -1208,20 +1258,22 @@ Z       <-  unname(Z)
 attr(Z,"assign") <- NULL
 
 ##  Assemble data for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    K   =  ncol(Z),
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X,
-                    Z   =  Z
+data.list  <-  list(N    =  nrow(data),
+                    P    =  ncol(X),
+                    J    =  max(as.numeric(as.factor(data$Run))),
+                    K    =  ncol(Z),
+                    grp  =  as.numeric(as.factor(data$Run)),
+                    nT   =  data$nEggs - data$nControlFert,
+                    nS   =  data$nFert,
+                    X    =  X,
+                    Z    =  Z
                    )
 
 ## Call to STAN
-m24 <- stan(data         =  data.list,
+m24a <- stan(data         =  data.list,
            seed         =  randos[24],
-           file         =  './Stan/mat-logistic-1Z.stan',
-           sample_file  =  './output/StanFits/NxRate_m24.csv',
+           file         =  './Stan/mat-logistic-1Z-cov.stan',
+           sample_file  =  './output/StanFits/NxRate_m24a.csv',
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
@@ -1230,44 +1282,10 @@ m24 <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m24")
-system("notify-send \"STAN has finished fitting model m24\"")
+message("STAN has finished fitting model m24a")
+system("notify-send \"STAN has finished fitting model m24a\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m24)
-
-########################################################
-#  Model m25: Simple Logistic Regression 
-#       --  NO Random Effects
-#       --  NO COVARIANCE MATRIX
-########################################################
-
-
-#  Assemble data.list for stan
-data.list  <-  list(N   =  nrow(data),
-                    P   =  ncol(X), 
-                    nT  =  data$nEggs,
-                    nS  =  data$nFert - data$nControlFert,
-                    X   =  X
-                   )
-
-# Call to STAN
-m25 <- stan(data         =  data.list,
-           seed         =  randos[25],
-           file         =  './Stan/mat-logistic-reg.stan',
-           sample_file  =  './output/StanFits/NxRate_m25.csv',
-           chains       =  nChains,
-           iter         =  nIter,
-           thin         =  thinSteps,
-           save_dso     =  TRUE
-          )
-
-# message
-message("STAN has finished fitting model m25")
-system("notify-send \"STAN has finished fitting model m25\"")
-
-# garbage collection
-rm(data.list)
-rm(m25)
+rm(m24a)
