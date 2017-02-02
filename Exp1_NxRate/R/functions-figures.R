@@ -468,8 +468,8 @@ regressionPlot  <-  function(Ninv.fit = NIm2, NRate.df = m12.df, NRate.summ = m1
               x       =  usr[2]*0.398,
               y       =  usr[4],
               legend  =  c(
-                          expression(paste(~~~Fast:~5~cm)),
-                          expression(paste(~~~Fast:~55~cm)),
+                          expression(paste(~~~Fast:~25~cm)),
+                          expression(paste(~~~Fast:~75~cm)),
                           expression(paste(~~~Slow))),
               pch     =  c(21,21,21),
               pt.bg   =  c(
