@@ -328,6 +328,7 @@ csvFiles  <-  c('./output/StanFits/NxRate_m25.csv1',
 m25        <-  read_stan_csv(csvFiles, col_major = TRUE)
 rm(csvFiles)
 setTxtProgressBar(pb, 25)
+close(pb)
 
 
 
@@ -414,6 +415,7 @@ setTxtProgressBar(pb, 24)
 m25.df    <-  as.data.frame(extract(m25))[,-1]
 m25.summ  <-  plyr:::adply(as.matrix(m25.df),2,MCMCsum)
 setTxtProgressBar(pb, 25)
+close(pb)
 
 
 
@@ -523,3 +525,12 @@ m25LL    <-  extract_log_lik(m25, parameter_name = "log_lik")
 m25Loo   <-  loo(m25LL)
 m25WAIC  <-  waic(m25LL)
 setTxtProgressBar(pb, 25)
+close(pb)
+
+
+m12Z       <-  model.matrix(~ -1 + Run            +
+                                   Run : nSperm_z +
+                                   Run : Rate     +
+                                   Run : EggPos   +
+                                   Run : Rate   : EggPos,
+                            data = data)

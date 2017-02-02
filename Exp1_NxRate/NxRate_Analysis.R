@@ -516,6 +516,7 @@ qqline(m1.resids_z, col = 2)
 dev.new()
 par(mfrow=c(2,2))
 hist(m10.resids_z, breaks=40)
+abline(v=c(-2,2), lty=2)
 plot(m10.resids_z ~ data$nSperm_z, main="Model m10")
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
 plot(m10.resids_z ~ seq_along(m10.resids_z))
@@ -526,6 +527,7 @@ qqline(m10.resids_z, col = 2)
 dev.new()
 par(mfrow=c(2,2))
 hist(m12.resids_z, breaks=40)
+abline(v=c(-2,2), lty=2)
 plot(m12.resids_z ~ data$nSperm_z, main="Model m12")
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
 plot(m12.resids_z ~ seq_along(m12.resids_z))
@@ -538,9 +540,8 @@ qqline(m12.resids_z, col = 2)
 ###########################################################################
 ## Overall impression from residual plots:
 ##
-##  -- Again, all models pretty equivocal. All three show a updward trend 
-##     when plotted against nSperm_z. A constraint of the shape of the 
-##     logistic curve and error.
+##  -- Again, all models pretty equivocal, and the residual plots don't
+##     appear to have any major problems other than slightly heavy tails.
 ###########################################################################
 
 
@@ -555,7 +556,8 @@ qqline(m12.resids_z, col = 2)
 
 
 ######################################################
-## Have a look at the final regression from m3 & m3a
+## Have a look at the final regressions from 
+##  candidate models (m1, m12, m10)
 
 ##  Calculate Predicted Lines
 m1.coef   <-  m1.summ$Mean[1:8]
@@ -896,8 +898,8 @@ simpContr  <-  list(
 )
 pval(simpContr[[5]])
 
-#pdf(file="./output/contrast_histograms2.pdf", height=18, width=20)
-par(mfrow=c(5,5), omi=rep(0.4,4))
+pdf(file="./output/contrast_histograms.pdf", height=18, width=20)
+par(mfrow=c(4,5), omi=rep(0.4,4))
 plotContr(density(simpContr[[1]]))
   proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
   proportionalLabel(-0.25, 0.5, expression(paste('x = -1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
@@ -917,10 +919,8 @@ for (i in 6:25) {
     proportionalLabel(-0.25, 0.5, expression(paste('x = 1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
   if(i == 16)
     proportionalLabel(-0.25, 0.5, expression(paste('x = 2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-  if(i == 21)
-    proportionalLabel(-0.25, 0.5, expression(paste('x = 3',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
 }
-#dev.off()
+dev.off()
 
 
 
@@ -935,14 +935,17 @@ for (i in 6:25) {
 ## (p = 0.953).
 ## 
 ##  There is no corresponding interaction for the Slow treatment. 
+##
+##  Both the 5cm and 55cm partial regression slopes for the Fast treatment
+##  are significantly steeper than the "Slow" slope (p = 0.000, 0.000) 
 ## 
 ##  The simple contrasts between the predicted lines for Fast v. Slow
 ##  treatments are significant at high and low values of sigma (sigma = 1, 
 ##  sigma > 1).
 ##
-##  Given these results, my inclination is to plot the main effect for th
+##  Given these results, my inclination is to plot the main effect for the
 ##  Slow treatment (pooled regression line), but both 5cm and 55cm lines
-##  for the Fast treatment... with different intercepts, but overall slope.
+##  for the Fast treatment... 
 ##  This should simplify the figure, and focus attention on the trend that 
 ##  is driving the overall result: The higher intercept for the 55cm Fast
 ##  regression line.
@@ -967,66 +970,56 @@ Z       <-  model.matrix(~ -1 + Run            +
                                 Run : EggPos   +
                                 Run : Rate   : EggPos,
                          data = data)
-Znames  <-  dimnames(Z)[[2]]
 
 # Mean coefficients
 m12.betas    <-  m12.summ$Mean[1:8]
 m12.gammas   <-  m12.summ$Mean[9:58]
 
-
+source('R/functions-figures.R')
 # Predicted lines for Fast (with pooled slopes) & the overall Slow
 # Create plotting objects for each regression line
-m12Fast5.plt   <-  m12Fast5.plots(m12.betas, m12.allBetas, data)
-m12Fast55.plt  <-  m12Fast55.plots(m12.betas, m12.allBetas, data)
-m12Slow.plt    <-  m12Slow.plots(m12.betas, m12.allBetas, data)
+Fast5.plt   <-  Fast5.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
+Fast55.plt  <-  Fast55.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
+Slow.plt    <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
 
 # Residuals for fixed-effect predicted lines
-ys                <-  ((data$nFert - data$nControlFert)/data$nEggs) 
-m3aFast5_Resids   <-  m3aFast5  - ys 
-m3aFast55_Resids  <-  m3aFast55 - ys 
-m3aSlow_Resids    <-  m3aSlow   - ys 
-
 par(mfrow=c(2,2))
-plot(density(m3aFast5_Resids))
+plot(density(Fast5.plt$rawResids[data$Rate == "Fast" & data$EggPos == "5"]), lwd=3, col='darkolivegreen')
+lines(density(Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
-plot(density(m3aFast55_Resids))
+plot(density(Fast55.plt$rawResids[data$Rate == "Fast" & data$EggPos == "55"]), lwd=3, col='darkolivegreen')
+lines(density(Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
-plot(density(m3aSlow_Resids))
+plot(density(Slow.plt$rawResids[data$Rate == "Slow"]), lwd=3, col='darkolivegreen')
+lines(density(Slow.plt$adjResids[data$Rate == "Slow"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
 
-sum(m3aFast5_Resids > 0)/length(m3aFast5_Resids)
-sum(m3aFast55_Resids > 0)/length(m3aFast55_Resids)
-sum(m3aSlow_Resids > 0)/length(m3aSlow_Resids)
 
-# Adjusted y-values for each predicted line
-m3aFast5_yAdj   <-  m3aFast5  + inv_logit((m3a.betas[1] + (m3a.betas[2] + (m3a.betas[6])/2) * data$nSperm_z) + Z %*% m3a.gammas) - ys 
-m3aFast55_yAdj  <-  m3aFast55 + inv_logit((m3a.betas[1] + m3a.betas[4]) + (m3a.betas[2] + ((m3a.betas[6])/2)) * data$nSperm_z + Z %*% m3a.gammas) - ys
-m3aSlow_yAdj    <-  m3aSlow   + inv_logit((m3a.betas[1] + m3a.betas[3] + (0.5*(m3a.betas[7]))) + 
-                                          ((m3a.betas[2] + m3a.betas[5] + (0.5*(m3a.betas[8]))) * data$nSperm_z) + Z %*% m3a.gammas) - ys 
-
+sum(Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"] > 0)/length(Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"])
+sum(Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"] > 0)/length(Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"])
+sum(Slow.plt$adjResids[data$Rate == "Slow"] > 0)/length(Slow.plt$adjResids[data$Rate == "Slow"])
 
 
 # Visually inspect, make sure they make sense
 par(mfrow=c(2,2))
-plot(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ m3aFast5[data$Rate == "Fast" & data$EggPos == "5"])
+plot(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$yHats[data$Rate == "Fast" & data$EggPos == "5"])
 abline(a=0, b=1,lwd=3,col=2)
-plot(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ m3aFast55[data$Rate == "Fast" & data$EggPos == "55"])
+plot(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast55.plt$yHats[data$Rate == "Fast" & data$EggPos == "55"])
 abline(a=0, b=1,lwd=3,col=2)
-plot(m3aSlow_yAdj[data$Rate == "Slow"] ~ m3aSlow[data$Rate == "Slow"])
+plot(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$yHats[data$Rate == "Slow"])
 abline(a=0, b=1,lwd=3,col=2)
 
 par(mfrow=c(2,2))
-plot(density(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] - m3aFast5[data$Rate == "Fast" & data$EggPos == "5"]))
-plot(density(m3aFast5_Resids))
-abline(v=0,lwd=3,col=2)
-plot(density(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] - m3aFast55[data$Rate == "Fast" & data$EggPos == "55"]))
-abline(v=0,lwd=3,col=2)
-plot(density(m3aSlow_yAdj[data$Rate == "Slow"] - m3aSlow[data$Rate == "Slow"]))
-abline(v=0,lwd=3,col=2)
+plot(Fast5.plt$rawResids[data$Rate == "Fast" & data$EggPos == "5"] ~ 
+     Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"])
+abline(a=0, b=1,lwd=3,col=2)
+plot(Fast55.plt$rawResids[data$Rate == "Fast" & data$EggPos == "55"] ~ 
+     Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"])
+abline(a=0, b=1,lwd=3,col=2)
+plot(Slow.plt$rawResids[data$Rate == "Slow"] ~ 
+     Slow.plt$adjResids[data$Rate == "Slow"])
+abline(a=0, b=1,lwd=3,col=2)
 
-sum(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] - m3aFast5[data$Rate == "Fast" & data$EggPos == "5"] > 0)/length(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] - m3aFast5[data$Rate == "Fast" & data$EggPos == "5"])
-sum(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] - m3aFast55[data$Rate == "Fast" & data$EggPos == "55"] > 0)/length(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] - m3aFast55[data$Rate == "Fast" & data$EggPos == "55"])
-sum(m3aSlow_yAdj[data$Rate == "Slow"] - m3aSlow[data$Rate == "Slow"] > 0)/length(m3aSlow_yAdj[data$Rate == "Slow"] - m3aSlow[data$Rate == "Slow"])
 
 # Plot 
 
@@ -1040,19 +1033,16 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot regression lines
-lines(m3aSlow[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='orangered1', lwd=3)
-lines(m3aFast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='dodgerblue1', lwd=3)
-lines(m3aFast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='dodgerblue1', lty=2, lwd=3)
-points(m3aSlow_yAdj[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+lines(Slow.plt$y   ~ Slow.plt$xRaw, col='orangered1', lwd=3)
+lines(Fast5.plt$y  ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
+lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lty=2, lwd=3)
+points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
+points(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
 axis(2, las=1)
@@ -1088,25 +1078,25 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot regression lines
-polygon(x=c(m3aSlow.plt$xRaw, rev(m3aSlow.plt$xRaw)), 
-        y=c(m3aSlow.plt$CIs$lower, rev(m3aSlow.plt$CIs$upper)), 
+polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
+        y=c(Slow.plt$CIs$lower, rev(Slow.plt$CIs$upper)), 
         col=transparentColor('orangered1', 0.01), border=transparentColor('orangered4',0.2))
-polygon(x=c(m3aFast5.plt$xRaw, rev(m3aFast5.plt$xRaw)), 
-        y=c(m3aFast5.plt$CIs$lower, rev(m3aFast5.plt$CIs$upper)), 
+polygon(x=c(Fast5.plt$xRaw, rev(Fast5.plt$xRaw)), 
+        y=c(Fast5.plt$CIs$lower, rev(Fast5.plt$CIs$upper)), 
         col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
-polygon(x=c(m3aFast55.plt$xRaw, rev(m3aFast55.plt$xRaw)), 
-        y=c(m3aFast55.plt$CIs$lower, rev(m3aFast55.plt$CIs$upper)), 
+polygon(x=c(Fast55.plt$xRaw, rev(Fast55.plt$xRaw)), 
+        y=c(Fast55.plt$CIs$lower, rev(Fast55.plt$CIs$upper)), 
         col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
-lines(m3aSlow.plt$y ~ m3aSlow.plt$xRaw, col='orangered1', lwd=3)
-lines(m3aFast5.plt$y ~ m3aFast5.plt$xRaw, col='dodgerblue1', lwd=3)
-lines(m3aFast55.plt$y ~ m3aFast55.plt$xRaw, col='dodgerblue1', lwd=3, lty=2)
-points(m3aSlow_yAdj[data$Rate == "Slow"] ~ data$nSperm[data$Rate == "Slow"], pch=21, 
+lines(Slow.plt$y   ~ Slow.plt$xRaw, col='orangered1', lwd=3)
+lines(Fast5.plt$y  ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
+lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lty=2, lwd=3)
+points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points(m3aFast5_yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(m3aFast55_yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
+points(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
 axis(2, las=1)
