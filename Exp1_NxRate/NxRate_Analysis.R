@@ -562,7 +562,7 @@ qqline(m12.resids_z, col = 2)
 ##  Calculate Predicted Lines
 m1.coef   <-  m1.summ$Mean[1:8]
 m10.coef  <-  m10.summ$Mean[1:8]
-m12.coef  <-  m10.summ$Mean[1:8]
+m12.coef  <-  m12.summ$Mean[1:8]
 
 m1Fast5   <-  inv_logit(m1.coef[1] + m1.coef[2] * data$nSperm_z)
 m1Fast55  <-  inv_logit((m1.coef[1] + m1.coef[4]) + (m1.coef[2] + m1.coef[6]) * data$nSperm_z)

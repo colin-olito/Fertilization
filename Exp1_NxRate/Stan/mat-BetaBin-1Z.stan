@@ -34,8 +34,8 @@ parameters {
 }
 
 transformed parameters {
-   real[N] a;             // Prior success count (alpha parameter in BBin dist.)
-   real[N] b;             // Prior failure count (beta parameter in BBin dist.)
+   vector<lower=0.001>[N] a;             // Prior success count (alpha parameter in BBin dist.)
+   vector<lower=0.001>[N] b;             // Prior failure count (beta parameter in BBin dist.)
    vector[N] mu;        // mean chance of success
 
    for (n in 1:N)
@@ -48,7 +48,8 @@ transformed parameters {
 
 model {
    // Hyperpriors
-   // Implicit Unif[0.1,Inf] hyperprior on kappa (see parameters{} block)
+   // Implicit Unif[0.1,Inf] hyperprior on kappa (see parameters{} block) yields nearly identical estimates to half-cauchy
+   kappa        ~  cauchy(0,100);
    sigma_gamma  ~  cauchy(0,1);
 
    // Priors
@@ -81,8 +82,8 @@ generated quantities {
       log_lik[i]  =  beta_binomial_lpmf(nS[i] | nT[i], a[i], b[i]);
       y_rep[i]    =  beta_binomial_rng(nT[i], a[i], b[i]);
       y_hat[i]    =  inv_logit(mu[i]);
-      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/(to_vector(nS)[i]/to_vector(nT)[i]);
-      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/(y_rep[i]/to_vector(nT)[i]);
+      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/((to_vector(nS)[i]/to_vector(nT)[i]) + 0.01);
+      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/((y_rep[i]/to_vector(nT)[i]) + 0.01);
    }
 
    min_y_rep   =  min(y_rep);
