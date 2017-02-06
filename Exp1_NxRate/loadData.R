@@ -151,7 +151,7 @@ close(pb)
 # Import NxRate model results from the stan 
 # sample_files for further analysis 
 ############################################
-print('Loading NxRate stanfits')
+print('Loading NxRate Binomial stanfits')
 pb <- txtProgressBar(min=0,max=25, style=3)
 setTxtProgressBar(pb, 0)
 csvFiles  <-  c('./output/StanFits/NxRate_m1.csv1',
@@ -330,6 +330,190 @@ rm(csvFiles)
 setTxtProgressBar(pb, 25)
 close(pb)
 
+
+############################################
+# Import NxRate Beta-Binomial model results 
+# from the stan sample_files for further 
+# analysis 
+############################################
+print('Loading NxRate Beta-Binomial stanfits')
+pb <- txtProgressBar(min=0,max=25, style=3)
+setTxtProgressBar(pb, 0)
+csvFiles  <-  c('./output/StanFits/NxRate_m1BB.csv1',
+                './output/StanFits/NxRate_m1BB.csv2',
+                './output/StanFits/NxRate_m1BB.csv3')
+m1BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 1)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m2BB.csv1',
+                './output/StanFits/NxRate_m2BB.csv2',
+                './output/StanFits/NxRate_m2BB.csv3')
+m2BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 2)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m3BB.csv1',
+                './output/StanFits/NxRate_m3BB.csv2',
+                './output/StanFits/NxRate_m3BB.csv3')
+m3BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 3)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m4BB.csv1',
+                './output/StanFits/NxRate_m4BB.csv2',
+                './output/StanFits/NxRate_m4BB.csv3')
+m4BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 4)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m5BB.csv1',
+                './output/StanFits/NxRate_m5BB.csv2',
+                './output/StanFits/NxRate_m5BB.csv3')
+m5BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 5)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m6BB.csv1',
+                './output/StanFits/NxRate_m6BB.csv2',
+                './output/StanFits/NxRate_m6BB.csv3')
+m6BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 6)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m7BB.csv1',
+                './output/StanFits/NxRate_m7BB.csv2',
+                './output/StanFits/NxRate_m7BB.csv3')
+m7BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 7)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m8BB.csv1',
+                './output/StanFits/NxRate_m8BB.csv2',
+                './output/StanFits/NxRate_m8BB.csv3')
+m8BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 8)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m9BB.csv1',
+                './output/StanFits/NxRate_m9BB.csv2',
+                './output/StanFits/NxRate_m9BB.csv3')
+m9BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 9)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m10BB.csv1',
+                './output/StanFits/NxRate_m10BB.csv2',
+                './output/StanFits/NxRate_m10BB.csv3')
+m10BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 10)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m11BB.csv1',
+                './output/StanFits/NxRate_m11BB.csv2',
+                './output/StanFits/NxRate_m11BB.csv3')
+m11BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 11)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m12BB.csv1',
+                './output/StanFits/NxRate_m12BB.csv2',
+                './output/StanFits/NxRate_m12BB.csv3')
+m12BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 12)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m13BB.csv1',
+                './output/StanFits/NxRate_m13BB.csv2',
+                './output/StanFits/NxRate_m13BB.csv3')
+m13BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 13)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m14BB.csv1',
+                './output/StanFits/NxRate_m14BB.csv2',
+                './output/StanFits/NxRate_m14BB.csv3')
+m14BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 14)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m15BB.csv1',
+                './output/StanFits/NxRate_m15BB.csv2',
+                './output/StanFits/NxRate_m15BB.csv3')
+m15BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 15)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m16BB.csv1',
+                './output/StanFits/NxRate_m16BB.csv2',
+                './output/StanFits/NxRate_m16BB.csv3')
+m16BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 16)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m17BB.csv1',
+                './output/StanFits/NxRate_m17BB.csv2',
+                './output/StanFits/NxRate_m17BB.csv3')
+m17BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 17)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m18BB.csv1',
+                './output/StanFits/NxRate_m18BB.csv2',
+                './output/StanFits/NxRate_m18BB.csv3')
+m18BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 18)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m19BB.csv1',
+                './output/StanFits/NxRate_m19BB.csv2',
+                './output/StanFits/NxRate_m19BB.csv3')
+m19BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 19)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m20BB.csv1',
+                './output/StanFits/NxRate_m20BB.csv2',
+                './output/StanFits/NxRate_m20BB.csv3')
+m20BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 20)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m21BB.csv1',
+                './output/StanFits/NxRate_m21BB.csv2',
+                './output/StanFits/NxRate_m21BB.csv3')
+m21BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 21)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m22BB.csv1',
+                './output/StanFits/NxRate_m22BB.csv2',
+                './output/StanFits/NxRate_m22BB.csv3')
+m22BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 22)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m23BB.csv1',
+                './output/StanFits/NxRate_m23BB.csv2',
+                './output/StanFits/NxRate_m23BB.csv3')
+m23BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 23)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m24BB.csv1',
+                './output/StanFits/NxRate_m24BB.csv2',
+                './output/StanFits/NxRate_m24BB.csv3')
+m24BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 24)
+
+csvFiles  <-  c('./output/StanFits/NxRate_m25BB.csv1',
+                './output/StanFits/NxRate_m25BB.csv2',
+                './output/StanFits/NxRate_m25BB.csv3')
+m25BB        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+setTxtProgressBar(pb, 25)
+close(pb)
 
 
 
