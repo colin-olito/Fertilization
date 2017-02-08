@@ -41,6 +41,7 @@ library(lme4) # remember to detatch("package:nlme") because of conflicts
 library(extrafont)
 library(fontcm)
 loadfonts(quiet = TRUE)
+library(bayesboot)
 
 ################
 # STAN OPTIONS
@@ -124,7 +125,7 @@ makeLooTable <- function(looDiff) {
     # Bayesian Bootstrap for s.e.
     for (i in 1:ncol(index)) {
       seSumm  <-  summary(bayesboot((looList[[index[1,i]]]$pointwise[,"elpd_loo"] - 
-                                                    looList[[index[2,i]]]$pointwise[,"elpd_loo"]), R2=nrow(data), statistic=looDiffSE))
+                                                    looList[[index[2,i]]]$pointwise[,"elpd_loo"]), R2=n, statistic=looDiffSE))
         bayesBootSE[i]    <-  seSumm$value[1]
         bayesBootSE95[i]  <-  seSumm$value[4]
     }

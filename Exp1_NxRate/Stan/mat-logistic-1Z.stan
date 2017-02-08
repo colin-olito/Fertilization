@@ -73,8 +73,8 @@ generated quantities {
       log_lik[i]  =  binomial_logit_lpmf(nS[i] | nT[i], X[i]*beta + Z[i]*gamma);
       y_rep[i]    =  binomial_rng(nT[i], inv_logit(mu[i]));      
       y_hat[i]    =  inv_logit(mu[i]);
-      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/(to_vector(nS)[i]/to_vector(nT)[i]);
-      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/(y_rep[i]/to_vector(nT)[i]);
+      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/(y_hat[i]);
+      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/(y_hat[i]);
    }
 
    min_y_rep   =  min(y_rep);

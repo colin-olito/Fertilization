@@ -17,7 +17,7 @@ options("menu.graphics"=FALSE)
 
 ###############
 # DEPENDENCIES
-source('./loadData.R')
+source('./loadData_NxRate_Bin.R')
 
 
 
@@ -34,15 +34,8 @@ looDiff   <-  compare(m1Loo,  m2Loo,  m3Loo,  m4Loo,  m5Loo,
                       m16Loo, m17Loo, m18Loo, m19Loo, m20Loo,
                       m21Loo, m22Loo, m23Loo, m24Loo, m25Loo
                      )
-waicDiff   <-  compare(m1WAIC,  m2WAIC,  m3WAIC,  m4WAIC,  m5WAIC,
-                       m6WAIC,  m7WAIC,  m8WAIC,  m9WAIC,  m10WAIC,
-                       m11WAIC, m12WAIC, m13WAIC, m14WAIC, m15WAIC,
-                       m16WAIC, m17WAIC, m18WAIC, m19WAIC, m20WAIC,
-                       m21WAIC, m22WAIC, m23WAIC, m24WAIC, m25WAIC
-                      )
 
 print(looDiff, digits=4)
-print(waicDiff, digits=4)
 
 # LOO Results Summary Table
 LooDiff  <-  makeLooTable(looDiff)

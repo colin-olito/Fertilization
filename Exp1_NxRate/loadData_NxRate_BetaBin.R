@@ -38,36 +38,6 @@ data$nSperm_z  <-  (data$nSperm - mean(data$nSperm))/sd(data$nSperm)
 
 
 
-############################################
-# Import NxRate model results from the stan 
-# sample_files for further analysis 
-############################################
-print('Loading NxRate Binomial stanfits')
-pb <- txtProgressBar(min=0,max=3, style=3)
-setTxtProgressBar(pb, 0)
-csvFiles  <-  c('./output/StanFits/NxRate_m1.csv1',
-                './output/StanFits/NxRate_m1.csv2',
-                './output/StanFits/NxRate_m1.csv3')
-m1        <-  read_stan_csv(csvFiles, col_major = TRUE)
-rm(csvFiles)
-setTxtProgressBar(pb, 1)
-
-
-csvFiles  <-  c('./output/StanFits/NxRate_m10.csv1',
-                './output/StanFits/NxRate_m10.csv2',
-                './output/StanFits/NxRate_m10.csv3')
-m10        <-  read_stan_csv(csvFiles, col_major = TRUE)
-rm(csvFiles)
-setTxtProgressBar(pb, 2)
-
-csvFiles  <-  c('./output/StanFits/NxRate_m12.csv1',
-                './output/StanFits/NxRate_m12.csv2',
-                './output/StanFits/NxRate_m12.csv3')
-m12        <-  read_stan_csv(csvFiles, col_major = TRUE)
-rm(csvFiles)
-setTxtProgressBar(pb, 3)
-close(pb)
-
 
 ############################################
 # Import NxRate Beta-Binomial model results 
@@ -256,26 +226,6 @@ close(pb)
 
 
 
-
-################################################
-##  Extract Samples into data frames, summarize
-################################################
-print('Extracting stanfits into data frames, etc.')
-pb <- txtProgressBar(min=0,max=3, style=3)
-m1.df     <-  as.data.frame(extract(m1))  [,-1]
-m1.summ   <-  plyr:::adply(as.matrix(m1.df),2,MCMCsum)
-setTxtProgressBar(pb, 1)
-m10.df    <-  as.data.frame(extract(m10))[,-1]
-m10.summ  <-  plyr:::adply(as.matrix(m10.df),2,MCMCsum)
-setTxtProgressBar(pb, 2)
-m12.df    <-  as.data.frame(extract(m12))[,-1]
-m12.summ  <-  plyr:::adply(as.matrix(m12.df),2,MCMCsum)
-setTxtProgressBar(pb, 3)
-close(pb)
-
-
-
-
 ################################################
 ##  Extract Samples into data frames, summarize
 ################################################
@@ -358,27 +308,6 @@ m25BB.summ  <-  plyr:::adply(as.matrix(m25BB.df),2,MCMCsum)
 setTxtProgressBar(pb, 25)
 close(pb)
 
-
-
-
-#########################################
-# LOO Log-likelihood for model selection
-#########################################
-print('Calculating LOO for model comparison')
-pb <- txtProgressBar(min=0,max=3, style=3)
-m1LL     <-  extract_log_lik(m1, parameter_name = "log_lik")
-m1Loo    <-  loo(m1LL)
-m1WAIC   <-  waic(m1LL)
-setTxtProgressBar(pb, 1)
-m10LL    <-  extract_log_lik(m10, parameter_name = "log_lik")
-m10Loo   <-  loo(m10LL)
-m10WAIC  <-  waic(m10LL)
-setTxtProgressBar(pb, 2)
-m12LL    <-  extract_log_lik(m12, parameter_name = "log_lik")
-m12Loo   <-  loo(m12LL)
-m12WAIC  <-  waic(m12LL)
-setTxtProgressBar(pb, 3)
-close(pb)
 
 
 #########################################

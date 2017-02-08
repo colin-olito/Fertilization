@@ -203,16 +203,11 @@ Invest.plots  <-  function(m2.summ, data) {
 #'                used to fit the model (N_invest_master.csv).
 #' @return A pdf of the final regression plot for this analysis.
 #' @author Colin Olito.
-N_investPlot  <-  function(stanfit = NIm2, data = NinvData) {
-
-    ####################
-    # Process Stanfit
-    m2.df    <-  as.data.frame(extract(NIm2))
-    m2.summ  <-  plyr:::adply(as.matrix(m2.df),2,MCMCsum)[-1,]
+N_investPlot  <-  function(Ninv.df, Ninv.summ, data = NinvData) {
 
     #######################
     # Make plotting object
-    Inv.plt  <-  Invest.plots(m2.summ, data)
+    Inv.plt  <-  Invest.plots(Ninv.summ, data)
 
     ############
     # Make Plot
@@ -261,20 +256,20 @@ N_investPlot  <-  function(stanfit = NIm2, data = NinvData) {
 #'             used to fit the model (NxRate_master.csv).
 #' @return A pdf of the final regression plot for this analysis.
 #' @author Colin Olito.
-NxRate_Plot  <-  function(df = m12.df, summ = m12.summ, Zmat = m12Z, data, ...) {
+NxRate_Plot  <-  function(df, summ, Zmat, data, ...) {
 
     #######################
     # Extract Coefficients
-    m12.betas      <-  summ$Mean[1:8]
-    m12.allBetas   <-  df[1:8]
-    m12.gammas     <-  summ$Mean[9:58]
-    m12.allGammas  <-  df[9:58]
+    betas      <-  summ$Mean[1:8]
+    allBetas   <-  df[1:8]
+    gammas     <-  summ$Mean[9:(87 + ncol(Zmat))]
+    allGammas  <-  df[9:(87 + ncol(Zmat))]
 
     ###################################################
     # Create plotting objects for each regression line
-    Fast5.plt   <-  Fast5.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
-    Fast55.plt  <-  Fast55.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
-    Slow.plt    <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
+    Fast5.plt   <-  Fast5.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Fast55.plt  <-  Fast55.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Slow.plt    <-  Slow.plots(betas, allBetas, gammas, Z=Zmat, data = data)
 
     ################
     # Make the plot
@@ -352,30 +347,28 @@ NxRate_Plot  <-  function(df = m12.df, summ = m12.summ, Zmat = m12Z, data, ...) 
 #' @param data The NxRate data frame (data).
 #' @return A plot of the final regression for this analysis.
 #' @author Colin Olito.
-regressionPlot  <-  function(Ninv.fit = NIm2, NRate.df = m12.df, NRate.summ = m12.summ, Zmat = m12Z, NinvData, data) {
+regressionPlot  <-  function(Ninv.df, Ninv.summ, NRate.df, NRate.summ, Zmat, NinvData, data) {
 
     #######################
     # Extract coefficients
-    NIm2.df     <-  as.data.frame(extract(Ninv.fit))[,-1]
-    NIm2.summ   <-  plyr:::adply(as.matrix(NIm2.df),2,MCMCsum)
-    m12.betas      <-  NRate.summ$Mean[1:8]
-    m12.allBetas   <-  NRate.df[1:8]
-    m12.gammas     <-  NRate.summ$Mean[9:58]
-    m12.allGammas  <-  NRate.df[9:58]
+    betas      <-  NRate.summ$Mean[1:8]
+    allBetas   <-  NRate.df[1:8]
+    gammas     <-  NRate.summ$Mean[9:58]
+    allGammas  <-  NRate.df[9:58]
 
     ###################################################
     # Create plotting objects for each regression line
-    Inv.plt     <-  Invest.plots(NIm2.summ, data=NinvData)
-    Fast5.plt   <-  Fast5.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
-    Fast55.plt  <-  Fast55.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
-    Slow.plt    <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
+    Inv.plt     <-  Invest.plots(Ninv.summ, data=NinvData)
+    Fast5.plt   <-  Fast5.plots( betas, allBetas, gammas, Z=Zmat, data = data)
+    Fast55.plt  <-  Fast55.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Slow.plt    <-  Slow.plots(  betas, allBetas, gammas, Z=Zmat, data = data)
 
     ###################################################
     # MAKE PLOTS
 
     # Set plot layout
     layout.mat <- matrix(c(1,2), nrow=2, ncol=1, byrow=TRUE)
-    layout <- layout(layout.mat,respect=TRUE)
+    layout     <- layout(layout.mat,respect=TRUE)
 
     ############
     # N_invPlot
@@ -386,12 +379,6 @@ regressionPlot  <-  function(Ninv.fit = NIm2, NRate.df = m12.df, NRate.summ = m1
     rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
     whiteGrid()
     box()
-    # plot all regression lines from MCMC chains
-    # apply(m2.df, 1, function(x, data, nSperm_z){
-    #     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
-    #     xrange2  <-  seq(min(nSperm_z), max(nSperm_z), length.out=100)
-    #     lines(xrange, inv_logit(x['beta.1'] + x['beta.2'] * xrange2), col=transparentColor('grey68',0.1))
-    # }, data=NinvData, nSperm_z=NinvData$nSperm_z)
     # plot run-specific regression lines
      for(i in 1:8) {
        lines(Inv.plt$runs[[i]] ~ Inv.plt$runs[[i+8]],col='grey75', lwd=3)
@@ -417,15 +404,6 @@ regressionPlot  <-  function(Ninv.fit = NIm2, NRate.df = m12.df, NRate.summ = m1
     whiteGrid()
     box()
     # plot regression lines
-#    polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
-#            y=c(Slow.plt$CIs$lower, rev(Slow.plt$CIs$upper)), 
-#            col=transparentColor('orangered1', 0.01), border=transparentColor('orangered4',0.2))
-#    polygon(x=c(Fast5.plt$xRaw, rev(Fast5.plt$xRaw)), 
-#            y=c(Fast5.plt$CIs$lower, rev(Fast5.plt$CIs$upper)), 
-#            col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
-#    polygon(x=c(Fast55.plt$xRaw, rev(Fast55.plt$xRaw)), 
-#            y=c(Fast55.plt$CIs$lower, rev(Fast55.plt$CIs$upper)), 
-#            col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
     lines(Slow.plt$y ~ Slow.plt$xRaw, col='orangered1', lwd=3)
     lines(Fast5.plt$y ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
     lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lwd=3, lty=2)
@@ -500,20 +478,20 @@ regressionPlot  <-  function(Ninv.fit = NIm2, NRate.df = m12.df, NRate.summ = m1
 #' @return A plot of the Fast & Slow regression lines with credible intervals, transformed
 #'         into per-capita fertilization success.
 #' @author Colin Olito.
-perGameteFertPlot  <-  function(df = m12.df, summ = m12.summ, Zmat = m12Z, data, ...) {
+perGameteFertPlot  <-  function(df, summ, Zmat, data, ...) {
 
     ####################
     #######################
     # Extract Coefficients
-    m12.betas      <-  summ$Mean[1:8]
-    m12.allBetas   <-  df[1:8]
-    m12.gammas     <-  summ$Mean[9:58]
-    m12.allGammas  <-  df[9:58]
+    betas      <-  summ$Mean[1:8]
+    allBetas   <-  df[1:8]
+    gammas     <-  summ$Mean[9:58]
+    allGammas  <-  df[9:58]
 
     ###################################################
     # Create plotting objects for each regression line
-    Fast.plt  <-  Fast.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
-    Slow.plt  <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Zmat, data = data)
+    Fast.plt  <-  Fast.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Slow.plt  <-  Slow.plots(betas, allBetas, gammas, Z=Zmat, data = data)
 
     datPerGamete  <-  (((data$nFert - data$nControlFert)/data$nEggs) / data$nSperm)
     yRange        <-  range(datPerGamete)[2] - range(datPerGamete)[1]
@@ -605,25 +583,25 @@ perGameteFertPlot  <-  function(df = m12.df, summ = m12.summ, Zmat = m12Z, data,
 #' @param summ Corresponding MCMC summary of df.
 #' @return A multipanel density plot showing simple contrasts.
 #' @author Colin Olito.
-coefContrastPlots  <-  function(df = m12.df, summ = m12.summ, ...) {
+coefContrastPlots  <-  function(df, summ, ...) {
 
     #######################
     # Extract Coefficients
-    m12.allBetas   <-  as.matrix(m12.df[1:8])
+    allBetas   <-  as.matrix(df[1:8])
 
-    # for model m12
-    b0Fast    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2))
-    b0Slow    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))))
-    b0Fast5   <-  inv_logit(m12.allBetas[,1])
-    b0Fast55  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]))
-    b0Slow5   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]))
-    b0Slow55  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]))
-    b1Fast    <-  inv_logit((m12.allBetas[,2] + (m12.allBetas[,6])/2))
-    b1Slow    <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))))
-    b1Fast5   <-  inv_logit(m12.allBetas[,2])
-    b1Fast55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,6]))
-    b1Slow5   <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5]))
-    b1Slow55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]))
+    # Calculate coefficients
+    b0Fast    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2))
+    b0Slow    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))))
+    b0Fast5   <-  inv_logit(allBetas[,1])
+    b0Fast55  <-  inv_logit((allBetas[,1] + allBetas[,4]))
+    b0Slow5   <-  inv_logit((allBetas[,1] + allBetas[,3]))
+    b0Slow55  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]))
+    b1Fast    <-  inv_logit((allBetas[,2] + (allBetas[,6])/2))
+    b1Slow    <-  inv_logit((allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))))
+    b1Fast5   <-  inv_logit(allBetas[,2])
+    b1Fast55  <-  inv_logit((allBetas[,2] + allBetas[,6]))
+    b1Slow5   <-  inv_logit((allBetas[,2] + allBetas[,5]))
+    b1Slow55  <-  inv_logit((allBetas[,2] + allBetas[,5] + allBetas[,8]))
  
     #  Contrasts
     Contrasts  <-  list(
@@ -702,75 +680,75 @@ coefContrastPlots  <-  function(df = m12.df, summ = m12.summ, ...) {
 #' @param summ Corresponding MCMC summary of df
 #' @return A multipanel density plot showing simple contrasts
 #' @author Colin Olito.
-simpleContrastPlots  <-  function(df = m12.df, summ = m12.summ, ...) {
+simpleContrastPlots  <-  function(df, summ, ...) {
 
     #######################
     # Extract Coefficients
-    m12.allBetas   <-  as.matrix(m12.df[1:8])
-    m12.allGammas  <-  as.matrix(m12.df[9:58])
+    allBetas   <-  as.matrix(df[1:8])
+    allGammas  <-  as.matrix(df[9:58])
 
     ############################
     # Calculate predicted lines
 
     #  Simple Contrasts at -1, 0, 1, & 2 standard deviations of nSperm
-    m12Fast5.neg2   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (-2))
-    m12Fast55.neg2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (-2))
-    m12Slow5.neg2   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (-2))
-    m12Slow55.neg2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (-2))
-    m12Fast.neg2    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (-2))
-    m12Slow.neg2    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (-2))
+    Fast5.neg2   <-  inv_logit(allBetas[,1] + allBetas[,2] * (-2))
+    Fast55.neg2  <-  inv_logit((allBetas[,1] + allBetas[,4]) + (allBetas[,2] + allBetas[,6]) * (-2))
+    Slow5.neg2   <-  inv_logit((allBetas[,1] + allBetas[,3]) + (allBetas[,2] + allBetas[,5]) * (-2))
+    Slow55.neg2  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]) + (allBetas[,2] + allBetas[,5] + allBetas[,8]) * (-2))
+    Fast.neg2    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2) + (allBetas[,2] + (allBetas[,6])/2) * (-2))
+    Slow.neg2    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))) + (allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))) * (-2))
 
-    m12Fast5.neg1   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (-1))
-    m12Fast55.neg1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (-1))
-    m12Slow5.neg1   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (-1))
-    m12Slow55.neg1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (-1))
-    m12Fast.neg1    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (-1))
-    m12Slow.neg1    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (-1))
+    Fast5.neg1   <-  inv_logit(allBetas[,1] + allBetas[,2] * (-1))
+    Fast55.neg1  <-  inv_logit((allBetas[,1] + allBetas[,4]) + (allBetas[,2] + allBetas[,6]) * (-1))
+    Slow5.neg1   <-  inv_logit((allBetas[,1] + allBetas[,3]) + (allBetas[,2] + allBetas[,5]) * (-1))
+    Slow55.neg1  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]) + (allBetas[,2] + allBetas[,5] + allBetas[,8]) * (-1))
+    Fast.neg1    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2) + (allBetas[,2] + (allBetas[,6])/2) * (-1))
+    Slow.neg1    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))) + (allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))) * (-1))
 
-    m12Fast5.0   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (0))
-    m12Fast55.0  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (0))
-    m12Slow5.0   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (0))
-    m12Slow55.0  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (0))
-    m12Fast.0    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (0))
-    m12Slow.0    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (0))
+    Fast5.0   <-  inv_logit(allBetas[,1] + allBetas[,2] * (0))
+    Fast55.0  <-  inv_logit((allBetas[,1] + allBetas[,4]) + (allBetas[,2] + allBetas[,6]) * (0))
+    Slow5.0   <-  inv_logit((allBetas[,1] + allBetas[,3]) + (allBetas[,2] + allBetas[,5]) * (0))
+    Slow55.0  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]) + (allBetas[,2] + allBetas[,5] + allBetas[,8]) * (0))
+    Fast.0    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2) + (allBetas[,2] + (allBetas[,6])/2) * (0))
+    Slow.0    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))) + (allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))) * (0))
 
-    m12Fast5.1   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (1))
-    m12Fast55.1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (1))
-    m12Slow5.1   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (1))
-    m12Slow55.1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (1))
-    m12Fast.1    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (1))
-    m12Slow.1    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (1))
+    Fast5.1   <-  inv_logit(allBetas[,1] + allBetas[,2] * (1))
+    Fast55.1  <-  inv_logit((allBetas[,1] + allBetas[,4]) + (allBetas[,2] + allBetas[,6]) * (1))
+    Slow5.1   <-  inv_logit((allBetas[,1] + allBetas[,3]) + (allBetas[,2] + allBetas[,5]) * (1))
+    Slow55.1  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]) + (allBetas[,2] + allBetas[,5] + allBetas[,8]) * (1))
+    Fast.1    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2) + (allBetas[,2] + (allBetas[,6])/2) * (1))
+    Slow.1    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))) + (allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))) * (1))
 
-    m12Fast5.2   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (2))
-    m12Fast55.2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (2))
-    m12Slow5.2   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (2))
-    m12Slow55.2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (2))
-    m12Fast.2    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (2))
-    m12Slow.2    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (2))
+    Fast5.2   <-  inv_logit(allBetas[,1] + allBetas[,2] * (2))
+    Fast55.2  <-  inv_logit((allBetas[,1] + allBetas[,4]) + (allBetas[,2] + allBetas[,6]) * (2))
+    Slow5.2   <-  inv_logit((allBetas[,1] + allBetas[,3]) + (allBetas[,2] + allBetas[,5]) * (2))
+    Slow55.2  <-  inv_logit((allBetas[,1] + allBetas[,3] + allBetas[,7]) + (allBetas[,2] + allBetas[,5] + allBetas[,8]) * (2))
+    Fast.2    <-  inv_logit((allBetas[,1] + (allBetas[,4])/2) + (allBetas[,2] + (allBetas[,6])/2) * (2))
+    Slow.2    <-  inv_logit((allBetas[,1] + allBetas[,3] + (0.5*(allBetas[,7]))) + (allBetas[,2] + allBetas[,5] + (0.5*(allBetas[,8]))) * (2))
 
 
     # Perform contrasts
     simpContr  <-  list(
-      cSimp1   =  m12Fast5.neg1 - m12Fast55.neg1,
-      cSimp2   =  m12Slow5.neg1 - m12Slow55.neg1,
-      cSimp3   =  m12Fast5.neg1 - m12Slow5.neg1,
-      cSimp4   =  m12Fast55.neg1 - m12Slow55.neg1,
-      cSimp5   =  m12Fast.neg1 - m12Slow.neg1,
-      cSimp6   =  m12Fast5.0 - m12Fast55.0,
-      cSimp7   =  m12Slow5.0 - m12Slow55.0,
-      cSimp8   =  m12Fast5.0 - m12Slow5.0,
-      cSimp9   =  m12Fast55.0 - m12Slow55.0,
-      cSimp10  =  m12Fast.0 - m12Slow.0,
-      cSimp11  =  m12Fast5.1 - m12Fast55.1,
-      cSimp12  =  m12Slow5.1 - m12Slow55.1,
-      cSimp13  =  m12Fast5.1 - m12Slow5.1,
-      cSimp14  =  m12Fast55.1 - m12Slow55.1,
-      cSimp15  =  m12Fast.1 - m12Slow.1,
-      cSimp16  =  m12Fast5.2 - m12Fast55.2,
-      cSimp17  =  m12Slow5.2 - m12Slow55.2,
-      cSimp18  =  m12Fast5.2 - m12Slow5.2,
-      cSimp19  =  m12Fast55.2 - m12Slow55.2,
-      cSimp20  =  m12Fast.2 - m12Slow.2
+      cSimp1   =  Fast5.neg1 - Fast55.neg1,
+      cSimp2   =  Slow5.neg1 - Slow55.neg1,
+      cSimp3   =  Fast5.neg1 - Slow5.neg1,
+      cSimp4   =  Fast55.neg1 - Slow55.neg1,
+      cSimp5   =  Fast.neg1 - Slow.neg1,
+      cSimp6   =  Fast5.0 - Fast55.0,
+      cSimp7   =  Slow5.0 - Slow55.0,
+      cSimp8   =  Fast5.0 - Slow5.0,
+      cSimp9   =  Fast55.0 - Slow55.0,
+      cSimp10  =  Fast.0 - Slow.0,
+      cSimp11  =  Fast5.1 - Fast55.1,
+      cSimp12  =  Slow5.1 - Slow55.1,
+      cSimp13  =  Fast5.1 - Slow5.1,
+      cSimp14  =  Fast55.1 - Slow55.1,
+      cSimp15  =  Fast.1 - Slow.1,
+      cSimp16  =  Fast5.2 - Fast55.2,
+      cSimp17  =  Slow5.2 - Slow55.2,
+      cSimp18  =  Fast5.2 - Slow5.2,
+      cSimp19  =  Fast55.2 - Slow55.2,
+      cSimp20  =  Fast.2 - Slow.2
     )
 
     # Calcuate P-values
