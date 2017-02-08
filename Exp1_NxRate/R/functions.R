@@ -60,6 +60,12 @@ aMCMCsum <- function(x) {
 }
 
 
+looDiffSE  <-  function(x) {
+        n  <-  length(x)
+        sqrt(n * var(x))
+}
+
+
 #######################
 # SUMMARIZE LOO RESULTS
 #######################
@@ -72,13 +78,18 @@ aMCMCsum <- function(x) {
 #' @export
 makeLooTable <- function(looDiff) {
     # Variables, Containers
-    index      <-  combn(nrow(looDiff),2)
-    nameIndex  <-  row.names(looDiff)
-    elpd_pair  <-  rep(0, length = ncol(index))
-    selooDiff  <-  rep(0, length = ncol(index))
-    pDiff      <-  rep(0, length = ncol(index))
-    names      <-  rep(0, length = ncol(index))
-    looList    <-  lapply(row.names(looDiff), get)
+    index            <-  combn(nrow(looDiff),2)
+    nameIndex        <-  row.names(looDiff)
+    elpd_pair        <-  rep(0, length = ncol(index))
+    selooDiff        <-  rep(0, length = ncol(index))
+    bayesBootDiff    <-  rep(0, length = ncol(index))
+    bayesBootSE      <-  rep(0, length = ncol(index))
+    bayesBootSE95    <-  rep(0, length = ncol(index))
+    pDiff            <-  rep(0, length = ncol(index))
+    pDiffBootSE      <-  rep(0, length = ncol(index))
+    pDiffBootSE95    <-  rep(0, length = ncol(index))
+    names            <-  rep(0, length = ncol(index))
+    looList          <-  lapply(row.names(looDiff), get)
     
     # Check sample sizes
     for (i in 1:ncol(index)) {
@@ -102,11 +113,31 @@ makeLooTable <- function(looDiff) {
     # P-values for pairwise elpd_loo differences
         pDiff  <-  as.numeric(rounded(2*pnorm(-abs((elpd_pair - 0)/selooDiff)), 3))
 
+    # Bayesian Bootstrap for differences
+    for (i in 1:ncol(index)) {
+      diffs         <-  bayesboot((looList[[index[1,i]]]$pointwise[,"elpd_loo"] - 
+                                   looList[[index[2,i]]]$pointwise[,"elpd_loo"]), weighted.mean, use.weights=TRUE)
+      bayesBootDiff[i]  <- sum(diffs < 0)/nrow(diffs)
+      rm(diffs)
+    }
+
+    # Bayesian Bootstrap for s.e.
+    for (i in 1:ncol(index)) {
+      seSumm  <-  summary(bayesboot((looList[[index[1,i]]]$pointwise[,"elpd_loo"] - 
+                                                    looList[[index[2,i]]]$pointwise[,"elpd_loo"]), R2=nrow(data), statistic=looDiffSE))
+        bayesBootSE[i]    <-  seSumm$value[1]
+        bayesBootSE95[i]  <-  seSumm$value[4]
+    }
+
+    # P-values for pairwise elpd_loo differences
+        pDiffBootSE    <-  as.numeric(rounded(2*pnorm(-abs((elpd_pair - 0)/bayesBootSE)), 3))
+        pDiffBootSE95  <-  as.numeric(rounded(2*pnorm(-abs((elpd_pair - 0)/bayesBootSE95)), 3))
+
     # Combine results into table
-    LooDiff  <-  cbind(elpd_pair, selooDiff, pDiff)
+    LooDiff  <-  cbind(elpd_pair, selooDiff, pDiff, pDiffBootSE, pDiffBootSE95, bayesBootDiff, bayesBootSE)
     for(i in 1:ncol(index)){
         names[i]  <-  paste0(unlist(strsplit(nameIndex[index[1,i]],split='L'))[1]," v. ",
-                            unlist(strsplit(nameIndex[index[2,i]],split='L'))[1])
+                             unlist(strsplit(nameIndex[index[2,i]],split='L'))[1])
     }
     row.names(LooDiff)  <-  names
 
