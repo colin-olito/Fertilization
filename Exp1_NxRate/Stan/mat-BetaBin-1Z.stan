@@ -30,7 +30,7 @@ parameters {
    vector [P] beta;            // Vector of fixed effect estimates
    vector [K] gamma;           // Vector of random effect estimates
    real<lower=0> sigma_gamma;  // Prior for among-Run variance
-   real<lower=0.1> kappa;      // prior count
+   real<lower=0.1> phi;      // prior count
 }
 
 transformed parameters {
@@ -41,15 +41,15 @@ transformed parameters {
    for (n in 1:N)
       mu[n] = inv_logit(X[n]*beta + Z[n]*gamma); //using logit link
    
-   a  = mu * kappa;
-   b  = (1 - mu) * kappa;
+   a  = mu * phi;
+   b  = (1 - mu) * phi;
 }
 
 
 model {
    // Hyperpriors
-   // Implicit Unif[0.1,Inf] hyperprior on kappa (see parameters{} block) yields nearly identical estimates to half-cauchy
-   kappa        ~  cauchy(0,100);
+   // Implicit Unif[0.1,Inf] hyperprior on phi (see parameters{} block) yields nearly identical estimates to half-cauchy
+   phi        ~  cauchy(0,100);
    sigma_gamma  ~  cauchy(0,1);
 
    // Priors
@@ -72,7 +72,7 @@ generated quantities {
    int<lower=0, upper=1> p_max;  // ...
    int<lower=0, upper=1> p_mean; // ...
    int<lower=0, upper=1> p_sd;   // ...
-   vector[N] y_hat;              // predicted values
+//   vector[N] y_hat;              // predicted values
    vector[N] X2_data;            // Chi-squared discrepancy between real data and prediction line
    vector[N] X2_rep;             // Chi-squared discrepancy between simulated data and prediction line
    real<lower=0> fit_data;       // ...
@@ -81,9 +81,8 @@ generated quantities {
    for (i in 1:N) {
       log_lik[i]  =  beta_binomial_lpmf(nS[i] | nT[i], a[i], b[i]);
       y_rep[i]    =  beta_binomial_rng(nT[i], a[i], b[i]);
-      y_hat[i]    =  inv_logit(mu[i]);
-      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/((to_vector(nS)[i]/to_vector(nT)[i]) + 0.01);
-      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/((y_rep[i]/to_vector(nT)[i]) + 0.01);
+      X2_data[i]  =  ((mu[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/(mu[i]);
+      X2_rep[i]   =  ((mu[i] - (y_rep[i]/to_vector(nT)[i]))^2)/(mu[i]);
    }
 
    min_y_rep   =  min(y_rep);

@@ -22,7 +22,24 @@ options("menu.graphics"=FALSE)
 # DEPENDENCIES
 source('R/functions.R')
 
-# str(data)
+
+##################
+# Import Data
+
+#********************
+#  N_invest Data Set
+print('Importing N_invest Data Set')
+NinvData <- read.csv('data/Ninvest_master.csv', header=TRUE, stringsAsFactors=FALSE)
+NinvData <- data.frame(NinvData)
+
+# Convert grouping variables to factors; Correct Dates
+NinvData$Run       <-  factor(NinvData$Run)
+NinvData$Colony    <-  factor(NinvData$Colony)
+NinvData$N         <-  factor(NinvData$N)
+NinvData$Lane      <-  factor(NinvData$Lane)
+NinvData$nSperm_c  <-  NinvData$nSperm - mean(NinvData$nSperm)
+NinvData$Date      <-  dmy(NinvData$Date)
+NinvData$nSperm_z  <-  (NinvData$nSperm - mean(NinvData$nSperm))/sd(NinvData$nSperm)
 
 
 
@@ -37,7 +54,6 @@ source('R/functions.R')
 X       <-  model.matrix(~ 1 + nSperm_z, data=NinvData)
 X       <-  unname(X)
 attr(X,"assign") <- NULL
-
 
 # Options for the STAN analyses
 nChains       = 3
@@ -56,7 +72,7 @@ nSavedSteps  = (nIter/2)*nChains
 # create data.list
 data.list  <-  list(N   =  nrow(NinvData),
                     P   =  ncol(X), 
-                    nT  = NinvDatanEggs,
+                    nT  = NinvData$nEggs,
                     nS  =  NinvData$nFert,
                     X   =  X
                    )
@@ -87,7 +103,7 @@ rm(m1)
 ########################################################
 
 # 'random effects'
-Z  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))
+Z  <-  unname(model.matrix(~ -1 + Run, data=NinvData))
 attr(Z,"assign") <- NULL
 # str(Z)
 # head(Z)
@@ -126,12 +142,93 @@ rm(m2)
 
 
 ########################################################
-#  m2b: Logistic Mixed Effects Regression w/ random intercept for RUN
-#       --  FertRate ~ nSperm_z + (1 | Run)
-#       --  Alternative cell-mean model specification
+#  m3: Logistic Mixed Effects Regression
+#       --  FertRate ~ nSperm_z + ...
+#       --  random intercept for RUN
+#       --  random slopes for Run x nSperm
 ########################################################
 
-Z  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))
+Z  <-  unname(model.matrix(~ -1 + Run +
+                                  Run:nSperm_z , data=NinvData))
+attr(Z,"assign") <- NULL
+# str(Z)
+# head(Z)
+
+# create data.list
+data.list  <-  list(N   =  nrow(NinvData),
+                    P   =  ncol(X), 
+                    K   =  ncol(Z),
+                    nT  =  NinvData$nEggs,
+                    nS  =  NinvData$nFert,
+                    X   =  X,
+                    Z   =  Z
+                   )
+
+	# Call to STAN
+	m3 <- stan(data         =  data.list,
+	           seed         =  345678912,
+	           file         =  './Stan/mat-logistic-1Z.stan',
+	           sample_file  =  './output/StanFits/N_invest_m3.csv',
+	           chains       =  nChains,
+	           warmup       =  burnInSteps,
+	           iter         =  nIter,
+	           thin         =  thinSteps,
+	           save_dso     =  TRUE,
+	           control      =  list(adapt_delta = 0.99) # default adapt_delta value threw ~60 divergent transitions.
+	          )
+
+# message
+message("STAN has finished fitting model m3")
+system("notify-send \"STAN has finished fitting model m3\"")
+
+# garbage collection
+rm(Z)
+rm(data.list)
+rm(m3)
+
+
+
+########################################################
+#  m1BB: Simple Logistic regression 
+#      --  FertRate ~ nSperm_z
+#    --  Complete pooling of observations
+########################################################
+
+# create data.list
+data.list  <-  list(N   =  nrow(NinvData),
+                    P   =  ncol(X), 
+                    nT  = NinvData$nEggs,
+                    nS  =  NinvData$nFert,
+                    X   =  X
+                   )
+
+# Call to STAN
+m1BB <- stan(data       =  data.list,
+           seed         =  56789123,
+           file         =  './Stan/mat-BetaBin.stan',
+           sample_file  =  './output/StanFits/N_invest_m1BB.csv',
+           chains       =  nChains,
+           warmup       =  burnInSteps,
+           iter         =  nIter,
+           thin         =  thinSteps,
+           save_dso     =  TRUE
+          )
+
+# message
+message("STAN has finished fitting model m1BB")
+system("notify-send \"STAN has finished fitting model m1BB\"")
+
+# garbage collection
+rm(data.list)
+rm(m1BB)
+
+########################################################
+#  m2BB: Logistic regression w/ Random Intercept ~ Run 
+#      --  FertRate ~ nSperm_z + (1 | Run)
+########################################################
+
+# 'random effects'
+Z  <-  unname(model.matrix(~ -1 + Run, data=NinvData))
 attr(Z,"assign") <- NULL
 # str(Z)
 # head(Z)
@@ -147,10 +244,10 @@ data.list  <-  list(N   =  nrow(NinvData),
                    )
 
 # Call to STAN
-m2b <- stan(data         =  data.list,
-           seed         =  345678912,
-           file         =  './Stan/mat-logistic-1Z-cellmean.stan',
-           sample_file  =  './output/StanFits/N_invest_m2b.csv',
+m2BB <- stan(data         =  data.list,
+           seed         =  678912345,
+           file         =  './Stan/mat-BetaBin-1Z.stan',
+           sample_file  =  './output/StanFits/N_invest_m2BB.csv',
            chains       =  nChains,
            warmup       =  burnInSteps,
            iter         =  nIter,
@@ -159,81 +256,27 @@ m2b <- stan(data         =  data.list,
           )
 
 # message
-message("STAN has finished fitting model m2b")
-system("notify-send \"STAN has finished fitting model m2b\"")
+message("STAN has finished fitting model m2BB")
+system("notify-send \"N-invest analysis model fitting:\n
+            STAN has finished fitting model m2BB\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m2b)
-
-
-
-########################################################
-#  m3: Logistic Mixed Effects Regression
-#       --  FertRate ~ nSperm_z + ...
-#       --  random intercept for RUN
-#       --  random slopes for Run x nSperm
-########################################################
-
-Z0  <-  unname(model.matrix(~ NinvData$Run -1, data=NinvData))[,-c(9:16)]
-attr(Z0,"assign") <- NULL
-# str(Z0)
-# head(Z0)
-
-Z1  <-  unname(model.matrix(~ NinvData$Run * nSperm_z , data=NinvData))[,-c(1:8)]
-attr(Z1,"assign") <- NULL
-# str(Z1)
-Z1[7:nrow(Z1),1]  <-  0
-# Z1[1:20,]
-
-# create data.list
-data.list  <-  list(N   =  nrow(NinvData),
-                    P   =  ncol(X), 
-                    K0  =  ncol(Z0),
-                    K1  =  ncol(Z1),
-                    nT  =  NinvData$nEggs,
-                    nS  =  NinvData$nFert,
-                    Z0  =  Z0,
-                    Z1  =  Z1
-                   )
-
-	# Call to STAN
-	m3 <- stan(data         =  data.list,
-	           seed         =  456789123,
-	           file         =  './Stan/mat-logistic-allZ.stan',
-	           sample_file  =  './output/StanFits/N_invest_m3.csv',
-	           chains       =  nChains,
-	           warmup       =  burnInSteps,
-	           iter         =  nIter,
-	           thin         =  thinSteps,
-	           save_dso     =  TRUE,
-	           control      =  list(adapt_delta = 0.99) # default adapt_delta value threw ~60 divergent transitions.
-	          )
-
-# message
-message("STAN has finished fitting model m3")
-system("notify-send \"STAN has finished fitting model m3\"")
-
-# garbage collection
-rm(Z0)
-rm(Z1)
-rm(data.list)
-rm(m3)
+rm(m2BB)
 
 
 ########################################################
-#  m4: Logistic Mixed Effects Regression
+#  m3BB: Logistic Mixed Effects Regression
 #       --  FertRate ~ nSperm_z + ...
 ## -- random intercept for RUN
 ## -- random slopes for Run x nSperm
 ## -- Estimate covariance matrix
 ########################################################
 
-Z  <-  unname(model.matrix(~ NinvData$Run *nSperm_z -1, data=NinvData))
+Z  <-  unname(model.matrix(~ -1 + Run +
+                                  Run:nSperm_z, data=NinvData))
 attr(Z,"assign") <- NULL
-# str(Z)
-# Z[1:20,]
 
 # create data.list
 data.list  <-  list(N    =  nrow(NinvData),
@@ -247,32 +290,24 @@ data.list  <-  list(N    =  nrow(NinvData),
                     Z    =  Z
                    )
 
-# inits  <-  list(
-#   list(L_run    =  matrix(runif(16^2,-0.5,0.5), nrow=16,ncol=16)),
-#   list(tau_run  =  runif(16,0.1,2)),
-#   list(u        =  matrix(runif((8*16),-1,1),nrow=8,ncol=16)),
-#   list(beta     =  runif(2,-1,1)),
-#   list(sigma_y  =  runif(1,0.1,2))
-#   )
-
 # Call to STAN
-m4 <- stan(data         =  data.list,
-           seed         =  567891234,
-           file         =  './Stan/mat-logistic-1Z-cov.stan',
-           sample_file  =  './output/StanFits/N_invest_m4.csv',
-           chains       =  nChains,
-           warmup       =  burnInSteps,
-           iter         =  nIter,
-           thin         =  thinSteps,
-           save_dso     =  TRUE,
-           control      =  list(adapt_delta = 0.95) # default adapt_delta of 0.8 threw many divergent transitions. 
+m3BB <- stan(data         =  data.list,
+             seed         =  789123456,
+             file         =  './Stan/mat-BetaBin-1Z.stan',
+             sample_file  =  './output/StanFits/N_invest_m3BB.csv',
+             chains       =  nChains,
+             warmup       =  burnInSteps,
+             iter         =  nIter,
+             thin         =  thinSteps,
+             save_dso     =  TRUE,
+             control      =  list(adapt_delta = 0.95) # default adapt_delta of 0.8 threw many divergent transitions. 
           )
 
 # message
-message("STAN has finished fitting model m4")
-system("notify-send \"STAN has finished fitting model m4\"")
+message("STAN has finished fitting model m3BB")
+system("notify-send \"STAN has finished fitting model m3BB\"")
 
 # garbage collection
 rm(Z)
 rm(data.list)
-rm(m4)
+rm(m3BB)

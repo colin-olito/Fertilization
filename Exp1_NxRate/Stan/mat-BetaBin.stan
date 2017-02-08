@@ -26,26 +26,26 @@ transformed data {
 
 parameters {
    vector [P] beta;            // Vector of fixed effect estimates
-   real<lower=0.1> kappa;      // prior count
+   real<lower=0.1> phi;      // prior count
 }
 
 transformed parameters {
-   vector<lower=0.001>[N] a;             // Prior success count (alpha parameter in BBin dist.)
-   vector<lower=0.001>[N] b;             // Prior failure count (beta parameter in BBin dist.)
-   vector[N] mu;        // mean chance of success
+   vector<lower=0.001>[N] a;        // Prior success count (alpha parameter in BBin dist.)
+   vector<lower=0.001>[N] b;        // Prior failure count (beta parameter in BBin dist.)
+   vector[N] mu;                    // mean chance of success
 
    for (n in 1:N)
       mu[n] = inv_logit(X[n]*beta); //using logit link
    
-   a  = mu * kappa;
-   b  = (1 - mu) * kappa;
+   a  = mu * phi;
+   b  = (1 - mu) * phi;
 }
 
 
 model {
    // Priors
-   // Implicit Unif[0.1,Inf] hyperprior on kappa (see parameters{} block) yields nearly identical estimates to half-cauchy
-   kappa        ~  cauchy(0,100);
+   // Implicit Unif[0.1,Inf] hyperprior on phi (see parameters{} block) yields nearly identical estimates to half-cauchy
+   phi        ~  cauchy(0,100);
 
    // Likelihood
    nS  ~  beta_binomial(nT, a, b);  
@@ -63,7 +63,6 @@ generated quantities {
    int<lower=0, upper=1> p_max;  // ...
    int<lower=0, upper=1> p_mean; // ...
    int<lower=0, upper=1> p_sd;   // ...
-   vector[N] y_hat;              // predicted values
    vector[N] X2_data;            // Chi-squared discrepancy between real data and prediction line
    vector[N] X2_rep;             // Chi-squared discrepancy between simulated data and prediction line
    real<lower=0> fit_data;       // ...
@@ -72,9 +71,8 @@ generated quantities {
    for (i in 1:N) {
       log_lik[i]  =  beta_binomial_lpmf(nS[i] | nT[i], a[i], b[i]);
       y_rep[i]    =  beta_binomial_rng(nT[i], a[i], b[i]);
-      y_hat[i]    =  inv_logit(mu[i]);
-      X2_data[i]  =  ((y_hat[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/((to_vector(nS)[i]/to_vector(nT)[i]) + 0.01);
-      X2_rep[i]   =  ((y_hat[i] - (y_rep[i]/to_vector(nT)[i]))^2)/((y_rep[i]/to_vector(nT)[i]) + 0.01);
+      X2_data[i]  =  ((mu[i] - (to_vector(nS)[i]/to_vector(nT)[i]))^2)/(mu[i]);
+      X2_rep[i]   =  ((mu[i] - (y_rep[i]/to_vector(nT)[i]))^2)/(mu[i]);
    }
 
    min_y_rep   =  min(y_rep);
