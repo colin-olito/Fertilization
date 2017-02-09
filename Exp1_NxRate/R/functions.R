@@ -80,6 +80,8 @@ looDiffSE  <-  function(x) {
 makeLooTable <- function(looDiff) {
     # Variables, Containers
     index            <-  combn(nrow(looDiff),2)
+    if(ncol(index) > 10)
+      index  <-  index[,1:(max(index)-1)]
     nameIndex        <-  row.names(looDiff)
     elpd_pair        <-  rep(0, length = ncol(index))
     selooDiff        <-  rep(0, length = ncol(index))

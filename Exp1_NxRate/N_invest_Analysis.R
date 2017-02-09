@@ -42,6 +42,9 @@ LooDiffBB  <-  makeLooTable(looDiffBB)
 LooDiff
 LooDiffBB
 
+# Write Loo Model Selection Results to .csv
+write.csv(LooDiff, file= './output/tables/N_invest_LooDiff_Bin.csv')
+write.csv(LooDiffBB, file= './output/tables/N_invest_LooDiff_BetaBin.csv')
 
 ###########################################################################
 ## Main result from LOO model comparison:

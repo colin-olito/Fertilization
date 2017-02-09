@@ -3,8 +3,8 @@
 # * Analysis of 1st flume experiment: N-invest
 # * 
 # * NOTES:  This file contains all the necessary
-# * 		code to read in the STAN sample files
-# * 		and perform posterior predictive checks
+# *     		code to read in the STAN sample files
+# *     		and perform posterior predictive checks
 # *         model selection, and produce regression
 # *         plots for the NxRate flume data
 # * 
@@ -39,20 +39,20 @@ print(looDiff, digits=4)
 
 # LOO Results Summary Table
 LooDiff  <-  makeLooTable(looDiff)
-LooDiff[1:25,]
-LooDiff[26:47,]
+LooDiff
+
+# Write Loo Model Selection Results to .csv
+write.csv(LooDiff, file= './output/tables/NxRate_LooDiff_Bin.csv')
 
 ###########################################################################
 ## Main result from LOO model comparison:
 ##
-##  -- The maximal model m1 provides the best overall fit to the data.
+##  -- Model m2 provides the best overall fit to the data.
 ##  
 ##  -- 2 models stand out as being the simplest models that are statistically
 ##     indistinguishable from the maximal model:  Models m12 & m10.
 ##      
-##  -- Will focus analysis of posterior predictive checks on these models,
-##     as well as m21 (random intercepts & slopes ~ Run), as this model
-##     performed best in an earlier analysis.
+##  -- Will focus analysis of posterior predictive checks on these models.
 ##
 ###########################################################################
 
@@ -84,10 +84,6 @@ X2sim12    <-  as.numeric(m12.df[,789])
 
 X2data10   <-  as.numeric(m10.df[,798])
 X2sim10    <-  as.numeric(m10.df[,799])
-
-# Random intercept/slope ~ Run (for comparison)
-X2data21   <-  as.numeric(m21.df[,758])
-X2sim21    <-  as.numeric(m21.df[,759])
 
 # Minimal model
 X2data25   <-  as.numeric(m25.df[,617])
@@ -123,9 +119,6 @@ box()
 points(X2sim25 ~ X2data25, pch=21, 
         bg=transparentColor(COLS[4], 0.1),
         col=transparentColor(COLS[4], 0.3), cex=1.1)
-points(X2sim21 ~ X2data21, pch=21, 
-        bg=transparentColor(COLS[3], 0.1),
-        col=transparentColor(COLS[3], 0.3), cex=1.1)
 points(X2sim10 ~ X2data10, pch=21, 
         bg=transparentColor(COLS[7], 0.1),
         col=transparentColor(COLS[7], 0.3), cex=1.1)
@@ -145,21 +138,18 @@ axis(1)
                       expression(paste(Model~1)),
                       expression(paste(Model~"12")),
                       expression(paste(Model~"10")),
-                      expression(paste(Model~"21")),
                       expression(paste(Model~"25"))),
           pch     =  21,
           pt.bg   =  c(
                        transparentColor('dodgerblue1',0.5),
                        transparentColor(COLS[2],0.5),
                        transparentColor(COLS[7],0.5),
-                       transparentColor(COLS[3],0.5),
                        transparentColor(COLS[4],0.5)
                        ),
           col     =  c(
                        transparentColor('dodgerblue1', 0.7), 
                        transparentColor(COLS[2], 0.7), 
                        transparentColor(COLS[7], 0.7), 
-                       transparentColor(COLS[3],0.5),
                        transparentColor(COLS[4], 0.7)
                        ),
           cex     =  1,
@@ -173,16 +163,10 @@ axis(1)
 ###########################################################################
 ## Main result from X^2 discrepancy comparison:
 ##
-##  -- Results from X^2 discrepancy essentially follow the LOO results
+##  -- Results from X^2 discrepancy are congruent with LOO results.
 ##  
-##  -- Model m1 has the lowest discrepancy, but models 12 & 10 are only
-##     slightly worse.
-##      
-##  -- Models m12 & M10 overlay eachother almost perfectly. There isn't
-##     much to choose between these two models.
-##
-##  -- Model m21 definitely has higher discrepancy than any of the better
-##     models; again echoing the LOO results. 
+##  -- Models m2, m12, and m10 overlay eachother almost perfectly. There isn't
+##     much to choose between these models.
 ##
 ###########################################################################
 
@@ -200,30 +184,33 @@ axis(1)
 
 
 ##########################################################################
-# Model: m1, the MAXIMAL MODEL
+# Model: m2, the 'best-fitting model'
 ##########################################################################
 
 ##############
 # Diagnostics
 
 # Model Results
-print(m1, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m1, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m2, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m2, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 # Simple Diagnostic Plots
-plot(m1, pars="beta")
-pairs(m1, pars="beta")
+plot(m2, pars="beta")
+pairs(m2, pars="beta")
 par(mfrow=c(5,5))
-rstan::traceplot(m1, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+rstan::traceplot(m2, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
 
 # Check posteriors against priors
 x  <-  seq(from=0, to=1, length=500)
-plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
-lines(density(m1.df$sigma_gamma), lwd=3, col='dodgerblue1')
+plot(dcauchy(x)*25 ~ x, lwd=2, type='l')
+lines(density(m2.df$sigma_gamma), lwd=3, col='dodgerblue1')
+
 
 x  <-  seq(from=-3, to=3, length=500)
-plot(dnorm(x, sd=3) ~ x, lwd=2, type='l')
-lines(density(m1.df$beta.4), lwd=3, col='dodgerblue1')
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m2.df[,i]), lwd=3, col=i)
+}
 
 ##############################
 # Posterior Predictive Checks
@@ -231,13 +218,13 @@ lines(density(m1.df$beta.4), lwd=3, col='dodgerblue1')
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m1.df[1,330:449])/data$nEggs
+y  <-  as.numeric(m2.df[1,330:449])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:1000) {
   rm(y)
-  y  <-  as.numeric(m1.df[i,330:449])/data$nEggs
+  y  <-  as.numeric(m2.df[i,330:449])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -247,20 +234,20 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m1.df[,450], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m2.df[,450], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,451]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m2.df[,451]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,452]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m2.df[,452]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,453]), xlim=c(min(m1.df[,453],sd(data$nFert)),max(m1.df[,453],sd(data$nFert))),
+plot(density(m2.df[,453]), xlim=c(min(m2.df[,453],sd(data$nFert)),max(m2.df[,453],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
-print(m1, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m2, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 dev.off()
 
@@ -281,8 +268,8 @@ print(m12, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # Simple Diagnostic Plots
 plot(m12, pars="beta")
 pairs(m12, pars="beta")
-par(mfrow=c(5,5))
 rstan::traceplot(m12, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+dev.off()
 
 # Check posteriors against priors
 x  <-  seq(from=0, to=1, length=500)
@@ -290,8 +277,11 @@ plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
 lines(density(m12.df$sigma_gamma), lwd=3, col='dodgerblue1')
 
 x  <-  seq(from=-3, to=3, length=500)
-plot(dnorm(x, sd=3) ~ x, lwd=2, type='l')
-lines(density(m12.df$beta.4), lwd=3, col='dodgerblue1')
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m12.df[,i]), lwd=3, col=i)
+}
+
 
 ##############################
 # Posterior Predictive Checks
@@ -350,7 +340,6 @@ print(m10, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # Simple Diagnostic Plots
 plot(m10, pars="beta")
 pairs(m10, pars="beta")
-par(mfrow=c(5,5))
 rstan::traceplot(m10, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
 
 # Check posteriors against priors
@@ -358,9 +347,12 @@ x  <-  seq(from=0, to=1, length=500)
 plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
 lines(density(m10.df$sigma_gamma), lwd=3, col='dodgerblue1')
 
+
 x  <-  seq(from=-3, to=3, length=500)
-plot(dnorm(x, sd=3) ~ x, lwd=2, type='l')
-lines(density(m10.df$beta.4), lwd=3, col='dodgerblue1')
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m10.df[,i]), lwd=3, col=i)
+}
 
 ##############################
 # Posterior Predictive Checks
@@ -412,19 +404,19 @@ dev.off()
 # Density plots of min, max, mean, sd
 #  of replicated data, benchmarked with
 #  calculated values for real data
-#  Find associated p-values in m4.summ
+ pdf(file='./output/figs/NxRate_Bin_PPDs.pdf', width=7,height=7)
 par(mfrow=c(2,2))
-plot(density(m1.df[,450],   adjust=3), lwd=3, col='dodgerBlue1', main='min_y_rep (min. num. Successes)')
+plot(density(m12.df[,420],   adjust=3), lwd=3, col='dodgerBlue1', main='min_y_rep (min. num. Successes)')
 lines(density(m10.df[,430], adjust=3), lwd=3, col=COLS[7])
-lines(density(m12.df[,420], adjust=3), lwd=3, col=COLS[2])
+lines(density(m2.df[,450], adjust=3), lwd=3, col=COLS[2])
 abline(v=min(data$nFert), lwd=3, col=2)
     legend(
-          x       =  8,
+          x       =  7.25,
           y       =  0.325,
           legend  =  c(
-                      expression(paste(Model~1)),
-                      expression(paste(Model~"12")),
-                      expression(paste(Model~"10"))),
+                      expression(paste(Mod.~12)),
+                      expression(paste(Mod.~"10")),
+                      expression(paste(Mod.~"2"))),
           lty     =  1,
           lwd     =  3,
           col     =  c(
@@ -438,20 +430,20 @@ abline(v=min(data$nFert), lwd=3, col=2)
           border  =  NA
     )
 
-plot(density(m1.df[,451]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m12.df[,421]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 lines(density(m10.df[,431]), lwd=3, col=COLS[7])
-lines(density(m12.df[,421]), lwd=3, col=COLS[2])
+lines(density(m2.df[,451]), lwd=3, col=COLS[2])
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,452]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m12.df[,422]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 lines(density(m10.df[,432]), lwd=3, col=COLS[7])
-lines(density(m12.df[,422]), lwd=3, col=COLS[2])
+lines(density(m2.df[,452]), lwd=3, col=COLS[2])
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m1.df[,453]), xlim=c(min(m1.df[,453],sd(data$nFert)),max(m1.df[,453],sd(data$nFert))),
+plot(density(m12.df[,423]), xlim=c(min(m2.df[,453],sd(data$nFert)),max(m2.df[,453],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 lines(density(m10.df[,433]), lwd=3, col=COLS[7])
-lines(density(m12.df[,423]), lwd=3, col=COLS[2])
+lines(density(m2.df[,453]), lwd=3, col=COLS[2])
 abline(v=sd(data$nFert), lwd=3, col=2)
 
 dev.off()
@@ -462,9 +454,22 @@ print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 
 
 ###########################################################################
-## Overall impression from max, min, mean, sd, posterior predictive checks
+## Main result from PPD's:
 ##
-##  -- Models are pretty equivocal. Not much to choose between them.
+##  --  Not much to choose between models m2, m12, and m10. m12 may 
+##      slightly under-predict max() and sd() relative to the other models,
+##      but nothing of real significance.
+##     
+##  --  Overall, m12 is probably the best choice because it has the fewest
+##      parameters, and doesn't noticeably under-perform relative to the 
+##      more complex models.
+##
+##  --  HOWEVER, all models systematically under-predict the sd() in the 
+##      data... suggesting that these data are over-dispersed for a
+##      Binomial error distribution. Will re-run analyses using 
+##      Beta-Binomial error to see if this improves the fit compared to 
+##      model m12
+##
 ###########################################################################
 
 
@@ -478,9 +483,9 @@ print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 
 ##  look at residuals for m3
 #m1yhat        <-  inv_logit(m1.summ$Mean[90:209]) # mus
-m1yhat        <-  (m1.summ$Mean[458:577])
-m1.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m1yhat)/sd(m1yhat)
-m1.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m1yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m1yhat))
+m2yhat        <-  (m2.summ$Mean[458:577])
+m2.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m2yhat)/sd(m2yhat)
+m2.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m2yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m2yhat))
 #m12yhat       <-  inv_logit(m12.summ$Mean[60:179]) # mus
 m12yhat       <-  (m12.summ$Mean[428:547])
 m12.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m12yhat)/sd(m12yhat)
@@ -497,25 +502,14 @@ abline(a = 0, b = 1)
 
 ##  Model 1 Residual Plots
 par(mfrow=c(2,2))
-hist(m1.resids_z, breaks=40)
+hist(m2.resids_z, breaks=40)
 abline(v=c(-2,2), lty=2)
-plot(m1.resids_z ~ data$nSperm_z, main="Model m1")
+plot(m2.resids_z ~ data$nSperm_z, main="Model m1")
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-plot(m1.resids_z ~ seq_along(m1.resids_z))
+plot(m2.resids_z ~ seq_along(m2.resids_z))
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-qqnorm(m1.resids_z)
-qqline(m1.resids_z, col = 2)
-
-dev.new()
-par(mfrow=c(2,2))
-hist(m10.resids_z, breaks=40)
-abline(v=c(-2,2), lty=2)
-plot(m10.resids_z ~ data$nSperm_z, main="Model m10")
-abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-plot(m10.resids_z ~ seq_along(m10.resids_z))
-abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-qqnorm(m10.resids_z)
-qqline(m10.resids_z, col = 2)
+qqnorm(m2.resids_z)
+qqline(m2.resids_z, col = 2)
 
 dev.new()
 par(mfrow=c(2,2))
@@ -527,6 +521,17 @@ plot(m12.resids_z ~ seq_along(m12.resids_z))
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
 qqnorm(m12.resids_z)
 qqline(m12.resids_z, col = 2)
+
+dev.new()
+par(mfrow=c(2,2))
+hist(m10.resids_z, breaks=40)
+abline(v=c(-2,2), lty=2)
+plot(m10.resids_z ~ data$nSperm_z, main="Model m10")
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+plot(m10.resids_z ~ seq_along(m10.resids_z))
+abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
+qqnorm(m10.resids_z)
+qqline(m10.resids_z, col = 2)
 
 
 
@@ -553,16 +558,16 @@ qqline(m12.resids_z, col = 2)
 ##  candidate models (m1, m12, m10)
 
 ##  Calculate Predicted Lines
-m1.coef   <-  m1.summ$Mean[1:8]
+m2.coef   <-  m2.summ$Mean[1:8]
 m10.coef  <-  m10.summ$Mean[1:8]
 m12.coef  <-  m12.summ$Mean[1:8]
 
-m1Fast5   <-  inv_logit(m1.coef[1] + m1.coef[2] * data$nSperm_z)
-m1Fast55  <-  inv_logit((m1.coef[1] + m1.coef[4]) + (m1.coef[2] + m1.coef[6]) * data$nSperm_z)
-m1Slow5   <-  inv_logit((m1.coef[1] + m1.coef[3]) + (m1.coef[2] + m1.coef[5]) * data$nSperm_z)
-m1Slow55  <-  inv_logit((m1.coef[1] + m1.coef[3] + m1.coef[7]) + (m1.coef[2] + m1.coef[5] + m1.coef[8]) * data$nSperm_z)
-m1Fast    <-  inv_logit((m1.coef[1] + (m1.coef[4])/2) + (m1.coef[2] + (m1.coef[6])/2) * data$nSperm_z)
-m1Slow    <-  inv_logit((m1.coef[1] + m1.coef[3] + (0.5*(m1.coef[7]))) + (m1.coef[2] + m1.coef[5] + (0.5*(m1.coef[8]))) * data$nSperm_z)
+m2Fast5   <-  inv_logit(m2.coef[1] + m2.coef[2] * data$nSperm_z)
+m2Fast55  <-  inv_logit((m2.coef[1] + m2.coef[4]) + (m2.coef[2] + m2.coef[6]) * data$nSperm_z)
+m2Slow5   <-  inv_logit((m2.coef[1] + m2.coef[3]) + (m2.coef[2] + m2.coef[5]) * data$nSperm_z)
+m2Slow55  <-  inv_logit((m2.coef[1] + m2.coef[3] + m2.coef[7]) + (m2.coef[2] + m2.coef[5] + m2.coef[8]) * data$nSperm_z)
+m2Fast    <-  inv_logit((m2.coef[1] + (m2.coef[4])/2) + (m2.coef[2] + (m2.coef[6])/2) * data$nSperm_z)
+m2Slow    <-  inv_logit((m2.coef[1] + m2.coef[3] + (0.5*(m2.coef[7]))) + (m2.coef[2] + m2.coef[5] + (0.5*(m2.coef[8]))) * data$nSperm_z)
 
 m10Fast5   <-  inv_logit(m10.coef[1] + m10.coef[2] * data$nSperm_z)
 m10Fast55  <-  inv_logit((m10.coef[1] + m10.coef[4]) + (m10.coef[2] + m10.coef[6]) * data$nSperm_z)
@@ -588,13 +593,13 @@ rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot regression lines
-lines(m1Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m2Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lwd=3)
-lines(m1Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m2Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lty=2, lwd=3)
-lines(m1Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m2Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lwd=3)
-lines(m1Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m2Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lty=2, lwd=3)
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
@@ -745,8 +750,8 @@ axis(1)
 ###########################################################################
 
 
-m1.allBetas   <-  as.matrix(m1.df[1:8])
-m1.allGammas  <-  as.matrix(m1.df[9:88])
+m2.allBetas   <-  as.matrix(m2.df[1:8])
+m2.allGammas  <-  as.matrix(m2.df[9:88])
 m10.allBetas   <-  as.matrix(m10.df[1:8])
 m10.allGammas  <-  as.matrix(m10.df[9:68])
 m12.allBetas   <-  as.matrix(m12.df[1:8])
@@ -759,18 +764,18 @@ Xnames  <-  dimnames(X)[[2]]
 (Xnames)
 
 # for model m1
-b0Fast    <-  inv_logit((m1.allBetas[,1] + (m1.allBetas[,4])/2))
-b0Slow    <-  inv_logit((m1.allBetas[,1] + m1.allBetas[,3] + (0.5*(m1.allBetas[,7]))))
-b0Fast5   <-  inv_logit(m1.allBetas[,1])
-b0Fast55  <-  inv_logit((m1.allBetas[,1] + m1.allBetas[,4]))
-b0Slow5   <-  inv_logit((m1.allBetas[,1] + m1.allBetas[,3]))
-b0Slow55  <-  inv_logit((m1.allBetas[,1] + m1.allBetas[,3] + m1.allBetas[,7]))
-b1Fast    <-  inv_logit((m1.allBetas[,2] + (m1.allBetas[,6])/2))
-b1Slow    <-  inv_logit((m1.allBetas[,2] + m1.allBetas[,5] + (0.5*(m1.allBetas[,8]))))
-b1Fast5   <-  inv_logit(m1.allBetas[,2])
-b1Fast55  <-  inv_logit((m1.allBetas[,2] + m1.allBetas[,6]))
-b1Slow5   <-  inv_logit((m1.allBetas[,2] + m1.allBetas[,5]))
-b1Slow55  <-  inv_logit((m1.allBetas[,2] + m1.allBetas[,5] + m1.allBetas[,8]))
+b0Fast    <-  inv_logit((m2.allBetas[,1] + (m2.allBetas[,4])/2))
+b0Slow    <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3] + (0.5*(m2.allBetas[,7]))))
+b0Fast5   <-  inv_logit(m2.allBetas[,1])
+b0Fast55  <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,4]))
+b0Slow5   <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3]))
+b0Slow55  <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3] + m2.allBetas[,7]))
+b1Fast    <-  inv_logit((m2.allBetas[,2] + (m2.allBetas[,6])/2))
+b1Slow    <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5] + (0.5*(m2.allBetas[,8]))))
+b1Fast5   <-  inv_logit(m2.allBetas[,2])
+b1Fast55  <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,6]))
+b1Slow5   <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5]))
+b1Slow55  <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5] + m2.allBetas[,8]))
 
 # for model m10
 b0Fast    <-  inv_logit((m10.allBetas[,1] + (m10.allBetas[,4])/2))
@@ -891,7 +896,7 @@ simpContr  <-  list(
 )
 pval(simpContr[[5]])
 
-pdf(file="./output/contrast_histograms.pdf", height=18, width=20)
+pdf(file="./output/figs/NxRate_SimpContrasts_Bin.pdf", height=18, width=20)
 par(mfrow=c(4,5), omi=rep(0.4,4))
 plotContr(density(simpContr[[1]]))
   proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
@@ -904,7 +909,7 @@ plotContr(density(simpContr[[4]]))
   proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.55 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
 plotContr(density(simpContr[[5]]))
   proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow - Fast')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-for (i in 6:25) {
+for (i in 6:20) {
   plotContr(density(simpContr[[i]]))
   if(i == 6)
     proportionalLabel(-0.25, 0.5, expression(paste('x = 0',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
@@ -925,7 +930,7 @@ dev.off()
 ## regression lines (p = 1.000). 
 ## 
 ## The Rate x EggPos interaction for the Fast slopes is marginal
-## (p = 0.953).
+## (p = 0.944).
 ## 
 ##  There is no corresponding interaction for the Slow treatment. 
 ##
@@ -936,12 +941,6 @@ dev.off()
 ##  treatments are significant at high and low values of sigma (sigma = 1, 
 ##  sigma > 1).
 ##
-##  Given these results, my inclination is to plot the main effect for the
-##  Slow treatment (pooled regression line), but both 5cm and 55cm lines
-##  for the Fast treatment... 
-##  This should simplify the figure, and focus attention on the trend that 
-##  is driving the overall result: The higher intercept for the 55cm Fast
-##  regression line.
 ##
 ###########################################################################
 ###########################################################################
@@ -977,13 +976,13 @@ Slow.plt    <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
 
 # Residuals for fixed-effect predicted lines
 par(mfrow=c(2,2))
-plot(density(Fast5.plt$rawResids[data$Rate == "Fast" & data$EggPos == "5"]), lwd=3, col='darkolivegreen')
+plot(density(Fast5.plt$rawResids[data$Rate == "Fast" & data$EggPos == "5"]), lwd=3, col='darkolivegreen', ylim=c(0,max(density(Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"])$y)))
 lines(density(Fast5.plt$adjResids[data$Rate == "Fast" & data$EggPos == "5"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
-plot(density(Fast55.plt$rawResids[data$Rate == "Fast" & data$EggPos == "55"]), lwd=3, col='darkolivegreen')
+plot(density(Fast55.plt$rawResids[data$Rate == "Fast" & data$EggPos == "55"]), lwd=3, col='darkolivegreen', ylim=c(0,max(density(Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"])$y)))
 lines(density(Fast55.plt$adjResids[data$Rate == "Fast" & data$EggPos == "55"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
-plot(density(Slow.plt$rawResids[data$Rate == "Slow"]), lwd=3, col='darkolivegreen')
+plot(density(Slow.plt$rawResids[data$Rate == "Slow"]), lwd=3, col='darkolivegreen', ylim=c(0,max(density(Slow.plt$adjResids[data$Rate == "Slow"])$y)))
 lines(density(Slow.plt$adjResids[data$Rate == "Slow"]), lwd=3, col='dodgerblue1')
 abline(v=0,lwd=3,col=2)
 
