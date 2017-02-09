@@ -22,7 +22,7 @@ loadfonts(quiet = TRUE)
 #source('paths.R')
 source('R/functions.R')
 source('R/functions-figures.R')
-source('./loadData.R')
+source('./loadFigData.R')
 
 
 
@@ -30,21 +30,54 @@ source('./loadData.R')
 # FIGURES OF INTEREST
 ######################
 
-toPdf(N_investPlot(), figPath(name='N_invest_Regression.pdf'), width=7, height=7)
+toPdf(N_investPlot(NIm2.df, NIm2.summ, NinvData), figPath(name='N_invest_Regression.pdf'), width=7, height=7)
 embed_fonts(figPath(name='N_invest_Regression.pdf'))
 
-toPdf(NxRate_Plot(data=data), figPath(name='NxRate_Regression.pdf'), width=7, height=7)
-embed_fonts(figPath(name='NxRate_Regression.pdf'))
+Z       <-  model.matrix(~ -1 + Run            +
+                                Run : nSperm_z +
+                                Run : Rate     +
+                                Run : EggPos   +
+                                Run : Rate   : EggPos,
+                         data = data)
 
+toPdf(NxRate_Plot(df=m12.df, summ=m12.summ, Zmat = Z, data = data), figPath(name='NxRate_Regression.pdf'), width=7, height=7)
+embed_fonts(figPath(name='NxRate_Regression.pdf'))
+rm(Z)
+
+Z       <-  model.matrix(~ -1 + Run +
+                                Run : nSperm_z,
+                         data = data)
+
+toPdf(NxRate_Plot(df=m21BB.df, summ=m21BB.summ, Zmat = Z, data = data), figPath(name='NxRate_RegressionBB.pdf'), width=7, height=7)
+embed_fonts(figPath(name='NxRate_RegressionBB.pdf'))
+rm(Z)
+
+Z       <-  model.matrix(~ -1 + Run +
+                                Run : nSperm_z,
+                         data = data)
+toPdf(perGameteFertPlot(df = m12.df, summ=m12.summ, Zmat=Z, data=data), 
+	  figPath(name='perGametePlotBB.pdf'), width=7, height=7)
+embed_fonts(figPath(name='perGametePlotBB.pdf'))
 
 ######################
 # FIGURES FOR THE PAPER
 ######################
 
-toPdf(regressionPlot(NinvData=NinvData, data=data), figPath(name='fertPlots.pdf'), width=7, height=14)
+
+Z       <-  model.matrix(~ -1 + Run            +
+                                Run : nSperm_z +
+                                Run : Rate     +
+                                Run : EggPos   +
+                                Run : Rate   : EggPos,
+                         data = data)
+
+toPdf(regressionPlot(Ninv.df=NIm2.df, Ninv.summ=NIm2.summ, 
+	                 NRate.df=m12.df, NRate.summ=m12.summ, Zmat=Z, NinvData=NinvData, data=data), 
+                     figPath(name='fertPlots.pdf'), width=7, height=14)
 embed_fonts(figPath(name='fertPlots.pdf'))
 
-toPdf(perGameteFertPlot(data=data), figPath(name='perGametePlot.pdf'), width=7, height=7)
+toPdf(perGameteFertPlot(df = m12.df, summ=m12.summ, Zmat=Z, data=data), 
+	  figPath(name='perGametePlot.pdf'), width=7, height=7)
 embed_fonts(figPath(name='perGametePlot.pdf'))
 
 
@@ -52,9 +85,9 @@ embed_fonts(figPath(name='perGametePlot.pdf'))
 # SUPPLEMENTARY FIGURES
 ########################
 
-toPdf(coefContrastPlots(), figPath(name='NxRate_coefContrasts.pdf'), width=14, height=7)
+toPdf(coefContrastPlots(df=m12.df, summ=m12.summ), figPath(name='NxRate_coefContrasts.pdf'), width=14, height=7)
 embed_fonts(figPath(name='NxRate_coefContrasts.pdf'))
 
-toPdf(simpleContrastPlots(), figPath(name='NxRate_simpleContrasts.pdf'), width=16, height=14)
+toPdf(simpleContrastPlots(df=m12.df, summ=m12.summ), figPath(name='NxRate_simpleContrasts.pdf'), width=16, height=14)
 embed_fonts(figPath(name='NxRate_simpleContrasts.pdf'))
 

@@ -30,7 +30,7 @@ source('./loadData_NxRate_BetaBin.R')
 
 ##  Overall comparison of all models
 looDiff   <-  compare(m1BBLoo,  m2BBLoo,  m3BBLoo,  m4BBLoo,  m5BBLoo,
-                      m6BBLoo,  m7BBLoo,  m8BBLoo,  m9BBLoo,  m21BBLoo,
+                      m6BBLoo,  m7BBLoo,  m8BBLoo,  m9BBLoo,  m10BBLoo,
                       m11BBLoo, m12BBLoo, m13BBLoo, m14BBLoo, m15BBLoo,
                       m16BBLoo, m17BBLoo, m18BBLoo, m19BBLoo, m20BBLoo,
                       m21BBLoo, m22BBLoo, m23BBLoo, m24BBLoo, m25BBLoo
@@ -1015,7 +1015,176 @@ proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=
 
 
 
+###########################################################################
+###########################################################################
+###########################################################################
+##  Compare most parsimonious Binomial vs. Beta-Binomial model
+
+
+# Import Binomial model m12
+csvFiles  <-  c('./output/StanFits/NxRate_m12.csv1',
+                './output/StanFits/NxRate_m12.csv2',
+                './output/StanFits/NxRate_m12.csv3')
+m12        <-  read_stan_csv(csvFiles, col_major = TRUE)
+rm(csvFiles)
+
+m12.df    <-  as.data.frame(extract(m12))[,-1]
+m12.summ  <-  plyr:::adply(as.matrix(m12.df),2,MCMCsum)
 
 
 
 
+##########################################################################
+# Compare models: m12 & m21BB
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+print(m12, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("beta", "phi"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+print(m12, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("a", "b"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+# Simple Diagnostic Plots
+plot(m12, pars="beta")
+plot(m21BB, pars="beta")
+
+pairs(m12, pars="beta")
+pairs(m21BB, pars="beta")
+
+rstan::traceplot(m12, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+rstan::traceplot(m21BB, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+dev.off()
+
+
+# Check posteriors against priors
+par(mfrow=c(2,3))
+x  <-  seq(from=0, to=1, length=500)
+plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
+lines(density(m12.df$sigma_gamma), lwd=3, col='dodgerblue1')
+
+x  <-  seq(from=-3, to=3, length=500)
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m12.df[,i]), lwd=3, col=i)
+}
+
+x  <-  seq(from=0, to=1, length=500)
+plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
+lines(density(m21BB.df$sigma_gamma), lwd=3, col='dodgerblue1')
+
+
+x  <-  seq(from=0, to=100, length=500)
+plot(dcauchy(x, scale=100)*25 ~ x, lwd=2, type='l')
+lines(density(m21BB.df$phi), lwd=3, col='dodgerblue1')
+
+
+x  <-  seq(from=-3, to=3, length=500)
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m21BB.df[,i]), lwd=3, col=i)
+}
+dev.off()
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+par(mfrow=c(1,2))
+y  <-  as.numeric(m12.df[1,300:419])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m12.df[i,300:419])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+
+y  <-  as.numeric(m21BB.df[1,511:630])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m21BB.df[i,511:630])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+ pdf(file='./output/figs/NxRate_Compare_PPDs.pdf', width=7,height=7)
+par(mfrow=c(2,2))
+plot(density(m12.df[,420],   adjust=3), xlim=c(-2,9), lwd=3, col='dodgerBlue1', main='min_y_rep (min. num. Successes)')
+lines(density(m21BB.df[,631], adjust=3), lwd=3, col=COLS[2])
+abline(v=min(data$nFert), lwd=3, col=2)
+    legend(
+          x       =  9.25,
+          y       =  0.325,
+          legend  =  c(
+                      expression(paste(Mod.~12)),
+                      expression(paste(Mod.~"21BB"))),
+          lty     =  1,
+          lwd     =  3,
+          col     =  c(
+                       'dodgerblue1',
+                       COLS[2]),
+          cex     =  1,
+          xjust   =  1,
+          yjust   =  1,
+          bty     =  'n',
+          border  =  NA
+    )
+
+plot(density(m12.df[,421]), xlim=c(65,105), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+lines(density(m21BB.df[,632]), lwd=3, col=COLS[2])
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m12.df[,422]), xlim=c(25,33), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+lines(density(m21BB.df[,633]), lwd=3, col=COLS[2])
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m12.df[,423]), xlim=c(17,24),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+lines(density(m21BB.df[,634]), lwd=3, col=COLS[2])
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+dev.off()
+
+
+print(m12, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+###########################################################################
+###########################################################################
+###########################################################################
+## Overall Impression Re: Using Binomial vs. Beta-Binomial
+##
+##  --  There really isn't much to decide between the Binomial and Beta-Binomial
+##      models. While the Binomial models tend to under-predict the sd() of
+##      the real data, the Beta-Binomial models tend to under-predict the min().
+##      So pick your poison. Slighly under-dispersed, or zero-inflated.
+##     
+##  --  Making the models even more equivocal is the fact that the main
+##      inference from the fixed-effects remain the same! The Rate x EggPos
+##      interaction is 'more signifiant' in the Binomial models... but it's
+##      still only marginal. 
+##
+##  --  So... my overall impression is that we ought to just stick with the
+##      simpler Binomial model... but make it clear in the MS that we compared
+##      our results with a Beta-Binomial analysis to see what happens when we
+##      account for over-dispersion... but that the results from the models do
+##      not change qualitatively.
+##
+###########################################################################
+###########################################################################
+###########################################################################

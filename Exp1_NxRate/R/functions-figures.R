@@ -151,10 +151,10 @@ Slow.plots  <-  function(betas, allBetas, gammas, Z, data) {
         )
 }
 
-Invest.plots  <-  function(m2.summ, data) {
+Invest.plots  <-  function(summ, data) {
     dummyX     <-  seq(from = min(data$nSperm_z), to   = max(data$nSperm_z), length=500)
     dummyXRaw  <-  seq(from = min(data$nSperm), to   = max(data$nSperm), length=500)
-    yHats       <-  inv_logit(m2.summ$Mean[1] + m2.summ$Mean[2] * dummyX)
+    yHats       <-  inv_logit(summ$Mean[1] + summ$Mean[2] * dummyX)
     	x1  <-  seq(from = min(data$nSperm_z[data$Run == 1]), to = max(data$nSperm_z[data$Run == 1]), length=500)
     	x2  <-  seq(from = min(data$nSperm_z[data$Run == 2]), to = max(data$nSperm_z[data$Run == 2]), length=500)
     	x3  <-  seq(from = min(data$nSperm_z[data$Run == 3]), to = max(data$nSperm_z[data$Run == 3]), length=500)
@@ -164,14 +164,14 @@ Invest.plots  <-  function(m2.summ, data) {
     	x7  <-  seq(from = min(data$nSperm_z[data$Run == 7]), to = max(data$nSperm_z[data$Run == 7]), length=500)
     	x8  <-  seq(from = min(data$nSperm_z[data$Run == 8]), to = max(data$nSperm_z[data$Run == 8]), length=500)
     runs  <-  list(
-                   Run1  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[3])  + m2.summ$Mean[2] * x1),
-                   Run2  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[4])  + m2.summ$Mean[2] * x2),
-                   Run3  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[5])  + m2.summ$Mean[2] * x3),
-                   Run4  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[6])  + m2.summ$Mean[2] * x4),
-                   Run5  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[7])  + m2.summ$Mean[2] * x5),
-                   Run6  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[8])  + m2.summ$Mean[2] * x6),
-                   Run7  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[9])  + m2.summ$Mean[2] * x7),
-                   Run8  <- inv_logit((m2.summ$Mean[1] + m2.summ$Mean[10]) + m2.summ$Mean[2] * x8),
+                   Run1  <- inv_logit((summ$Mean[1] + summ$Mean[3])  + summ$Mean[2] * x1),
+                   Run2  <- inv_logit((summ$Mean[1] + summ$Mean[4])  + summ$Mean[2] * x2),
+                   Run3  <- inv_logit((summ$Mean[1] + summ$Mean[5])  + summ$Mean[2] * x3),
+                   Run4  <- inv_logit((summ$Mean[1] + summ$Mean[6])  + summ$Mean[2] * x4),
+                   Run5  <- inv_logit((summ$Mean[1] + summ$Mean[7])  + summ$Mean[2] * x5),
+                   Run6  <- inv_logit((summ$Mean[1] + summ$Mean[8])  + summ$Mean[2] * x6),
+                   Run7  <- inv_logit((summ$Mean[1] + summ$Mean[9])  + summ$Mean[2] * x7),
+                   Run8  <- inv_logit((summ$Mean[1] + summ$Mean[10]) + summ$Mean[2] * x8),
                    x1    <-  seq(from = min(data$nSperm[data$Run == 1]), to = max(data$nSperm[data$Run == 1]), length=500),
                    x2    <-  seq(from = min(data$nSperm[data$Run == 2]), to = max(data$nSperm[data$Run == 2]), length=500),
                    x3    <-  seq(from = min(data$nSperm[data$Run == 3]), to = max(data$nSperm[data$Run == 3]), length=500),
@@ -262,8 +262,8 @@ NxRate_Plot  <-  function(df, summ, Zmat, data, ...) {
     # Extract Coefficients
     betas      <-  summ$Mean[1:8]
     allBetas   <-  df[1:8]
-    gammas     <-  summ$Mean[9:(87 + ncol(Zmat))]
-    allGammas  <-  df[9:(87 + ncol(Zmat))]
+    gammas     <-  summ$Mean[9:(8 + ncol(Zmat))]
+    allGammas  <-  df[9:(8 + ncol(Zmat))]
 
     ###################################################
     # Create plotting objects for each regression line
@@ -353,8 +353,8 @@ regressionPlot  <-  function(Ninv.df, Ninv.summ, NRate.df, NRate.summ, Zmat, Nin
     # Extract coefficients
     betas      <-  NRate.summ$Mean[1:8]
     allBetas   <-  NRate.df[1:8]
-    gammas     <-  NRate.summ$Mean[9:58]
-    allGammas  <-  NRate.df[9:58]
+    gammas     <-  NRate.summ$Mean[9:(8 + ncol(Zmat))]
+    allGammas  <-  NRate.df[9:(8 + ncol(Zmat))]
 
     ###################################################
     # Create plotting objects for each regression line
@@ -485,8 +485,8 @@ perGameteFertPlot  <-  function(df, summ, Zmat, data, ...) {
     # Extract Coefficients
     betas      <-  summ$Mean[1:8]
     allBetas   <-  df[1:8]
-    gammas     <-  summ$Mean[9:58]
-    allGammas  <-  df[9:58]
+    gammas     <-  summ$Mean[9:(8 + ncol(Zmat))]
+    allGammas  <-  df[9:(8 + ncol(Zmat))]
 
     ###################################################
     # Create plotting objects for each regression line
@@ -645,7 +645,7 @@ coefContrastPlots  <-  function(df, summ, ...) {
         abline(v=0, lwd=2,col=2, xpd=FALSE)
         axis(1, cex.axis=0.9)
         axis(2, cex.axis=0.9, las=1)
-        proportionalLabel(0.65, 0.9, substitute(p~"="~val, list(val = rounded(pVals[[i]], 2))), cex=1.5, adj=c(0, 0.5), font=3, xpd=NA)
+        proportionalLabel(0.65, 0.9, substitute(italic(p)~"="~val, list(val = rounded(pVals[[i]], 2))), cex=1.5, adj=c(0, 0.5), font=3, xpd=NA)
         
         #  Plot Labels
         if(i == 1) {
@@ -796,7 +796,7 @@ simpleContrastPlots  <-  function(df, summ, ...) {
         abline(v=0, lwd=2,col=2, xpd=FALSE)
         axis(1, cex.axis=0.9)
         axis(2, cex.axis=0.9, las=1)
-        proportionalLabel(0.65, 0.9, substitute(p~"="~val, list(val = rounded(simpPVals[[i]], 2))), cex=1.5, adj=c(0, 0.5), font=3, xpd=NA)
+        proportionalLabel(0.65, 0.9, substitute(italic(p)~"="~val, list(val = rounded(simpPVals[[i]], 2))), cex=1.5, adj=c(0, 0.5), font=3, xpd=NA)
         
         #  Plot Labels
         if(i == 1) {

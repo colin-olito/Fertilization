@@ -56,11 +56,11 @@ attr(X,"assign") <- NULL
 
 
 # Options for the STAN analyses
-nChains       = 3
-thinSteps     = 1
-nIter         = 3000 * thinSteps #for each chain
-burnInSteps   = nIter / 2
-nSavedSteps  = ((nIter/thinSteps)/2)*nChains
+nChains       =  3
+thinSteps     =  1
+nIter         =  2000 * thinSteps #for each chain
+burnInSteps   =  nIter / 2
+nSavedSteps   =  ((nIter/thinSteps)/2)*nChains
 (nSavedSteps)
 
 # Create pseudo-random seeds for Stan 
