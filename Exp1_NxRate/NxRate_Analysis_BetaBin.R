@@ -1,12 +1,13 @@
 #/* 
-# * Colin Olito. Created 13/01/2016
-# * Analysis of 1st flume experiment: NxRate
+# * Colin Olito. Created 09/02/2017
+# * Analysis of 1st flume experiment: N-invest Beta-Binomial
 # * 
 # * NOTES:  This file contains all the necessary
 # *     		code to read in the STAN sample files
 # *     		and perform posterior predictive checks
 # *         model selection, and produce regression
-# *         plots for the NxRate flume data
+# *         plots for the NxRate flume data fitted 
+# *         using Beta-Binomial error.
 # * 
 # */
 
@@ -17,7 +18,7 @@ options("menu.graphics"=FALSE)
 
 ###############
 # DEPENDENCIES
-source('./loadData_NxRate_Bin.R')
+source('./loadData_NxRate_BetaBin.R')
 
 
 
@@ -28,13 +29,12 @@ source('./loadData_NxRate_Bin.R')
 ##########################################################################################
 
 ##  Overall comparison of all models
-looDiff   <-  compare(m1Loo,  m2Loo,  m3Loo,  m4Loo,  m5Loo,
-                      m6Loo,  m7Loo,  m8Loo,  m9Loo,  m10Loo,
-                      m11Loo, m12Loo, m13Loo, m14Loo, m15Loo,
-                      m16Loo, m17Loo, m18Loo, m19Loo, m20Loo,
-                      m21Loo, m22Loo, m23Loo, m24Loo, m25Loo
+looDiff   <-  compare(m1BBLoo,  m2BBLoo,  m3BBLoo,  m4BBLoo,  m5BBLoo,
+                      m6BBLoo,  m7BBLoo,  m8BBLoo,  m9BBLoo,  m21BBLoo,
+                      m11BBLoo, m12BBLoo, m13BBLoo, m14BBLoo, m15BBLoo,
+                      m16BBLoo, m17BBLoo, m18BBLoo, m19BBLoo, m20BBLoo,
+                      m21BBLoo, m22BBLoo, m23BBLoo, m24BBLoo, m25BBLoo
                      )
-
 print(looDiff, digits=4)
 
 # LOO Results Summary Table
@@ -42,17 +42,19 @@ LooDiff  <-  makeLooTable(looDiff)
 LooDiff
 
 # Write Loo Model Selection Results to .csv
-write.csv(LooDiff, file= './output/tables/NxRate_LooDiff_Bin.csv')
+write.csv(LooDiff, file= './output/tables/NxRate_LooDiff_BetaBin.csv')
 
 ###########################################################################
 ## Main result from LOO model comparison:
 ##
-##  -- Model m2 provides the best overall fit to the data.
+##  -- Model m12BB provides the best overall fit to the data. Interesting,
+##     since this was the most parsimonious Binomial model.
 ##  
-##  -- 2 models stand out as being the simplest models that are statistically
-##     indistinguishable from the maximal model:  Models m12 & m10.
+##  -- Sevaral candidate models stand out being potentially simpler models
+##     than m12BB: models m21, m19BB, and m17BB.
 ##      
-##  -- Will focus analysis of posterior predictive checks on these models.
+##  -- Will focus analysis of posterior predictive checks on models m12BB,
+##     m19BB, and m21BB.
 ##
 ###########################################################################
 
@@ -73,21 +75,21 @@ write.csv(LooDiff, file= './output/tables/NxRate_LooDiff_Bin.csv')
 # for simulated data ~ real data
 #####################################################
 
-# Maximal model (also best fitting model)
-X2data1   <-  as.numeric(m1.df[,818])
-X2sim1    <-  as.numeric(m1.df[,819])
+# Best fitting model
+X2data12   <-  as.numeric(m12BB.df[,909])
+X2sim12    <-  as.numeric(m12BB.df[,910])
 
 # Simplest models that are statistically
-# indistinguishable from m1
-X2data12   <-  as.numeric(m12.df[,788])
-X2sim12    <-  as.numeric(m12.df[,789])
+# indistinguishable from m12BB
+X2data21   <-  as.numeric(m21BB.df[,879])
+X2sim21    <-  as.numeric(m21BB.df[,880])
 
-X2data10   <-  as.numeric(m10.df[,798])
-X2sim10    <-  as.numeric(m10.df[,799])
+X2data19   <-  as.numeric(m19BB.df[,889])
+X2sim19    <-  as.numeric(m19BB.df[,890])
 
 # Minimal model
-X2data25   <-  as.numeric(m25.df[,617])
-X2sim25    <-  as.numeric(m25.df[,618])
+X2data25   <-  as.numeric(m25BB.df[,858])
+X2sim25    <-  as.numeric(m25BB.df[,859])
 
 
 
@@ -104,7 +106,7 @@ COLS  <-  c("#009ce0",
 
 
 # Plot Range for PPC plots
-plotRange  <-  c(0,max(X2data25))
+plotRange  <-  c(0,max(X2sim25))
 
 # pdf(file='./output/figs/NxRate_X2Discrepancy.pdf', width=7,height=7)
 par(omi=rep(0.3, 4))
@@ -119,13 +121,13 @@ box()
 points(X2sim25 ~ X2data25, pch=21, 
         bg=transparentColor(COLS[4], 0.1),
         col=transparentColor(COLS[4], 0.3), cex=1.1)
-points(X2sim10 ~ X2data10, pch=21, 
+points(X2sim19 ~ X2data19, pch=21, 
         bg=transparentColor(COLS[7], 0.1),
         col=transparentColor(COLS[7], 0.3), cex=1.1)
-points(X2sim12 ~ X2data12, pch=21, 
+points(X2sim21 ~ X2data21, pch=21, 
         bg=transparentColor(COLS[2], 0.1),
         col=transparentColor(COLS[2], 0.3), cex=1.1)
-points(X2sim1 ~ X2data1, pch=21, 
+points(X2sim12 ~ X2data12, pch=21, 
         bg=transparentColor('dodgerblue1', 0.1),
         col=transparentColor('dodgerblue1', 0.3), cex=1.1)
 abline(a=0,b=1, lwd=2) 
@@ -165,8 +167,13 @@ axis(1)
 ##
 ##  -- Results from X^2 discrepancy are congruent with LOO results.
 ##  
-##  -- Models m2, m12, and m10 overlay eachother almost perfectly. There isn't
-##     much to choose between these models.
+##  -- Models m12BB, m19BB overlay each other almost entirely. m21BB has 
+##     slightly higher discrepancy, but the difference pretty small, in 
+##     accordance with the LOO results. As in the N_invest analysis, the 
+##     X^2 discrepancy for the simulated data is noticeably higher than for
+##     the real data... not sure exactly why this is happening, except that
+##     perhaps this is suggesting that the data is under-dispersed for a 
+##     Beta-Binomial distribution.
 ##
 ###########################################################################
 
@@ -182,35 +189,39 @@ axis(1)
 ###########################################################################
 ###########################################################################
 
-
 ##########################################################################
-# Model: m2, the 'best-fitting model'
+# Model: m12BB, the 'best-fitting model'
 ##########################################################################
 
 ##############
 # Diagnostics
 
 # Model Results
-print(m2, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m2, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m12BB, c("beta","phi"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m12BB, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m12BB, c("a", "b"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 # Simple Diagnostic Plots
-plot(m2, pars="beta")
-pairs(m2, pars="beta")
-par(mfrow=c(5,5))
-rstan::traceplot(m2, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+plot(m12BB, pars="beta")
+pairs(m12BB, pars="beta")
+rstan::traceplot(m12BB, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+dev.off()
 
 # Check posteriors against priors
 x  <-  seq(from=0, to=1, length=500)
-plot(dcauchy(x)*25 ~ x, lwd=2, type='l')
-lines(density(m2.df$sigma_gamma), lwd=3, col='dodgerblue1')
+plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
+lines(density(m12BB.df$sigma_gamma), lwd=3, col='dodgerblue1')
 
+x  <-  seq(from=0, to=100, length=500)
+plot(dcauchy(x, scale=100)*20 ~ x, lwd=2, type='l')
+lines(density(m12BB.df$phi), lwd=3, col='dodgerblue1')
 
 x  <-  seq(from=-3, to=3, length=500)
-plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+plot(dnorm(x, sd=3)*22 ~ x, lwd=2, type='l')
 for(i in 1:8) {
-  lines(density(m2.df[,i]), lwd=3, col=i)
+  lines(density(m12BB.df[,i]), lwd=3, col=i)
 }
+
 
 ##############################
 # Posterior Predictive Checks
@@ -218,13 +229,13 @@ for(i in 1:8) {
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m2.df[1,330:449])/data$nEggs
+y  <-  as.numeric(m12BB.df[1,541:660])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:1000) {
   rm(y)
-  y  <-  as.numeric(m2.df[i,330:449])/data$nEggs
+  y  <-  as.numeric(m12BB.df[i,541:660])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -234,124 +245,58 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m2.df[,450], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m12BB.df[,661], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m2.df[,451]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m12BB.df[,662]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m2.df[,452]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m12BB.df[,663]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m2.df[,453]), xlim=c(min(m2.df[,453],sd(data$nFert)),max(m2.df[,453],sd(data$nFert))),
+plot(density(m12BB.df[,664]), xlim=c(min(m12BB.df[,664],sd(data$nFert)),max(m12BB.df[,664],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
-print(m2, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m12BB, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 dev.off()
 
 
 
 
+
 ##########################################################################
-# Model: m12
+# Model: m19BB
 ##########################################################################
 
 ##############
 # Diagnostics
 
 # Model Results
-print(m12, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m12, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m19BB, c("beta", "phi"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m19BB, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m19BB, c("a", "b"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 # Simple Diagnostic Plots
-plot(m12, pars="beta")
-pairs(m12, pars="beta")
-rstan::traceplot(m12, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
-dev.off()
+plot(m19BB, pars="beta")
+pairs(m19BB, pars="beta")
+rstan::traceplot(m19BB, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
 
 # Check posteriors against priors
 x  <-  seq(from=0, to=1, length=500)
 plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
-lines(density(m12.df$sigma_gamma), lwd=3, col='dodgerblue1')
+lines(density(m19BB.df$sigma_gamma), lwd=3, col='dodgerblue1')
+
+
+x  <-  seq(from=0, to=100, length=500)
+plot(dcauchy(x, scale=100)*25 ~ x, lwd=2, type='l')
+lines(density(m19BB.df$phi), lwd=3, col='dodgerblue1')
 
 x  <-  seq(from=-3, to=3, length=500)
 plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
 for(i in 1:8) {
-  lines(density(m12.df[,i]), lwd=3, col=i)
-}
-
-
-##############################
-# Posterior Predictive Checks
-
-#  Quick self-consistency check:
-#  Plot of simulated data against real data
-
-y  <-  as.numeric(m12.df[1,300:419])/data$nEggs
-x  <-  data$nFert/data$nEggs
-plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
-
-for(i in 2:1000) {
-  rm(y)
-  y  <-  as.numeric(m12.df[i,300:419])/data$nEggs
-  points(y ~ jitter(x,factor=500))
-}
-abline(a=0,b=1, col=2, lwd=3) 
-
-# Density plots of min, max, mean, sd
-#  of replicated data, benchmarked with
-#  calculated values for real data
-#  Find associated p-values in m4.summ
-par(mfrow=c(2,2))
-plot(density(m12.df[,420], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
-abline(v=min(data$nFert), lwd=3, col=2)
-
-plot(density(m12.df[,421]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
-abline(v=max(data$nFert), lwd=3, col=2)
-
-plot(density(m12.df[,422]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
-abline(v=mean(data$nFert), lwd=3, col=2)
-
-plot(density(m12.df[,423]), xlim=c(min(m12.df[,423],sd(data$nFert)),max(m12.df[,423],sd(data$nFert))),
- lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
-abline(v=sd(data$nFert), lwd=3, col=2)
-
-print(m12, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-
-dev.off()
-
-
-
-
-
-##########################################################################
-# Model: m10
-##########################################################################
-
-##############
-# Diagnostics
-
-# Model Results
-print(m10, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m10, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-
-# Simple Diagnostic Plots
-plot(m10, pars="beta")
-pairs(m10, pars="beta")
-rstan::traceplot(m10, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
-
-# Check posteriors against priors
-x  <-  seq(from=0, to=1, length=500)
-plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
-lines(density(m10.df$sigma_gamma), lwd=3, col='dodgerblue1')
-
-
-x  <-  seq(from=-3, to=3, length=500)
-plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
-for(i in 1:8) {
-  lines(density(m10.df[,i]), lwd=3, col=i)
+  lines(density(m19BB.df[,i]), lwd=3, col=i)
 }
 
 ##############################
@@ -360,13 +305,13 @@ for(i in 1:8) {
 #  Quick self-consistency check:
 #  Plot of simulated data against real data
 
-y  <-  as.numeric(m10.df[1,310:429])/data$nEggs
+y  <-  as.numeric(m19BB.df[1,521:640])/data$nEggs
 x  <-  data$nFert/data$nEggs
 plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
 
 for(i in 2:1000) {
   rm(y)
-  y  <-  as.numeric(m10.df[i,310:429])/data$nEggs
+  y  <-  as.numeric(m19BB.df[i,521:640])/data$nEggs
   points(y ~ jitter(x,factor=500))
 }
 abline(a=0,b=1, col=2, lwd=3) 
@@ -374,24 +319,97 @@ abline(a=0,b=1, col=2, lwd=3)
 # Density plots of min, max, mean, sd
 #  of replicated data, benchmarked with
 #  calculated values for real data
-#  Find associated p-values in m10.summ
+#  Find associated p-values in m19BB.summ
 par(mfrow=c(2,2))
-plot(density(m10.df[,430], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m19BB.df[,641], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m10.df[,431]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m19BB.df[,642]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m10.df[,432]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m19BB.df[,643]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m10.df[,433]), xlim=c(min(m10.df[,433],sd(data$nFert)),max(m10.df[,433],sd(data$nFert))),
+plot(density(m19BB.df[,644]), xlim=c(min(m19BB.df[,644],sd(data$nFert)),max(m19BB.df[,644],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
-print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m19BB, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 dev.off()
+
+
+
+##########################################################################
+# Model: m21BB
+##########################################################################
+
+##############
+# Diagnostics
+
+# Model Results
+print(m21BB, c("beta", "phi"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("a", "b"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+# Simple Diagnostic Plots
+plot(m21BB, pars="beta")
+pairs(m21BB, pars="beta")
+rstan::traceplot(m21BB, pars=c("beta", "sigma_gamma"), inc_warmup=FALSE)
+
+# Check posteriors against priors
+x  <-  seq(from=0, to=1, length=500)
+plot(dcauchy(x)*20 ~ x, lwd=2, type='l')
+lines(density(m21BB.df$sigma_gamma), lwd=3, col='dodgerblue1')
+
+
+x  <-  seq(from=-3, to=3, length=500)
+plot(dnorm(x, sd=3)*17 ~ x, lwd=2, type='l')
+for(i in 1:8) {
+  lines(density(m21BB.df[,i]), lwd=3, col=i)
+}
+
+##############################
+# Posterior Predictive Checks
+
+#  Quick self-consistency check:
+#  Plot of simulated data against real data
+
+y  <-  as.numeric(m21BB.df[1,511:630])/data$nEggs
+x  <-  data$nFert/data$nEggs
+plot(y ~ x, xlim=c(0,1), ylim=c(0,1))
+
+for(i in 2:1000) {
+  rm(y)
+  y  <-  as.numeric(m21BB.df[i,511:630])/data$nEggs
+  points(y ~ jitter(x,factor=500))
+}
+abline(a=0,b=1, col=2, lwd=3) 
+
+# Density plots of min, max, mean, sd
+#  of replicated data, benchmarked with
+#  calculated values for real data
+#  Find associated p-values in m21BB.summ
+par(mfrow=c(2,2))
+plot(density(m21BB.df[,631], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+abline(v=min(data$nFert), lwd=3, col=2)
+
+plot(density(m21BB.df[,632]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+abline(v=max(data$nFert), lwd=3, col=2)
+
+plot(density(m21BB.df[,633]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+abline(v=mean(data$nFert), lwd=3, col=2)
+
+plot(density(m21BB.df[,634]), xlim=c(min(m21BB.df[,634],sd(data$nFert)),max(m21BB.df[,634],sd(data$nFert))),
+ lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
+abline(v=sd(data$nFert), lwd=3, col=2)
+
+print(m21BB, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+
+dev.off()
+
+
+
 
 
 
@@ -404,19 +422,19 @@ dev.off()
 # Density plots of min, max, mean, sd
 #  of replicated data, benchmarked with
 #  calculated values for real data
- pdf(file='./output/figs/NxRate_Bin_PPDs.pdf', width=7,height=7)
+ pdf(file='./output/figs/NxRate_BetaBin_PPDs.pdf', width=7,height=7)
 par(mfrow=c(2,2))
-plot(density(m12.df[,420],   adjust=3), lwd=3, col='dodgerBlue1', main='min_y_rep (min. num. Successes)')
-lines(density(m10.df[,430], adjust=3), lwd=3, col=COLS[7])
-lines(density(m2.df[,450], adjust=3), lwd=3, col=COLS[2])
+plot(density(m12BB.df[,661],   adjust=3), lwd=3, col='dodgerBlue1', main='min_y_rep (min. num. Successes)')
+lines(density(m19BB.df[,641], adjust=3), lwd=3, col=COLS[7])
+lines(density(m21BB.df[,631], adjust=3), lwd=3, col=COLS[2])
 abline(v=min(data$nFert), lwd=3, col=2)
     legend(
           x       =  7.25,
           y       =  0.325,
           legend  =  c(
                       expression(paste(Mod.~12)),
-                      expression(paste(Mod.~"10")),
-                      expression(paste(Mod.~"2"))),
+                      expression(paste(Mod.~"19")),
+                      expression(paste(Mod.~"21"))),
           lty     =  1,
           lwd     =  3,
           col     =  c(
@@ -430,45 +448,39 @@ abline(v=min(data$nFert), lwd=3, col=2)
           border  =  NA
     )
 
-plot(density(m12.df[,421]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
-lines(density(m10.df[,431]), lwd=3, col=COLS[7])
-lines(density(m2.df[,451]), lwd=3, col=COLS[2])
+plot(density(m12BB.df[,662]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+lines(density(m19BB.df[,642]), lwd=3, col=COLS[7])
+lines(density(m21BB.df[,632]), lwd=3, col=COLS[2])
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m12.df[,422]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
-lines(density(m10.df[,432]), lwd=3, col=COLS[7])
-lines(density(m2.df[,452]), lwd=3, col=COLS[2])
+plot(density(m12BB.df[,663]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+lines(density(m19BB.df[,643]), lwd=3, col=COLS[7])
+lines(density(m21BB.df[,633]), lwd=3, col=COLS[2])
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m12.df[,423]), xlim=c(min(m2.df[,453],sd(data$nFert)),max(m2.df[,453],sd(data$nFert))),
+plot(density(m12BB.df[,664]), xlim=c(min(m12BB.df[,664],sd(data$nFert)),max(m12BB.df[,664],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
-lines(density(m10.df[,433]), lwd=3, col=COLS[7])
-lines(density(m2.df[,453]), lwd=3, col=COLS[2])
+lines(density(m19BB.df[,644]), lwd=3, col=COLS[7])
+lines(density(m21BB.df[,634]), lwd=3, col=COLS[2])
 abline(v=sd(data$nFert), lwd=3, col=2)
 
 dev.off()
 
 print(m1, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 print(m12, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
-print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m21BB, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 
 ###########################################################################
 ## Main result from PPD's:
 ##
-##  --  Not much to choose between models m2, m12, and m10. m12 may 
-##      slightly under-predict max() and sd() relative to the other models,
-##      but nothing of real significance.
+##  --  Models m12BB, m19BB, and m21BB are extremely similar. They all 
+##      under-predict min(). But they also seem to do a better job of 
+##      predicting sd() relative to the Binomial models.
 ##     
-##  --  Overall, m12 is probably the best choice because it has the fewest
+##  --  Overall, m21 is the most parsimonioius model, as it has far fewer
 ##      parameters, and doesn't noticeably under-perform relative to the 
 ##      more complex models.
-##
-##  --  HOWEVER, all models systematically under-predict the sd() in the 
-##      data... suggesting that these data are over-dispersed for a
-##      Binomial error distribution. Will re-run analyses using 
-##      Beta-Binomial error to see if this improves the fit compared to 
-##      model m12
 ##
 ###########################################################################
 
@@ -482,56 +494,40 @@ print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 ###########################################################################
 
 ##  look at residuals for m3
-#m1yhat        <-  inv_logit(m1.summ$Mean[90:209]) # mus
-m2yhat        <-  (m2.summ$Mean[458:577])
-m2.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m2yhat)/sd(m2yhat)
-m2.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m2yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m2yhat))
 #m12yhat       <-  inv_logit(m12.summ$Mean[60:179]) # mus
-m12yhat       <-  (m12.summ$Mean[428:547])
-m12.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m12yhat)/sd(m12yhat)
-m12.resids_z  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m12yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m12yhat))
-#m10yhat        <-  inv_logit(m10.summ$Mean[70:189]) # mus
-m10yhat        <-  (m10.summ$Mean[438:557])
-m10.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m10yhat)/sd(m10yhat)
-m10.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m10yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m10yhat))
+m12BByhat       <-  (m12BB.summ$Mean[301:420])
+m12BB.resids    <-  (((data$nFert - data$nControlFert)/data$nEggs) - m12BByhat)/sd(m12BByhat)
+m12BB.resids_z  <-  (((data$nFert - data$nControlFert)/data$nEggs) - m12BByhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m12BByhat))
+#m21BByhat        <-  inv_logit(m21BB.summ$Mean[70:189]) # mus
+m21BByhat        <-  (m21BB.summ$Mean[271:390])
+m21BB.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m21BByhat)/sd(m21BByhat)
+m21BB.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m21BByhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m21BByhat))
 
-plot(m1yhat ~ m12yhat, xlim=c(0,1), ylim=c(0,1))
-abline(a = 0, b = 1)
-plot(m12yhat ~ m10yhat, xlim=c(0,1), ylim=c(0,1))
+plot(m12BByhat ~ m21BByhat, xlim=c(0,1), ylim=c(0,1))
 abline(a = 0, b = 1)
 
-##  Model 1 Residual Plots
+##  Model 12 Residual Plots
+dev.new()
 par(mfrow=c(2,2))
-hist(m2.resids_z, breaks=40)
+hist(m12BB.resids_z, breaks=40)
 abline(v=c(-2,2), lty=2)
-plot(m2.resids_z ~ data$nSperm_z, main="Model m1")
+plot(m12BB.resids_z ~ data$nSperm_z, main="Model m12BB")
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-plot(m2.resids_z ~ seq_along(m2.resids_z))
+plot(m12BB.resids_z ~ seq_along(m12BB.resids_z))
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-qqnorm(m2.resids_z)
-qqline(m2.resids_z, col = 2)
+qqnorm(m12BB.resids_z)
+qqline(m12BB.resids_z, col = 2)
 
 dev.new()
 par(mfrow=c(2,2))
-hist(m12.resids_z, breaks=40)
+hist(m21BB.resids_z, breaks=40)
 abline(v=c(-2,2), lty=2)
-plot(m12.resids_z ~ data$nSperm_z, main="Model m12")
+plot(m21BB.resids_z ~ data$nSperm_z, main="Model m21BB")
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-plot(m12.resids_z ~ seq_along(m12.resids_z))
+plot(m21BB.resids_z ~ seq_along(m21BB.resids_z))
 abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-qqnorm(m12.resids_z)
-qqline(m12.resids_z, col = 2)
-
-dev.new()
-par(mfrow=c(2,2))
-hist(m10.resids_z, breaks=40)
-abline(v=c(-2,2), lty=2)
-plot(m10.resids_z ~ data$nSperm_z, main="Model m10")
-abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-plot(m10.resids_z ~ seq_along(m10.resids_z))
-abline(h=c(-2,0,2), lwd=c(1,3,1), col=c(1,2,1), lty=c(2,1,2))
-qqnorm(m10.resids_z)
-qqline(m10.resids_z, col = 2)
+qqnorm(m21BB.resids_z)
+qqline(m21BB.resids_z, col = 2)
 
 
 
@@ -548,58 +544,45 @@ qqline(m10.resids_z, col = 2)
 
 
 
-
-
-
-
-
 ######################################################
 ## Have a look at the final regressions from 
-##  candidate models (m1, m12, m10)
+##  candidate models (m1, m12, m21BB)
 
 ##  Calculate Predicted Lines
-m2.coef   <-  m2.summ$Mean[1:8]
-m10.coef  <-  m10.summ$Mean[1:8]
-m12.coef  <-  m12.summ$Mean[1:8]
+m12BB.coef  <-  m12BB.summ$Mean[1:8]
+m21BB.coef  <-  m21BB.summ$Mean[1:8]
 
-m2Fast5   <-  inv_logit(m2.coef[1] + m2.coef[2] * data$nSperm_z)
-m2Fast55  <-  inv_logit((m2.coef[1] + m2.coef[4]) + (m2.coef[2] + m2.coef[6]) * data$nSperm_z)
-m2Slow5   <-  inv_logit((m2.coef[1] + m2.coef[3]) + (m2.coef[2] + m2.coef[5]) * data$nSperm_z)
-m2Slow55  <-  inv_logit((m2.coef[1] + m2.coef[3] + m2.coef[7]) + (m2.coef[2] + m2.coef[5] + m2.coef[8]) * data$nSperm_z)
-m2Fast    <-  inv_logit((m2.coef[1] + (m2.coef[4])/2) + (m2.coef[2] + (m2.coef[6])/2) * data$nSperm_z)
-m2Slow    <-  inv_logit((m2.coef[1] + m2.coef[3] + (0.5*(m2.coef[7]))) + (m2.coef[2] + m2.coef[5] + (0.5*(m2.coef[8]))) * data$nSperm_z)
+m12BBFast5   <-  inv_logit(m12BB.coef[1] + m12BB.coef[2] * data$nSperm_z)
+m12BBFast55  <-  inv_logit((m12BB.coef[1] + m12BB.coef[4]) + (m12BB.coef[2] + m12BB.coef[6]) * data$nSperm_z)
+m12BBSlow5   <-  inv_logit((m12BB.coef[1] + m12BB.coef[3]) + (m12BB.coef[2] + m12BB.coef[5]) * data$nSperm_z)
+m12BBSlow55  <-  inv_logit((m12BB.coef[1] + m12BB.coef[3] + m12BB.coef[7]) + (m12BB.coef[2] + m12BB.coef[5] + m12BB.coef[8]) * data$nSperm_z)
+m12BBFast    <-  inv_logit((m12BB.coef[1] + (m12BB.coef[4])/2) + (m12BB.coef[2] + (m12BB.coef[6])/2) * data$nSperm_z)
+m12BBSlow    <-  inv_logit((m12BB.coef[1] + m12BB.coef[3] + (0.5*(m12BB.coef[7]))) + (m12BB.coef[2] + m12BB.coef[5] + (0.5*(m12BB.coef[8]))) * data$nSperm_z)
 
-m10Fast5   <-  inv_logit(m10.coef[1] + m10.coef[2] * data$nSperm_z)
-m10Fast55  <-  inv_logit((m10.coef[1] + m10.coef[4]) + (m10.coef[2] + m10.coef[6]) * data$nSperm_z)
-m10Slow5   <-  inv_logit((m10.coef[1] + m10.coef[3]) + (m10.coef[2] + m10.coef[5]) * data$nSperm_z)
-m10Slow55  <-  inv_logit((m10.coef[1] + m10.coef[3] + m10.coef[7]) + (m10.coef[2] + m10.coef[5] + m10.coef[8]) * data$nSperm_z)
-m10Fast    <-  inv_logit((m10.coef[1] + (m10.coef[4])/2) + (m10.coef[2] + (m10.coef[6])/2) * data$nSperm_z)
-m10Slow    <-  inv_logit((m10.coef[1] + m10.coef[3] + (0.5*(m10.coef[7]))) + (m10.coef[2] + m10.coef[5] + (0.5*(m10.coef[8]))) * data$nSperm_z)
-
-m12Fast5   <-  inv_logit(m12.coef[1] + m12.coef[2] * data$nSperm_z)
-m12Fast55  <-  inv_logit((m12.coef[1] + m12.coef[4]) + (m12.coef[2] + m12.coef[6]) * data$nSperm_z)
-m12Slow5   <-  inv_logit((m12.coef[1] + m12.coef[3]) + (m12.coef[2] + m12.coef[5]) * data$nSperm_z)
-m12Slow55  <-  inv_logit((m12.coef[1] + m12.coef[3] + m12.coef[7]) + (m12.coef[2] + m12.coef[5] + m12.coef[8]) * data$nSperm_z)
-m12Fast    <-  inv_logit((m12.coef[1] + (m12.coef[4])/2) + (m12.coef[2] + (m12.coef[6])/2) * data$nSperm_z)
-m12Slow    <-  inv_logit((m12.coef[1] + m12.coef[3] + (0.5*(m12.coef[7]))) + (m12.coef[2] + m12.coef[5] + (0.5*(m12.coef[8]))) * data$nSperm_z)
+m21BBFast5   <-  inv_logit(m21BB.coef[1] + m21BB.coef[2] * data$nSperm_z)
+m21BBFast55  <-  inv_logit((m21BB.coef[1] + m21BB.coef[4]) + (m21BB.coef[2] + m21BB.coef[6]) * data$nSperm_z)
+m21BBSlow5   <-  inv_logit((m21BB.coef[1] + m21BB.coef[3]) + (m21BB.coef[2] + m21BB.coef[5]) * data$nSperm_z)
+m21BBSlow55  <-  inv_logit((m21BB.coef[1] + m21BB.coef[3] + m21BB.coef[7]) + (m21BB.coef[2] + m21BB.coef[5] + m21BB.coef[8]) * data$nSperm_z)
+m21BBFast    <-  inv_logit((m21BB.coef[1] + (m21BB.coef[4])/2) + (m21BB.coef[2] + (m21BB.coef[6])/2) * data$nSperm_z)
+m21BBSlow    <-  inv_logit((m21BB.coef[1] + m21BB.coef[3] + (0.5*(m21BB.coef[7]))) + (m21BB.coef[2] + m21BB.coef[5] + (0.5*(m21BB.coef[8]))) * data$nSperm_z)
 
 # pdf(file='output/xRatexEggPos_m3.pdf', height=7, width=7)
 par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'),  main="Model 1",
+    xlab='Sperm released', ylab=substitute('Fertilization rate'),  main="Model 12BB",
     type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot regression lines
-lines(m2Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m12BBFast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lwd=3)
-lines(m2Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m12BBFast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lty=2, lwd=3)
-lines(m2Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m12BBSlow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lwd=3)
-lines(m2Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m12BBSlow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lty=2, lwd=3)
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
@@ -637,20 +620,20 @@ axis(1)
 dev.new()
 # par(omi=rep(0.3, 4))
 plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'), main="Model 10",
+    xlab='Sperm released', ylab=substitute('Fertilization rate'), main="Model 21BB",
     type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
 usr  <-  par('usr')
 rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
 whiteGrid()
 box()
 # plot regression lines
-lines(m10Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m21BBFast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lwd=3)
-lines(m10Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m21BBFast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='dodgerblue1', lty=2, lwd=3)
-lines(m10Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m21BBSlow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lwd=3)
-lines(m10Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
+lines(m21BBSlow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
                   col='orangered1', lty=2, lwd=3)
 points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
@@ -683,61 +666,6 @@ axis(1)
           bty     =  'n',
           border  =  NA
     )
-
-
-
-
-dev.new()
-# par(omi=rep(0.3, 4))
-plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
-    xlab='Sperm released', ylab=substitute('Fertilization rate'),  main="Model 12",
-    type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
-usr  <-  par('usr')
-rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-whiteGrid()
-box()
-# plot regression lines
-lines(m12Fast5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='dodgerblue1', lwd=3)
-lines(m12Fast55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='dodgerblue1', lty=2, lwd=3)
-lines(m12Slow5[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='orangered1', lwd=3)
-lines(m12Slow55[order(data$nSperm_z)] ~ data$nSperm[order(data$nSperm_z)],
-                  col='orangered1', lty=2, lwd=3)
-points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
-        bg=transparentColor('dodgerblue1', 0.7),
-        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Fast" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
-        bg=transparentColor('dodgerblue1', 0.2),
-        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "5"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
-        bg=transparentColor('orangered1', 0.7),
-        col=transparentColor('orangered4', 0.9), cex=1.1)
-points(((data$nFert-data$nControlFert)/data$nEggs)[data$Rate == "Slow" & data$EggPos == "55"] ~ data$nSperm[data$Rate == "Slow" & data$EggPos == "5"], pch=21, 
-        bg=transparentColor('orangered1', 0.2),
-        col=transparentColor('orangered4', 0.9), cex=1.1)
-axis(2, las=1)
-axis(1)
-    legend(
-          x       =  usr[2]*0.3,
-          y       =  usr[4],
-          legend  =  c(
-                      expression(paste(5~cm:~Fast)),
-                      expression(paste(55~cm:~Fast)),
-                      expression(paste(5~cm:~Slow)),
-                      expression(paste(55~cm:~Slow))),
-          pch     =  c(21,21,21,21),
-          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7),transparentColor('orangered1',0.2)),
-          col     =  c('dodgerblue4','dodgerblue4','orangered4','orangered4'),
-          cex     =  1,
-          xjust   =  1,
-          yjust   =  1,
-          bty     =  'n',
-          border  =  NA
-    )
-
-
 
 
 
@@ -750,12 +678,10 @@ axis(1)
 ###########################################################################
 
 
-m2.allBetas   <-  as.matrix(m2.df[1:8])
-m2.allGammas  <-  as.matrix(m2.df[9:88])
-m10.allBetas   <-  as.matrix(m10.df[1:8])
-m10.allGammas  <-  as.matrix(m10.df[9:68])
-m12.allBetas   <-  as.matrix(m12.df[1:8])
-m12.allGammas  <-  as.matrix(m12.df[9:58])
+m21BB.allBetas   <-  as.matrix(m21BB.df[1:8])
+m21BB.allGammas  <-  as.matrix(m21BB.df[9:28])
+m12BB.allBetas   <-  as.matrix(m12BB.df[1:8])
+m12BB.allGammas  <-  as.matrix(m12BB.df[9:58])
 
 
 ##  Calculate Coefficients
@@ -763,47 +689,34 @@ X       <-  model.matrix(~ 1 + nSperm_z*Rate*EggPos, data=data)
 Xnames  <-  dimnames(X)[[2]]
 (Xnames)
 
-# for model m1
-b0Fast    <-  inv_logit((m2.allBetas[,1] + (m2.allBetas[,4])/2))
-b0Slow    <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3] + (0.5*(m2.allBetas[,7]))))
-b0Fast5   <-  inv_logit(m2.allBetas[,1])
-b0Fast55  <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,4]))
-b0Slow5   <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3]))
-b0Slow55  <-  inv_logit((m2.allBetas[,1] + m2.allBetas[,3] + m2.allBetas[,7]))
-b1Fast    <-  inv_logit((m2.allBetas[,2] + (m2.allBetas[,6])/2))
-b1Slow    <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5] + (0.5*(m2.allBetas[,8]))))
-b1Fast5   <-  inv_logit(m2.allBetas[,2])
-b1Fast55  <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,6]))
-b1Slow5   <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5]))
-b1Slow55  <-  inv_logit((m2.allBetas[,2] + m2.allBetas[,5] + m2.allBetas[,8]))
 
-# for model m10
-b0Fast    <-  inv_logit((m10.allBetas[,1] + (m10.allBetas[,4])/2))
-b0Slow    <-  inv_logit((m10.allBetas[,1] + m10.allBetas[,3] + (0.5*(m10.allBetas[,7]))))
-b0Fast5   <-  inv_logit(m10.allBetas[,1])
-b0Fast55  <-  inv_logit((m10.allBetas[,1] + m10.allBetas[,4]))
-b0Slow5   <-  inv_logit((m10.allBetas[,1] + m10.allBetas[,3]))
-b0Slow55  <-  inv_logit((m10.allBetas[,1] + m10.allBetas[,3] + m10.allBetas[,7]))
-b1Fast    <-  inv_logit((m10.allBetas[,2] + (m10.allBetas[,6])/2))
-b1Slow    <-  inv_logit((m10.allBetas[,2] + m10.allBetas[,5] + (0.5*(m10.allBetas[,8]))))
-b1Fast5   <-  inv_logit(m10.allBetas[,2])
-b1Fast55  <-  inv_logit((m10.allBetas[,2] + m10.allBetas[,6]))
-b1Slow5   <-  inv_logit((m10.allBetas[,2] + m10.allBetas[,5]))
-b1Slow55  <-  inv_logit((m10.allBetas[,2] + m10.allBetas[,5] + m10.allBetas[,8]))
+# for model m12BB
+b0Fast    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2))
+b0Slow    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))))
+b0Fast5   <-  inv_logit(m12BB.allBetas[,1])
+b0Fast55  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]))
+b0Slow5   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]))
+b0Slow55  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]))
+b1Fast    <-  inv_logit((m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2))
+b1Slow    <-  inv_logit((m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))))
+b1Fast5   <-  inv_logit(m12BB.allBetas[,2])
+b1Fast55  <-  inv_logit((m12BB.allBetas[,2] + m12BB.allBetas[,6]))
+b1Slow5   <-  inv_logit((m12BB.allBetas[,2] + m12BB.allBetas[,5]))
+b1Slow55  <-  inv_logit((m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]))
 
-# for model m12
-b0Fast    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2))
-b0Slow    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))))
-b0Fast5   <-  inv_logit(m12.allBetas[,1])
-b0Fast55  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]))
-b0Slow5   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]))
-b0Slow55  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]))
-b1Fast    <-  inv_logit((m12.allBetas[,2] + (m12.allBetas[,6])/2))
-b1Slow    <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))))
-b1Fast5   <-  inv_logit(m12.allBetas[,2])
-b1Fast55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,6]))
-b1Slow5   <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5]))
-b1Slow55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]))
+# for model m21BB
+b0Fast    <-  inv_logit((m21BB.allBetas[,1] + (m21BB.allBetas[,4])/2))
+b0Slow    <-  inv_logit((m21BB.allBetas[,1] + m21BB.allBetas[,3] + (0.5*(m21BB.allBetas[,7]))))
+b0Fast5   <-  inv_logit(m21BB.allBetas[,1])
+b0Fast55  <-  inv_logit((m21BB.allBetas[,1] + m21BB.allBetas[,4]))
+b0Slow5   <-  inv_logit((m21BB.allBetas[,1] + m21BB.allBetas[,3]))
+b0Slow55  <-  inv_logit((m21BB.allBetas[,1] + m21BB.allBetas[,3] + m21BB.allBetas[,7]))
+b1Fast    <-  inv_logit((m21BB.allBetas[,2] + (m21BB.allBetas[,6])/2))
+b1Slow    <-  inv_logit((m21BB.allBetas[,2] + m21BB.allBetas[,5] + (0.5*(m21BB.allBetas[,8]))))
+b1Fast5   <-  inv_logit(m21BB.allBetas[,2])
+b1Fast55  <-  inv_logit((m21BB.allBetas[,2] + m21BB.allBetas[,6]))
+b1Slow5   <-  inv_logit((m21BB.allBetas[,2] + m21BB.allBetas[,5]))
+b1Slow55  <-  inv_logit((m21BB.allBetas[,2] + m21BB.allBetas[,5] + m21BB.allBetas[,8]))
 
 #  Contrasts
 c1   <-  b1Slow   - b1Fast
@@ -836,67 +749,67 @@ plotContr(density(c7))
 
 
 #  Simple Contrasts at -1, 0, 1, & 2 standard deviations of nSperm
-m12Fast5.neg2   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (-2))
-m12Fast55.neg2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (-2))
-m12Slow5.neg2   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (-2))
-m12Slow55.neg2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (-2))
-m12Fast.neg2    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (-2))
-m12Slow.neg2    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (-2))
+m12BBFast5.neg2   <-  inv_logit(m12BB.allBetas[,1] + m12BB.allBetas[,2] * (-2))
+m12BBFast55.neg2  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]) + (m12BB.allBetas[,2] + m12BB.allBetas[,6]) * (-2))
+m12BBSlow5.neg2   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5]) * (-2))
+m12BBSlow55.neg2  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]) * (-2))
+m12BBFast.neg2    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2) + (m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2) * (-2))
+m12BBSlow.neg2    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))) * (-2))
 
-m12Fast5.neg1   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (-1))
-m12Fast55.neg1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (-1))
-m12Slow5.neg1   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (-1))
-m12Slow55.neg1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (-1))
-m12Fast.neg1    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (-1))
-m12Slow.neg1    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (-1))
+m12BBFast5.neg1   <-  inv_logit(m12BB.allBetas[,1] + m12BB.allBetas[,2] * (-1))
+m12BBFast55.neg1  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]) + (m12BB.allBetas[,2] + m12BB.allBetas[,6]) * (-1))
+m12BBSlow5.neg1   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5]) * (-1))
+m12BBSlow55.neg1  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]) * (-1))
+m12BBFast.neg1    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2) + (m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2) * (-1))
+m12BBSlow.neg1    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))) * (-1))
 
-m12Fast5.0   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (0))
-m12Fast55.0  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (0))
-m12Slow5.0   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (0))
-m12Slow55.0  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (0))
-m12Fast.0    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (0))
-m12Slow.0    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (0))
+m12BBFast5.0   <-  inv_logit(m12BB.allBetas[,1] + m12BB.allBetas[,2] * (0))
+m12BBFast55.0  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]) + (m12BB.allBetas[,2] + m12BB.allBetas[,6]) * (0))
+m12BBSlow5.0   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5]) * (0))
+m12BBSlow55.0  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]) * (0))
+m12BBFast.0    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2) + (m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2) * (0))
+m12BBSlow.0    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))) * (0))
 
-m12Fast5.1   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (1))
-m12Fast55.1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (1))
-m12Slow5.1   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (1))
-m12Slow55.1  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (1))
-m12Fast.1    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (1))
-m12Slow.1    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (1))
+m12BBFast5.1   <-  inv_logit(m12BB.allBetas[,1] + m12BB.allBetas[,2] * (1))
+m12BBFast55.1  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]) + (m12BB.allBetas[,2] + m12BB.allBetas[,6]) * (1))
+m12BBSlow5.1   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5]) * (1))
+m12BBSlow55.1  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]) * (1))
+m12BBFast.1    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2) + (m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2) * (1))
+m12BBSlow.1    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))) * (1))
 
-m12Fast5.2   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (2))
-m12Fast55.2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,4]) + (m12.allBetas[,2] + m12.allBetas[,6]) * (2))
-m12Slow5.2   <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3]) + (m12.allBetas[,2] + m12.allBetas[,5]) * (2))
-m12Slow55.2  <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + m12.allBetas[,7]) + (m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]) * (2))
-m12Fast.2    <-  inv_logit((m12.allBetas[,1] + (m12.allBetas[,4])/2) + (m12.allBetas[,2] + (m12.allBetas[,6])/2) * (2))
-m12Slow.2    <-  inv_logit((m12.allBetas[,1] + m12.allBetas[,3] + (0.5*(m12.allBetas[,7]))) + (m12.allBetas[,2] + m12.allBetas[,5] + (0.5*(m12.allBetas[,8]))) * (2))
+m12BBFast5.2   <-  inv_logit(m12BB.allBetas[,1] + m12BB.allBetas[,2] * (2))
+m12BBFast55.2  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,4]) + (m12BB.allBetas[,2] + m12BB.allBetas[,6]) * (2))
+m12BBSlow5.2   <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5]) * (2))
+m12BBSlow55.2  <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + m12BB.allBetas[,7]) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + m12BB.allBetas[,8]) * (2))
+m12BBFast.2    <-  inv_logit((m12BB.allBetas[,1] + (m12BB.allBetas[,4])/2) + (m12BB.allBetas[,2] + (m12BB.allBetas[,6])/2) * (2))
+m12BBSlow.2    <-  inv_logit((m12BB.allBetas[,1] + m12BB.allBetas[,3] + (0.5*(m12BB.allBetas[,7]))) + (m12BB.allBetas[,2] + m12BB.allBetas[,5] + (0.5*(m12BB.allBetas[,8]))) * (2))
 
 
 simpContr  <-  list(
-  cSimp1   =  m12Fast5.neg1 - m12Fast55.neg1,
-  cSimp2   =  m12Slow5.neg1 - m12Slow55.neg1,
-  cSimp3   =  m12Fast5.neg1 - m12Slow5.neg1,
-  cSimp4   =  m12Fast55.neg1 - m12Slow55.neg1,
-  cSimp5   =  m12Fast.neg1 - m12Slow.neg1,
-  cSimp6   =  m12Fast5.0 - m12Fast55.0,
-  cSimp7   =  m12Slow5.0 - m12Slow55.0,
-  cSimp8   =  m12Fast5.0 - m12Slow5.0,
-  cSimp9   =  m12Fast55.0 - m12Slow55.0,
-  cSimp10  =  m12Fast.0 - m12Slow.0,
-  cSimp11  =  m12Fast5.1 - m12Fast55.1,
-  cSimp12  =  m12Slow5.1 - m12Slow55.1,
-  cSimp13  =  m12Fast5.1 - m12Slow5.1,
-  cSimp14  =  m12Fast55.1 - m12Slow55.1,
-  cSimp15  =  m12Fast.1 - m12Slow.1,
-  cSimp16  =  m12Fast5.2 - m12Fast55.2,
-  cSimp17  =  m12Slow5.2 - m12Slow55.2,
-  cSimp18  =  m12Fast5.2 - m12Slow5.2,
-  cSimp19  =  m12Fast55.2 - m12Slow55.2,
-  cSimp20  =  m12Fast.2 - m12Slow.2
+  cSimp1   =  m12BBFast5.neg1 - m12BBFast55.neg1,
+  cSimp2   =  m12BBSlow5.neg1 - m12BBSlow55.neg1,
+  cSimp3   =  m12BBFast5.neg1 - m12BBSlow5.neg1,
+  cSimp4   =  m12BBFast55.neg1 - m12BBSlow55.neg1,
+  cSimp5   =  m12BBFast.neg1 - m12BBSlow.neg1,
+  cSimp6   =  m12BBFast5.0 - m12BBFast55.0,
+  cSimp7   =  m12BBSlow5.0 - m12BBSlow55.0,
+  cSimp8   =  m12BBFast5.0 - m12BBSlow5.0,
+  cSimp9   =  m12BBFast55.0 - m12BBSlow55.0,
+  cSimp10  =  m12BBFast.0 - m12BBSlow.0,
+  cSimp11  =  m12BBFast5.1 - m12BBFast55.1,
+  cSimp12  =  m12BBSlow5.1 - m12BBSlow55.1,
+  cSimp13  =  m12BBFast5.1 - m12BBSlow5.1,
+  cSimp14  =  m12BBFast55.1 - m12BBSlow55.1,
+  cSimp15  =  m12BBFast.1 - m12BBSlow.1,
+  cSimp16  =  m12BBFast5.2 - m12BBFast55.2,
+  cSimp17  =  m12BBSlow5.2 - m12BBSlow55.2,
+  cSimp18  =  m12BBFast5.2 - m12BBSlow5.2,
+  cSimp19  =  m12BBFast55.2 - m12BBSlow55.2,
+  cSimp20  =  m12BBFast.2 - m12BBSlow.2
 )
 pval(simpContr[[5]])
 
-pdf(file="./output/figs/NxRate_SimpContrasts_Bin.pdf", height=18, width=20)
+pdf(file="./output/figs/NxRate_SimpContrasts_BetaBin.pdf", height=18, width=20)
 par(mfrow=c(4,5), omi=rep(0.4,4))
 plotContr(density(simpContr[[1]]))
   proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
@@ -924,18 +837,18 @@ dev.off()
 
 ###########################################################################
 ###########################################################################
-## Main result from a posteriori contrasts for model m12:
+## Main result from a posteriori contrasts for model m12BB:
 ##
 ## There is a significant main effect of Rate for the slope of the 
 ## regression lines (p = 1.000). 
 ## 
-## The Rate x EggPos interaction for the Fast slopes is marginal
-## (p = 0.944).
+## The Rate x EggPos interaction for the Fast slopes is no longer 
+## significant (p = 0.70).
 ## 
-##  There is no corresponding interaction for the Slow treatment. 
+##  There is still no interaction for the Slow treatment. 
 ##
 ##  Both the 5cm and 55cm partial regression slopes for the Fast treatment
-##  are significantly steeper than the "Slow" slope (p = 0.000, 0.000) 
+##  are significantly steeper than the "Slow" slope (p = 0.023, 0.002) 
 ## 
 ##  The simple contrasts between the predicted lines for Fast v. Slow
 ##  treatments are significant at high and low values of sigma (sigma = 1, 
@@ -956,23 +869,21 @@ X       <-  model.matrix(~ 1 + nSperm_z*Rate*EggPos, data=data)
 Xnames  <-  dimnames(X)[[2]]
 
 # Random effects Model Matrix
-Z       <-  model.matrix(~ -1 + Run            +
-                                Run : nSperm_z +
-                                Run : Rate     +
-                                Run : EggPos   +
-                                Run : Rate   : EggPos,
+Z       <-  model.matrix(~ -1 + Run +
+                                Run : nSperm_z,
                          data = data)
 
 # Mean coefficients
-m12.betas    <-  m12.summ$Mean[1:8]
-m12.gammas   <-  m12.summ$Mean[9:58]
+m21BB.betas    <-  m21BB.summ$Mean[1:8]
+m21BB.gammas   <-  m21BB.summ$Mean[9:28]
 
 source('R/functions-figures.R')
 # Predicted lines for Fast (with pooled slopes) & the overall Slow
 # Create plotting objects for each regression line
-Fast5.plt   <-  Fast5.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
-Fast55.plt  <-  Fast55.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
-Slow.plt    <-  Slow.plots(m12.betas, m12.allBetas, m12.gammas, Z=Z, data=data)
+Fast5.plt   <-  Fast5.plots(m21BB.betas, m21BB.allBetas, m21BB.gammas, Z=Z, data=data)
+Fast55.plt  <-  Fast55.plots(m21BB.betas, m21BB.allBetas, m21BB.gammas, Z=Z, data=data)
+Fast.plt    <-  Fast.plots(m21BB.betas, m21BB.allBetas, m21BB.gammas, Z=Z, data=data)
+Slow.plt    <-  Slow.plots(m21BB.betas, m21BB.allBetas, m21BB.gammas, Z=Z, data=data)
 
 # Residuals for fixed-effect predicted lines
 par(mfrow=c(2,2))
@@ -1026,16 +937,12 @@ whiteGrid()
 box()
 # plot regression lines
 lines(Slow.plt$y   ~ Slow.plt$xRaw, col='orangered1', lwd=3)
-lines(Fast5.plt$y  ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
-lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lty=2, lwd=3)
+lines(Fast.plt$y   ~ Fast.plt$xRaw, col='dodgerblue1', lwd=3)
 points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(Fast.plt$yAdj[data$Rate == "Fast"] ~ Fast.plt$xReal[data$Rate == "Fast"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
-        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
-        bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
 axis(2, las=1)
 axis(1)
@@ -1045,12 +952,11 @@ proportionalLabel(0.5, -0.15, expression(paste("Sperm Released")), cex=1.2, adj=
           x       =  usr[2]*0.3,
           y       =  usr[4],
           legend  =  c(
-                      expression(paste(Fast:~5~cm)),
-                      expression(paste(Fast:~55~cm)),
+                      expression(paste(Fast)),
                       expression(paste(Slow))),
           pch     =  c(21,21,21),
-          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7)),
-          col     =  c('dodgerblue4','dodgerblue4','orangered4'),
+          pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('orangered1',0.7)),
+          col     =  c('dodgerblue4','orangered4'),
           cex     =  1,
           xjust   =  1,
           yjust   =  1,
@@ -1073,23 +979,16 @@ box()
 polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
         y=c(Slow.plt$CIs$lower, rev(Slow.plt$CIs$upper)), 
         col=transparentColor('orangered1', 0.01), border=transparentColor('orangered4',0.2))
-polygon(x=c(Fast5.plt$xRaw, rev(Fast5.plt$xRaw)), 
-        y=c(Fast5.plt$CIs$lower, rev(Fast5.plt$CIs$upper)), 
-        col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
-polygon(x=c(Fast55.plt$xRaw, rev(Fast55.plt$xRaw)), 
-        y=c(Fast55.plt$CIs$lower, rev(Fast55.plt$CIs$upper)), 
+polygon(x=c(Fast.plt$xRaw, rev(Fast.plt$xRaw)), 
+        y=c(Fast.plt$CIs$lower, rev(Fast.plt$CIs$upper)), 
         col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
 lines(Slow.plt$y   ~ Slow.plt$xRaw, col='orangered1', lwd=3)
-lines(Fast5.plt$y  ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
-lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lty=2, lwd=3)
+lines(Fast.plt$y  ~ Fast.plt$xRaw, col='dodgerblue1', lwd=3)
 points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=21, 
         bg=transparentColor('orangered1', 0.7),
         col=transparentColor('orangered4', 0.9), cex=1.1)
-points(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+points(Fast.plt$yAdj[data$Rate == "Fast"] ~ Fast.plt$xReal[data$Rate == "Fast"], pch=21, 
         bg=transparentColor('dodgerblue1', 0.7),
-        col=transparentColor('dodgerblue4', 0.9), cex=1.1)
-points(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
-        bg=transparentColor('dodgerblue1', 0.2),
         col=transparentColor('dodgerblue4', 0.9), cex=1.1)
 axis(2, las=1)
 axis(1)

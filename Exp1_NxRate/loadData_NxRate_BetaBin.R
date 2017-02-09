@@ -416,10 +416,3 @@ m25BBLoo   <-  loo(m25BBLL)
 m25BBWAIC  <-  waic(m25BBLL)
 setTxtProgressBar(pb, 25)
 close(pb)
-
-m12Z       <-  model.matrix(~ -1 + Run            +
-                                   Run : nSperm_z +
-                                   Run : Rate     +
-                                   Run : EggPos   +
-                                   Run : Rate   : EggPos,
-                            data = data)
