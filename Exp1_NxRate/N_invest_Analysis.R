@@ -521,3 +521,43 @@ dev.off()
 ##      and no issues with X^2 discrepancy.
 ##
 ###########################################################################
+
+
+
+
+
+
+###########################################################################
+###########################################################################
+##  A priori and posteriori conrasts of interest
+###########################################################################
+###########################################################################
+
+print(NIm2, c("beta", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95), digits=3);
+NIm2.summ[1:2,]
+NIm2.betas  <-  NIm2.df[,1:2]
+NIm2.BetaSumm  <-  plyr:::adply(as.matrix(NIm2.betas),2,MCMCsum)
+NIm2.BetaSumm
+
+#  Contrasts
+
+# Bayesian P-values for Contrasts
+plotContr(density(NIm2.df[,2]))
+
+pval(NIm2.df[,2])
+
+
+NIm2.neg2   <-  inv_logit(m12.allBetas[,1] + m12.allBetas[,2] * (-2))
+
+
+
+N_investPlot(NIm2.df, NIm2.summ, NinvData)
+abline(v=c(
+           mean(NinvData$nSperm) - (2*sd(NinvData$nSperm)),
+           mean(NinvData$nSperm) - sd(NinvData$nSperm),
+           mean(NinvData$nSperm),
+           mean(NinvData$nSperm) + sd(NinvData$nSperm),
+           mean(NinvData$nSperm) + (2*sd(NinvData$nSperm))
+           ), col=c(1,1,2,1,1), lwd=c(1,1,3,1,1), lty=c(2,2,1,2,2))
+
+sd(NinvData$nSperm)
