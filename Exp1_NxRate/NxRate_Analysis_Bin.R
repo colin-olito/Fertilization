@@ -806,13 +806,23 @@ b1Slow5   <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5]))
 b1Slow55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]))
 
 #  Contrasts
-c1   <-  b1Slow   - b1Fast
+c1   <-  b1Fast   - b1Slow
 c2   <-  b1Fast5  - b1Fast55
 c3   <-  b1Slow5  - b1Slow55
 c4   <-  b1Fast5  - b1Slow5
 c5   <-  b1Fast55 - b1Slow55
 c6   <-  b1Fast55 - b1Slow
 c7   <-  b1Fast5  - b1Slow
+
+# Summarize contrasts
+plyr:::adply(as.matrix(cbind(c1,c2,c3,c4,c5,c6,c7)),2,MCMCsum)
+
+
+# Summarize back-transformed coefficients
+plyr:::adply(as.matrix(cbind(b1Fast,b1Slow,b1Fast5,b1Fast55,b1Slow5,b1Slow55)),2,MCMCsum)
+
+
+
 
 # Bayesian P-values for Contrasts
 pval(c1)     # b1Slow   - b1Fast

@@ -53,7 +53,7 @@ options(mc.cores = parallel::detectCores())
 # SUMMARIZE MCMC RESULTS
 ########################
 MCMCsum <- function(x) {
-   data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,probs=c(0,0.2,0.25,0.5,0.75,0.8,1),na.rm=TRUE)), HPDinterval(as.mcmc(x)))
+   data.frame(Mean=mean(x, na.rm=TRUE) , Median=median(x, na.rm=TRUE), t(quantile(x,probs=c(0.0,0.025,0.2,0.25,0.5,0.75,0.8,0.975,1),na.rm=TRUE)), HPDinterval(as.mcmc(x)))
 }
 
 aMCMCsum <- function(x) {
@@ -248,7 +248,7 @@ transparentColor <- function(col, opacity=0.5) {
 #' @title Quick calcualtion of pvalue from stan sample data
 #' @param x relevant column of stan sample
 #' @export
-pval  <-  function(x) length(x[x < 0])/length(x)
+pval  <-  function(x) length(x[x > 0])/length(x)
 
 #' Makes density plot for contrasts 
 #'
