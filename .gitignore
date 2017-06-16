@@ -67,6 +67,7 @@ Thumbs.db
 .Rapp.history
 # Session Data files
 .RData
+*.rda
 # Example code in package build process
 *-Ex.R
 # RStudio files
