@@ -46,7 +46,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Supporting Information (Appendices A \& B) for: Sperm release strategies are overdetermined in broadcast spawners: selection during sperm dispersal and sperm competition favour similar reproductive phenotypes. \textit{Evolution}}
+\title{Supporting Information (Appendices A \& B) for: Sperm release strategies in external fertilizers: selection during sperm dispersal and sperm competition favour similar reproductive phenotypes. \textit{Evolution}}
 
 \author{Colin Olito$^{\ast}$ and Dustin J.~Marshall}
 
@@ -58,7 +58,7 @@
 \noindent{} Centre for Geometric Biology, School of Biological Sciences, Monash University, Victoria 3800, Australia.
 \bigskip
 
-\noindent{} $^\ast$ Corresponding author e-mail: colin.olito@gmail.com
+\noindent{} $^\ast$ Corresponding author e-mail: \url{colin.olito@gmail.com}
 \bigskip
 
 \newpage
@@ -67,8 +67,8 @@
 % Running Header
 %\pagestyle{fancyplain}
 %\makeatother
-%\lhead{\textit{Supplement to Olito. Linkage and SA polymorphism in hermaphrodites. \textit{Evolution}.\\}}
-%%\rhead{\textit{Sex antagonistic selection on phenology}}
+%\lhead{\textit{Supplement to Olito \textit{et al}.~Sperm release strategies.}} 
+%\rhead{\textit{Evolution of sperm release strategies}}
 %\renewcommand{\headrulewidth}{0pt}
 %\renewcommand{\footrulewidth}{0pt}
 %\addtolength{\headheight}{12pt}
@@ -76,7 +76,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Model selection results}
+\subsection*{Appendix A: Model selection results}
 \renewcommand{\theequation}{S\arabic{equation}}
 \setcounter{equation}{0}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -85,7 +85,7 @@
 \setcounter{table}{0}
 
 
-Model selection for the analysis of Exp.~1 consisted of a comparison between 3 candidate models with the following `random effect' $\mathbf{Z}$ matrices:
+Model selection for the analysis of the \textul{Investment} experiment required a comparison between 3 candidate models with the following 'random effect' $\mathbf{Z}$ matrices:
 
 \begin{align*}
 	\mathbf{Z_{m1}} = &Run + Run \times Sperm_i \\
@@ -112,11 +112,11 @@ m2 v.~ m3 & 132.739 & 31.572 & 0.00  \\
 
 \newpage{}
 
-Model selection for the analysis of Exp.~2 consisted of a comparison between 25 candidate models (m1 through m25, in order of decreasing $\mathbf{Z}$ matrix complexity; see Supplementary R code for specification of all `random effect' $\mathbf{Z}$ matrices). Here, we present each of the pairwise comparisons with the best-fitting model (according to $\widehat{\textit{elpd}}_{\textit{loo}}$), and all other candidate models. The most parsimonious model, the one with the fewest terms whose fit to the data is not significantly different from the best-fitting model, is highlighted in bold.
+\noindent Model selection for the \textul{Rate} experiment analysis required a comparison between 25 candidate models (m1 through m25, in order of decreasing $\mathbf{Z}$ matrix complexity; see Supplementary R code for specification of all 'random effect' model matrices $\mathbf{Z_{m1}}$ through $\mathbf{Z_{m25}}$). Here, we present the pairwise comparisons between the best-fitting model (according to $\widehat{\textit{elpd}}_{\textit{loo}}$), and all other candidate models. The most parsimonious model -- the one with the fewest terms whose fit to the data is not significantly different from the best-fitting model -- is highlighted in bold.
 
 
 \begin{table}[!ht]
-\caption{Model Selection results for Exp.~2}
+\caption{Model Selection results for the \textul{Rate} experiment}
 \label{Table:Exp2ModComp}
 \centering
 \begin{tabular}{l c c c c} \hline
@@ -149,7 +149,7 @@ m2 v.~ m25 & 322.533 & 68.962 & 0.000 \\
 \hline
 \end{tabular}
 \smallskip{} \\
-{\footnotesize Note: Bold indicates the final model selected, while daggers indicate other\\ competitive candidate models with a similar fit to the data, but more terms\\ than the final model.}
+{\footnotesize Note: Bold indicates the most parsimonious model selected, while daggers \\indicate other competitive candidate models with a similar fit to the data, \\but more parameters.}
 \end{table}
 
 
@@ -164,7 +164,7 @@ m2 v.~ m25 & 322.533 & 68.962 & 0.000 \\
 \newpage{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Supplementary figures}
+\subsection*{Appendix B: Supplementary figures}
 \renewcommand{\theequation}{S\arabic{equation}}
 \setcounter{equation}{0}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -172,7 +172,7 @@ m2 v.~ m25 & 322.533 & 68.962 & 0.000 \\
 
 \begin{figure}[!ht]
 \includegraphics[width=\textwidth]{./NxRate_coefContrasts}
-\caption{Density plots showing the posterior distributions for \textit{a priori} contrasts on the regression coefficients from the analysis of Exp.~2}
+\caption{Density plots showing the posterior distributions for \textit{a priori} contrasts of the regression coefficients from the analysis of the \textul{Rate} experiment. A difference of 0 is benchmarked in each panel by a red vertical line.}
 \label{fig:coefContr}
 \end{figure}
 \newpage{}
@@ -180,9 +180,8 @@ m2 v.~ m25 & 322.533 & 68.962 & 0.000 \\
 
 
 \begin{figure}[!ht]
-\includegraphics[width=\textwidth]{./NxRate_SimpContrasts_Bin}
-\caption{Density plots showing the posterior distributions for simple contrasts on the predicted difference in predicted fertilization success for the \textit{Fast} and \textit{Slow} release strategies at different values of the $Sperm_i$. Contrasts are calculated at values of $Sperm_i$ corresponding to $-1 \sigma$, the mean ($0$), $+1 \sigma$, and $-2 \sigma$, where $\sigma$ is the empirical standard deviation of the Z-transformed $Sperm_i$ of the empirical distribution of the number of sperm released in Exp.~2 ($8.9 \times 10^{7}$).
-}
+\includegraphics[width=\textwidth]{./NxRate_simpleContrasts}
+\caption{Density plots showing the posterior distributions for simple contrasts of the predicted difference in fertilization success for the \textit{Fast} and \textit{Slow} release strategies at different values of the $Sperm_i$. Contrasts are calculated at values of $Sperm_i$ corresponding to $-1 \sigma$, the mean ($0$), $+1 \sigma$, and $-2 \sigma$, where $\sigma$ is the empirical standard deviation of the Z-transformed number of sperm released, $Sperm_i$, from the \textul{Rate} experiment ($8.9 \times 10^{7}$). A difference of 0 is benchmarked in each panel by a red vertical line.}
 \label{fig:simpContr}
 \end{figure}
 \newpage{}

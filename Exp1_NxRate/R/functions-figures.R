@@ -152,9 +152,9 @@ Slow.plots  <-  function(betas, allBetas, gammas, Z, data) {
 }
 
 Invest.plots  <-  function(summ, data) {
-    dummyX     <-  seq(from = min(data$nSperm_z), to   = max(data$nSperm_z), length=500)
-    dummyXRaw  <-  seq(from = min(data$nSperm), to   = max(data$nSperm), length=500)
-    yHats       <-  inv_logit(summ$Mean[1] + summ$Mean[2] * dummyX)
+    dummyX     <-  seq(from = min(data$nSperm_z), to = max(data$nSperm_z), length=500)
+    dummyXRaw  <-  seq(from = min(data$nSperm), to = max(data$nSperm), length=500)
+    yHats      <-  inv_logit(summ$Mean[1] + summ$Mean[2] * dummyX)
     	x1  <-  seq(from = min(data$nSperm_z[data$Run == 1]), to = max(data$nSperm_z[data$Run == 1]), length=500)
     	x2  <-  seq(from = min(data$nSperm_z[data$Run == 2]), to = max(data$nSperm_z[data$Run == 2]), length=500)
     	x3  <-  seq(from = min(data$nSperm_z[data$Run == 3]), to = max(data$nSperm_z[data$Run == 3]), length=500)
@@ -219,7 +219,6 @@ N_investPlot  <-  function(Ninv.df, Ninv.summ, data = NinvData) {
     rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
     whiteGrid()
     box()
-
     # plot all regression lines from MCMC chains
     # apply(m2.df, 1, function(x, data, nSperm_z){
     #     xrange  <-  seq(min(data$nSperm), max(data$nSperm), length.out=100)
@@ -238,7 +237,7 @@ N_investPlot  <-  function(Ninv.df, Ninv.summ, data = NinvData) {
     axis(1)
     proportionalLabel(-0.15, 0.5, expression(paste("Fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
     proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
-    proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
+#    proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
 }
 
 

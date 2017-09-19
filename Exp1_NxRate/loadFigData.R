@@ -131,27 +131,27 @@ close(pb)
 print('Extracting stanfits into data frames, etc.')
 pb <- txtProgressBar(min=0, max=6, style=3)
 
-NIm1.df    <-  as.data.frame(extract(NIm1))[,-1]
+NIm1.df    <-  as.data.frame(extract(NIm1))
 NIm1.summ  <-  plyr:::adply(as.matrix(NIm1.df),2,MCMCsum)
 setTxtProgressBar(pb, 1)
 
-NIm2.df    <-  as.data.frame(extract(NIm2))[,-1]
+NIm2.df    <-  as.data.frame(extract(NIm2))
 NIm2.summ  <-  plyr:::adply(as.matrix(NIm2.df),2,MCMCsum)
 setTxtProgressBar(pb, 2)
 
-NIm3.df    <-  as.data.frame(extract(NIm3))[,-1]
+NIm3.df    <-  as.data.frame(extract(NIm3))
 NIm3.summ  <-  plyr:::adply(as.matrix(NIm3.df),2,MCMCsum)
 setTxtProgressBar(pb, 3)
 
-NIm1BB.df    <-  as.data.frame(extract(NIm1BB))[,-1]
+NIm1BB.df    <-  as.data.frame(extract(NIm1BB))
 NIm1BB.summ  <-  plyr:::adply(as.matrix(NIm1BB.df),2,MCMCsum)
 setTxtProgressBar(pb, 4)
 
-NIm2BB.df    <-  as.data.frame(extract(NIm2BB))[,-1]
+NIm2BB.df    <-  as.data.frame(extract(NIm2BB))
 NIm2BB.summ  <-  plyr:::adply(as.matrix(NIm2BB.df),2,MCMCsum)
 setTxtProgressBar(pb, 5)
 
-NIm3BB.df    <-  as.data.frame(extract(NIm3BB))[,-1]
+NIm3BB.df    <-  as.data.frame(extract(NIm3BB))
 NIm3BB.summ  <-  plyr:::adply(as.matrix(NIm3BB.df),2,MCMCsum)
 setTxtProgressBar(pb, 6)
 close(pb)
