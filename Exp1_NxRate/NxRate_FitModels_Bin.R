@@ -1,5 +1,5 @@
 #/* 
-# * Colin Olito. Created 12/01/2017
+# * Author: XXXX XXXX. Created 12/01/2017
 # * Analysis of 2nd flume experiment: N x Rate
 # * 
 # * NOTES:  This file will fit all the necessary
@@ -114,7 +114,6 @@ m1 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -164,7 +163,6 @@ m2 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -214,7 +212,6 @@ m3 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -264,7 +261,6 @@ m4 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -313,7 +309,6 @@ m5 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -362,7 +357,6 @@ m6 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -411,7 +405,6 @@ m7 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -459,7 +452,6 @@ m8 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -507,7 +499,6 @@ m9 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -556,7 +547,6 @@ m10 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -606,7 +596,6 @@ m11 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -656,7 +645,6 @@ m12 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -706,7 +694,6 @@ m13 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -756,7 +743,6 @@ m14 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -806,7 +792,6 @@ m15 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -855,7 +840,6 @@ m16 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -902,7 +886,6 @@ m17 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -948,7 +931,6 @@ m18 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -994,7 +976,6 @@ m19 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -1040,7 +1021,6 @@ m20 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -1088,7 +1068,6 @@ m21 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -1135,7 +1114,6 @@ m22 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -1182,7 +1160,6 @@ m23 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 
@@ -1226,7 +1203,6 @@ m24 <- stan(data         =  data.list,
            chains       =  nChains,
            iter         =  nIter,
            thin         =  thinSteps,
-#           control      =  list(adapt_delta = 0.9) # increase adapt_delta above 0.8 if many divergent transitions.
            save_dso     =  TRUE
           )
 

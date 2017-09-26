@@ -1,5 +1,5 @@
 #/* 
-# * Colin Olito. Created 12/12/2016
+# * Author: XXXX XXXX. Created 12/12/2016
 # * Analysis of 1st flume experiment: N-invest
 # * 
 # * NOTES:  This file will fit all the necessary
