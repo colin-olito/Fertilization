@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2017)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: FlumePaper_v2.aux
+The style file: genetics.bst
+Database file #1: FlumePaper-bibliography.bib.bib
+Warning--empty publisher in Levitan1988
+You've used 52 entries,
+            2762 wiz_defined-function locations,
+            971 strings with 13555 characters,
+and the built_in function-call counts, 24996 in all, are:
+= -- 2399
+> -- 1091
+< -- 43
++ -- 409
+- -- 293
+* -- 2538
+:= -- 4190
+add.period$ -- 103
+call.type$ -- 52
+change.case$ -- 357
+chr.to.int$ -- 50
+cite$ -- 53
+duplicate$ -- 1209
+empty$ -- 1843
+format.name$ -- 385
+if$ -- 4907
+int.to.chr$ -- 3
+int.to.str$ -- 1
+missing$ -- 53
+newline$ -- 159
+num.names$ -- 211
+pop$ -- 280
+preamble$ -- 1
+purify$ -- 304
+quote$ -- 0
+skip$ -- 686
+stack$ -- 0
+substring$ -- 1688
+swap$ -- 403
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 459
+warning$ -- 1
+while$ -- 249
+width$ -- 0
+write$ -- 574
+(There was 1 warning)

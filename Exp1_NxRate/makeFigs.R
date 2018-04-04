@@ -59,22 +59,34 @@ toPdf(perGameteFertPlot(df = m12.df, summ=m12.summ, Zmat=Z, data=data),
 	  figPath(name='perGametePlotBB.pdf'), width=7, height=7)
 embed_fonts(figPath(name='perGametePlotBB.pdf'))
 
+toPdf(regressionPlot(Ninv.df=NIm2.df, Ninv.summ=NIm2.summ, 
+                     NRate.df=m12.df, NRate.summ=m12.summ, Zmat=Z, NinvData=NinvData, data=data), 
+                     figPath(name='fertPlots.pdf'), width=7, height=14)
+embed_fonts(figPath(name='fertPlots.pdf'))
+
 ######################
 # FIGURES FOR THE PAPER
 ######################
 
+# Figure 1: Main regression from N_invest experiment
+toPdf(N_investPlot(NIm2.df, NIm2.summ, NinvData), figPath(name='N_invest_Regression.pdf'), width=7, height=7)
+embed_fonts(figPath(name='N_invest_Regression.pdf'))
 
+
+# Figure 2: Main results fro NxRate experiment
 Z       <-  model.matrix(~ -1 + Run            +
                                 Run : nSperm_z +
                                 Run : Rate     +
                                 Run : EggPos   +
                                 Run : Rate   : EggPos,
                          data = data)
+source('R/functions-figures.R')
+toPdf(NxRate_Fig(df = m12.df, summ=m12.summ, Zmat=Z, data=data), 
+      figPath(name='NxRateFig.pdf'), width=7, height=12)
+embed_fonts(figPath(name='NxRateFig.pdf'))
 
-toPdf(regressionPlot(Ninv.df=NIm2.df, Ninv.summ=NIm2.summ, 
-	                 NRate.df=m12.df, NRate.summ=m12.summ, Zmat=Z, NinvData=NinvData, data=data), 
-                     figPath(name='fertPlots.pdf'), width=7, height=14)
-embed_fonts(figPath(name='fertPlots.pdf'))
+
+
 
 toPdf(perGameteFertPlot(df = m12.df, summ=m12.summ, Zmat=Z, data=data), 
 	  figPath(name='perGametePlot.pdf'), width=7, height=7)

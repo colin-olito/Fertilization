@@ -1,0 +1,81 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Preamble
+\documentclass{article}
+
+
+%Dependencies
+\usepackage[left]{lineno}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color,soul}
+\usepackage{ogonek}
+\RequirePackage[colorlinks=true, allcolors=black]{hyperref}
+
+% Force figures to be in correct section
+\usepackage{placeins}
+
+% Get rid of section counters
+\makeatletter
+\renewcommand{\@seccntformat}[1]{}
+\makeatother
+
+% Packages from Am. Nat. Template
+\usepackage[sc]{mathpazo} %Like Palatino with extensive math support
+\usepackage{fullpage}
+\usepackage[authoryear,sectionbib,sort]{natbib}
+\linespread{1.7}
+\usepackage{lineno}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{../output/figs}.pdf}
+% New commands: fonts
+%\newcommand{\code}{\fontfamily{pcr}\selectfont}
+%\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+ 
+
+% New math operators
+\DeclareMathOperator{\Var}{Var}
+
+% Make subsection headers italic instead of bold
+\titleformat{\subsection}
+  {\normalfont\normalsize\itshape}
+  {\thesubsection}
+  {1em}
+  {}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title Page
+
+\title{Releasing small ejaculates slowly increases per-gamete fertilization success in an external fertilizer}
+\author{Colin Olito$^{\ast}$ and Dustin J.~Marshall}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\noindent{} Centre for Geometric Biology, School of Biological Sciences, Monash University, Victoria 3800, Australia.
+\noindent{} $^\ast$ Corresponding author e-mail: colin.olito@gmail.com
+
+\bigskip
+
+\noindent{} \textit{Keywords}: Sperm competition, broadcast spawning, external fertilization, reproductive phenology, natural selection, sexual selection
+\bigskip
+
+\noindent{} \textit{Running Head}: Male broadcast spawning strategies
+
+\bigskip
+
+\noindent{} \textit{Manuscript category}: Short Communication
+
+\bigskip
+
+\section{Acknowledgements}
+We thank C.~Venables and C.Y.~Chang for fruitful discussions and feedback, and the MEEG lab for assistance with the flume. CO and DJM designed the study, CO performed the experiments and analyses, and wrote the manuscript with assistance from DJM. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship, and a postgraduate publication award to CO, an Australian Research Council grants to DJM, and by the Monash University Centre for Geometric Biology. 
+
+\end{document}

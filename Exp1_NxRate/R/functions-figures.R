@@ -468,6 +468,193 @@ regressionPlot  <-  function(Ninv.df, Ninv.summ, NRate.df, NRate.summ, Zmat, Nin
 
 
 
+#' Plot main regression from NxRate experiment
+#'
+#' @title Plot main regression from NxRate experiment
+#' @param stanfit A stanfit object created from reading the relevant
+#'                stan sample files.
+#' @param data A character string giving the name of the data set
+#'             used to fit the model (NxRate_master.csv).
+#' @return A pdf of the final regression plot for this analysis.
+#' @author Colin Olito.
+NxRate_Fig  <-  function(df, summ, Zmat, data, ...) {
+
+    #######################
+    # Extract Coefficients
+    betas      <-  summ$Mean[1:8]
+    allBetas   <-  df[1:8]
+    gammas     <-  summ$Mean[9:(8 + ncol(Zmat))]
+    allGammas  <-  df[9:(8 + ncol(Zmat))]
+
+    ###################################################
+    # Create plotting objects for each regression line
+#    Fast5.plt   <-  Fast5.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+#    Fast55.plt  <-  Fast55.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Fast.plt    <-  Fast.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Slow.plt    <-  Slow.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+
+    ################
+    # Make the plot
+
+ 
+    layout.mat <- matrix(c(1,2), nrow=2, ncol=1, byrow=TRUE)
+    layout     <- layout(layout.mat,respect=TRUE)
+
+    # Panel 1: Fertilization ~ N
+    par(omi=rep(0.5, 4), mar = c(4,4,1,2), bty='o', xaxt='s', yaxt='s')
+    plot(((data$nFert - data$nControlFert)/data$nEggs) ~ data$nSperm_z, 
+        xlab='', ylab='', 
+        type='n', axes=FALSE, ylim=c(0,1), xlim=c(min(data$nSperm),max(data$nSperm)))
+    usr  <-  par('usr')
+    rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+    whiteGrid()
+    box()
+    # plot regression lines
+#    polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
+#            y=c(Slow.plt$CIs$lower, rev(Slow.plt$CIs$upper)), 
+#            col=transparentColor('orangered1', 0.01), border=transparentColor('orangered4',0.2))
+#    polygon(x=c(Fast5.plt$xRaw, rev(Fast5.plt$xRaw)), 
+#            y=c(Fast5.plt$CIs$lower, rev(Fast5.plt$CIs$upper)), 
+#            col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
+#    polygon(x=c(Fast55.plt$xRaw, rev(Fast55.plt$xRaw)), 
+#            y=c(Fast55.plt$CIs$lower, rev(Fast55.plt$CIs$upper)), 
+#            col=transparentColor('dodgerblue1', 0.01), border=transparentColor('dodgerblue4',0.2))
+    polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
+            y=c(Slow.plt$CIs$X20, rev(Slow.plt$CIs$X80 )), 
+            col=transparentColor('orangered1', 0.05), border=transparentColor('orangered4',0.2))
+    polygon(x=c(Fast.plt$xRaw, rev(Fast.plt$xRaw)), 
+            y=c(Fast.plt$CIs$X20, rev(Fast.plt$CIs$X80)), 
+            col=transparentColor('dodgerblue1', 0.05), border=transparentColor('dodgerblue4',0.2))
+    lines(Slow.plt$y ~ Slow.plt$xRaw, col='orangered1', lwd=3)
+    lines(Fast.plt$y ~ Fast.plt$xRaw, col='dodgerblue1', lwd=3)
+#    lines(Fast5.plt$y ~ Fast5.plt$xRaw, col='dodgerblue1', lwd=3)
+#    lines(Fast55.plt$y ~ Fast55.plt$xRaw, col='dodgerblue1', lwd=3, lty=2)
+    points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=16, 
+            col=transparentColor('orangered1', 0.7), cex=1.1)
+    points(Slow.plt$yAdj[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=1, 
+            col=transparentColor('orangered4', 0.9), cex=1.1)
+    points(Fast.plt$yAdj[data$Rate == "Fast"] ~ Fast.plt$xReal[data$Rate == "Fast"], pch=21, 
+            bg=transparentColor('dodgerblue1', 0.7), col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+#   points(Fast5.plt$yAdj[data$Rate == "Fast" & data$EggPos == "5"] ~ Fast5.plt$xReal[data$Rate == "Fast" & data$EggPos == "5"], pch=21, 
+#            bg=transparentColor('dodgerblue1', 0.7),
+#            col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+#    points(Fast55.plt$yAdj[data$Rate == "Fast" & data$EggPos == "55"] ~ Fast55.plt$xReal[data$Rate == "Fast" & data$EggPos == "55"], pch=21, 
+#            bg=transparentColor('dodgerblue1', 0.2),
+#            col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+    axis(2, las=1)
+    axis(1, labels=NA)
+    proportionalLabel(-0.25, 0.5, expression(paste("Adjusted fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
+        legend(
+              x       =  usr[2]*0.32,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste('')),
+                          expression(paste(''))),
+              lty     =  c(1,1),
+              lwd     =  2,
+              seg.len =  2.5,
+              col     =  c(
+                           'dodgerblue1',
+                           'orangered1'),
+              cex     =  1.5,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
+        legend(
+              x       =  usr[2]*0.425,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste(~~~Fast)),
+                          expression(paste(~~~Slow))),
+              pch     =  c(21,21,21),
+              pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('orangered1',0.7)),
+#              pt.bg   =  c(transparentColor('dodgerblue1',0.7),transparentColor('dodgerblue1',0.2),transparentColor('orangered1',0.7)),
+              col     =  c('dodgerblue4','orangered4'),
+              cex     =  1.5,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
+
+    # Panel 2 : Per-Gamete Fertilization Plot
+    # Create plotting objects for each regression line
+    Fast.plt  <-  Fast.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+    Slow.plt  <-  Slow.plots(betas, allBetas, gammas, Z=Zmat, data = data)
+
+    datPerGamete  <-  (((data$nFert - data$nControlFert)/data$nEggs) / data$nSperm)
+    yRange        <-  range(datPerGamete)[2] - range(datPerGamete)[1]
+        plot(datPerGamete ~ data$nSperm_z, 
+        xlab='', ylab='', type='n', axes=FALSE, 
+        ylim=c((min(datPerGamete) - (yRange*0.05)), (max(datPerGamete) + (yRange*0.15))), 
+        xlim=c(min(data$nSperm),max(data$nSperm)))
+    usr  <-  par('usr')
+    rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
+    whiteGrid()
+    box()
+    # plot regression lines
+    polygon(x=c(Slow.plt$xRaw, rev(Slow.plt$xRaw)), 
+            y=c((Slow.plt$CIs$X20 / Slow.plt$xRaw), rev((Slow.plt$CIs$X80 / Slow.plt$xRaw))), 
+            col=transparentColor('orangered1', 0.05), border=transparentColor('orangered4',0.2))
+    polygon(x=c(Fast.plt$xRaw, rev(Fast.plt$xRaw)), 
+            y=c((Fast.plt$CIs$X20 / Fast.plt$xRaw), rev((Fast.plt$CIs$X80 / Fast.plt$xRaw))), 
+            col=transparentColor('dodgerblue1', 0.05), border=transparentColor('dodgerblue4',0.2))
+    lines((Slow.plt$y / Slow.plt$xRaw) ~ Slow.plt$xRaw, col='orangered1', lwd=3)
+    lines((Fast.plt$y / Fast.plt$xRaw) ~ Fast.plt$xRaw, col='dodgerblue1', lwd=3, lty=1)
+    points((Slow.plt$yAdj / Slow.plt$xReal)[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=16, 
+            col=transparentColor('orangered1', 0.7), cex=1.1)
+    points((Slow.plt$yAdj / Slow.plt$xReal)[data$Rate == "Slow"] ~ Slow.plt$xReal[data$Rate == "Slow"], pch=1, 
+            col=transparentColor('orangered4', 0.9), cex=1.1)
+    points((Fast.plt$yAdj / Fast.plt$xReal)[data$Rate == "Fast"] ~ Fast.plt$xReal[data$Rate == "Fast"], pch=21, 
+            bg=transparentColor('dodgerblue1', 0.7), col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+    axis(2, las=1)
+    axis(1)
+    proportionalLabel(-0.25, 0.5, expression(paste("Adjusted fertilization rate / gamete")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
+    proportionalLabel(0.5, -0.175, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
+    proportionalLabel(0.02, 1.05, 'B', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
+#        legend(
+#              x       =  usr[2]*0.87,
+#              y       =  usr[4],
+#              legend  =  c(
+#                          expression(paste('')),
+#                          expression(paste(''))),
+#              lty     =  c(1,1),
+#              lwd     =  2,
+#              seg.len =  2.5,
+#              col     =  c(
+#                           'dodgerblue1',
+#                           'orangered1'),
+#              cex     =  1.5,
+#              xjust   =  1,
+#              yjust   =  1,
+#              bty     =  'n',
+#              border  =  NA
+#    )
+#        legend(
+#              x       =  usr[2]*0.975,
+#              y       =  usr[4],
+#              legend  =  c(
+#                          expression(paste(~~~Fast)),
+#                          expression(paste(~~~Slow))),
+#              pch     =  c(21,21),
+#              pt.bg   =  c(
+#                           transparentColor('dodgerblue1',0.7),
+#                           transparentColor('orangered1',0.7)),
+#              col     =  c(
+#                           'dodgerblue4',
+#                           'orangered4'),
+#              pt.cex  =  1.25,
+#              cex     =  1.5,
+#              xjust   =  1,
+#              yjust   =  1,
+#              bty     =  'n',
+#              border  =  NA
+#    )
+}
+
 
 #' Plot gamete fertilization success for pooled Fast & Slow regression results.
 #'
