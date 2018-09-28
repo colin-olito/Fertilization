@@ -242,6 +242,7 @@ print(NIm2, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 # Model Results
 print(NIm2, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 print(NIm2, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(NIm2, c("beta", "gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 # Simple Diagnostic Plots
 plot(NIm2, pars="beta")

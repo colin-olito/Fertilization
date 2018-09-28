@@ -29,9 +29,8 @@ source('./loadFigData.R')
 ######################
 # FIGURES OF INTEREST
 ######################
-
-toPdf(N_investPlot(NIm2.df, NIm2.summ, NinvData), figPath(name='N_invest_Regression.pdf'), width=7, height=7)
-embed_fonts(figPath(name='N_invest_Regression.pdf'))
+toPdf(N_investPlot(NIm2.df, NIm2.summ, NinvData), figPath(name='N_invest_RegressionCOLS.pdf'), width=7, height=7)
+embed_fonts(figPath(name='N_invest_RegressionCOLS.pdf'))
 
 Z       <-  model.matrix(~ -1 + Run            +
                                 Run : nSperm_z +
@@ -100,6 +99,6 @@ embed_fonts(figPath(name='perGametePlot.pdf'))
 toPdf(coefContrastPlots(df=m12.df, summ=m12.summ), figPath(name='NxRate_coefContrasts.pdf'), width=14, height=7)
 embed_fonts(figPath(name='NxRate_coefContrasts.pdf'))
 
-toPdf(simpleContrastPlots(df=m12.df, summ=m12.summ), figPath(name='NxRate_simpleContrasts.pdf'), width=16, height=14)
+toPdf(simpleContrastPlots(df=m12.df, summ=m12.summ), figPath(name='NxRate_simpleContrasts.pdf'), width=18.2, height=16.8)
 embed_fonts(figPath(name='NxRate_simpleContrasts.pdf'))
 

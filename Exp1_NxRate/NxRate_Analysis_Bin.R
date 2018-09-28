@@ -264,6 +264,7 @@ dev.off()
 # Model Results
 print(m12, c("beta"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 print(m12, c("gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
+print(m12, c("beta", "gamma", "sigma_gamma"), probs=c(0.05, 0.25, 0.5, 0.75, 0.95));
 
 # Simple Diagnostic Plots
 plot(m12, pars="beta")
@@ -305,16 +306,16 @@ abline(a=0,b=1, col=2, lwd=3)
 #  calculated values for real data
 #  Find associated p-values in m4.summ
 par(mfrow=c(2,2))
-plot(density(m12.df[,420], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
+plot(density(m12.df[,419], adjust=3), lwd=3, col='dodgerBlue3', main='min_y_rep (min. num. Successes)')
 abline(v=min(data$nFert), lwd=3, col=2)
 
-plot(density(m12.df[,421]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
+plot(density(m12.df[,420]), lwd=3, col='dodgerBlue3', main='max_y_rep (max. num. Successes)')
 abline(v=max(data$nFert), lwd=3, col=2)
 
-plot(density(m12.df[,422]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
+plot(density(m12.df[,421]), lwd=3, col='dodgerBlue3', main='mean_y_rep (mean num. Successes)')
 abline(v=mean(data$nFert), lwd=3, col=2)
 
-plot(density(m12.df[,423]), xlim=c(min(m12.df[,423],sd(data$nFert)),max(m12.df[,423],sd(data$nFert))),
+plot(density(m12.df[,422]), xlim=c(min(m12.df[,423],sd(data$nFert)),max(m12.df[,423],sd(data$nFert))),
  lwd=3, col='dodgerBlue3', main='sd_y_rep (sd num. Successes)')
 abline(v=sd(data$nFert), lwd=3, col=2)
 
@@ -481,7 +482,7 @@ print(m10, c("p_min","p_max","p_mean","p_sd"), probs=c(0.05, 0.25, 0.5, 0.75, 0.
 ###########################################################################
 ###########################################################################
 
-##  look at residuals for m3
+##  look at residuals for m2
 #m1yhat        <-  inv_logit(m1.summ$Mean[90:209]) # mus
 m2yhat        <-  (m2.summ$Mean[458:577])
 m2.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m2yhat)/sd(m2yhat)
@@ -495,12 +496,12 @@ m10yhat        <-  (m10.summ$Mean[438:557])
 m10.resids     <-  (((data$nFert - data$nControlFert)/data$nEggs) - m10yhat)/sd(m10yhat)
 m10.resids_z   <-  (((data$nFert - data$nControlFert)/data$nEggs) - m10yhat)/sd((((data$nFert - data$nControlFert)/data$nEggs) - m10yhat))
 
-plot(m1yhat ~ m12yhat, xlim=c(0,1), ylim=c(0,1))
+plot(m2yhat ~ m12yhat, xlim=c(0,1), ylim=c(0,1))
 abline(a = 0, b = 1)
 plot(m12yhat ~ m10yhat, xlim=c(0,1), ylim=c(0,1))
 abline(a = 0, b = 1)
 
-##  Model 1 Residual Plots
+##  Model 2 Residual Plots
 par(mfrow=c(2,2))
 hist(m2.resids_z, breaks=40)
 abline(v=c(-2,2), lty=2)
@@ -755,7 +756,7 @@ m2.allGammas  <-  as.matrix(m2.df[9:88])
 m10.allBetas   <-  as.matrix(m10.df[1:8])
 m10.allGammas  <-  as.matrix(m10.df[9:68])
 m12.allBetas   <-  as.matrix(m12.df[1:8])
-m12.allGammas  <-  as.matrix(m12.df[9:58])
+m12.allGammas  <-  as.matrix(m12.df[9:59])
 
 
 ##  Calculate Coefficients
@@ -805,6 +806,11 @@ b1Fast55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,6]))
 b1Slow5   <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5]))
 b1Slow55  <-  inv_logit((m12.allBetas[,2] + m12.allBetas[,5] + m12.allBetas[,8]))
 
+b0  <-  inv_logit((m12.allBetas[,1]))
+b1  <-  inv_logit((m12.allBetas[,2]))
+sigma_gamma12  <-  m12.allGammas[,51]
+
+head(sigma_gamma12)
 #  Contrasts
 c1   <-  b1Fast   - b1Slow
 c2   <-  b1Fast5  - b1Fast55
@@ -820,6 +826,7 @@ plyr:::adply(as.matrix(cbind(c1,c2,c3,c4,c5,c6,c7)),2,MCMCsum)
 
 # Summarize back-transformed coefficients
 plyr:::adply(as.matrix(cbind(b1Fast,b1Slow,b1Fast5,b1Fast55,b1Slow5,b1Slow55)),2,MCMCsum)
+plyr:::adply(as.matrix(cbind(b0,b1,b0Fast, b0Slow, b0Fast5, b0Fast55, b0Slow5, b0Slow55, b1Fast, b1Slow, b1Fast5, b1Fast55, b1Slow5, b1Slow55, sigma_gamma12)),2,MCMCsum)
 
 
 

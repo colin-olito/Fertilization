@@ -209,6 +209,11 @@ N_investPlot  <-  function(Ninv.df, Ninv.summ, data = NinvData) {
     # Make plotting object
     Inv.plt  <-  Invest.plots(Ninv.summ, data)
 
+    # Color Scheme
+#    COLS  <-  c("#016deb","#ff3718","#8135e4","#985000","#f500b6","#8b4d44","#a5003f","#da938a")
+#    COLS  <-  c("#b35806","#e08214","#fdb863","#fee0b6","#d8daeb","#b2abd2","#8073ac","#542788")
+#    COLS  <-  COLS[order(runif(8))]
+    COLS  <-  c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666")
     ############
     # Make Plot
     par(omi=rep(0.5, 4), mar = c(3,3,0.5,0.5), bty='o', xaxt='s', yaxt='s')
@@ -227,17 +232,40 @@ N_investPlot  <-  function(Ninv.df, Ninv.summ, data = NinvData) {
     # }, data=data, nSperm_z=data$nSperm_z)
     # plot run-specific regression lines
      for(i in 1:8) {
-       lines(Inv.plt$runs[[i]] ~ Inv.plt$runs[[i+8]],col='grey75', lwd=3)
+       lines(Inv.plt$runs[[i]] ~ Inv.plt$runs[[i+8]],col=COLS[i], lwd=3)
      }
     # plot main regression line
     lines(Inv.plt$yHats ~ Inv.plt$xRaw, col='black', lwd=3)
-    points((data$nFert/data$nEggs) ~ data$nSperm, pch=16, col=transparentColor('dodgerblue1', 0.7), cex=1.1)
-    points((data$nFert/data$nEggs) ~ data$nSperm, pch=1,  col=transparentColor('dodgerblue4', 0.9), cex=1.1)
+     for(i in 1:8) {
+    points((data$nFert[data$Run == i]/data$nEggs[data$Run == i]) ~ data$nSperm[data$Run == i], pch=16, col=transparentColor(COLS[i], 0.7), cex=1.1)
+    points((data$nFert[data$Run == i]/data$nEggs[data$Run == i]) ~ data$nSperm[data$Run == i], pch=1,  col=transparentColor(COLS[i], 0.9), cex=1.1)
+     }
     axis(2, las=1)
     axis(1)
     proportionalLabel(-0.15, 0.5, expression(paste("Fertilization rate")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=90)
     proportionalLabel(0.5, -0.15, expression(paste("Sperm released")), cex=1.2, adj=c(0.5, 0.5), xpd=NA, srt=0)
 #    proportionalLabel(0.02, 1.05, 'A', cex=1.5, adj=c(0.5, 0.5), xpd=NA)
+        legend(
+              x       =  usr[2]*0.225,
+              y       =  usr[4],
+              legend  =  c(
+                          expression(paste('Run ',1)),
+                          expression(paste('Run ',2)),
+                          expression(paste('Run ',3)),
+                          expression(paste('Run ',4)),
+                          expression(paste('Run ',5)),
+                          expression(paste('Run ',6)),
+                          expression(paste('Run ',7)),
+                          expression(paste('Run ',8))),
+              pch     =  21,
+              col     =  COLS,
+              pt.bg   =  COLS,
+              cex     =  1,
+              xjust   =  1,
+              yjust   =  1,
+              bty     =  'n',
+              border  =  NA
+    )
 }
 
 
@@ -915,27 +943,32 @@ simpleContrastPlots  <-  function(df, summ, ...) {
 
     # Perform contrasts
     simpContr  <-  list(
-      cSimp1   =  Fast5.neg1 - Fast55.neg1,
-      cSimp2   =  Slow5.neg1 - Slow55.neg1,
-      cSimp3   =  Fast5.neg1 - Slow5.neg1,
-      cSimp4   =  Fast55.neg1 - Slow55.neg1,
-      cSimp5   =  Fast.neg1 - Slow.neg1,
-      cSimp6   =  Fast5.0 - Fast55.0,
-      cSimp7   =  Slow5.0 - Slow55.0,
-      cSimp8   =  Fast5.0 - Slow5.0,
-      cSimp9   =  Fast55.0 - Slow55.0,
-      cSimp10  =  Fast.0 - Slow.0,
-      cSimp11  =  Fast5.1 - Fast55.1,
-      cSimp12  =  Slow5.1 - Slow55.1,
-      cSimp13  =  Fast5.1 - Slow5.1,
-      cSimp14  =  Fast55.1 - Slow55.1,
-      cSimp15  =  Fast.1 - Slow.1,
-      cSimp16  =  Fast5.2 - Fast55.2,
-      cSimp17  =  Slow5.2 - Slow55.2,
-      cSimp18  =  Fast5.2 - Slow5.2,
-      cSimp19  =  Fast55.2 - Slow55.2,
-      cSimp20  =  Fast.2 - Slow.2
-    )
+      cSimp1   =  Fast.neg2 - Slow.neg2,
+      cSimp2   =  Fast.neg1 - Slow.neg1,
+      cSimp3   =  Fast.0 - Slow.0,
+      cSimp4   =  Fast.1 - Slow.1,
+      cSimp5   =  Fast.2 - Slow.2,
+      cSimp6   =  Fast5.neg2 - Fast55.neg2,
+      cSimp7   =  Fast5.neg1 - Fast55.neg1,
+      cSimp8   =  Fast5.0 - Fast55.0,
+      cSimp9   =  Fast5.1 - Fast55.1,
+      cSimp10  =  Fast5.2 - Fast55.2,  
+      cSimp11  =  Slow5.neg2 - Slow55.neg2,
+      cSimp12  =  Slow5.neg1 - Slow55.neg1,
+      cSimp13  =  Slow5.0 - Slow55.0,
+      cSimp14  =  Slow5.1 - Slow55.1,
+      cSimp15  =  Slow5.2 - Slow55.2,  
+      cSimp16  =  Fast5.neg2 - Slow5.neg2,
+      cSimp17  =  Fast5.neg1 - Slow5.neg1,
+      cSimp18  =  Fast5.0 - Slow5.0,
+      cSimp19  =  Fast5.1 - Slow5.1,
+      cSimp20  =  Fast5.2 - Slow5.2,  
+      cSimp21  =  Fast55.neg2 - Slow55.neg2,
+      cSimp22  =  Fast55.neg1 - Slow55.neg1,
+      cSimp23  =  Fast55.0 - Slow55.0,
+      cSimp24  =  Fast55.1 - Slow55.1,
+      cSimp25  =  Fast55.2 - Slow55.2
+      )
 
     # Calcuate P-values
     simpPVals  <-  list(
@@ -958,18 +991,23 @@ simpleContrastPlots  <-  function(df, summ, ...) {
     pVal17  =  pval(simpContr[[17]]),
     pVal18  =  pval(simpContr[[18]]),
     pVal19  =  pval(simpContr[[19]]),
-    pVal20  =  pval(simpContr[[20]])
+    pVal20  =  pval(simpContr[[20]]),
+    pVal21  =  pval(simpContr[[21]]),
+    pVal22  =  pval(simpContr[[22]]),
+    pVal23  =  pval(simpContr[[23]]),
+    pVal24  =  pval(simpContr[[24]]),
+    pVal25  =  pval(simpContr[[25]])
     )
 
     ###################################################
     # MAKE PLOTS
 
     # Set plot layout
-    layout.mat <- matrix(c(1:20), nrow=4, ncol=5, byrow=TRUE)
+    layout.mat <- matrix(c(1:25), nrow=5, ncol=5, byrow=TRUE)
     layout <- layout(layout.mat,respect=TRUE)
 
     par(omi=rep(0.5, 4), mar = c(4,4,1,2), bty='o', xaxt='s', yaxt='s')
-    for(i in 1:20) {
+    for(i in 1:25) {
         Dens  <-  density(simpContr[[i]])
         plot(NA, xlab=expression(paste(Delta)), type='n', axes=FALSE, ylab='', cex.lab=1.2, 
              xlim=c(min(Dens$x), (max(Dens$x)+0.4*(max(Dens$x) - min(Dens$x)))), 
@@ -987,36 +1025,40 @@ simpleContrastPlots  <-  function(df, summ, ...) {
         #  Plot Labels
         if(i == 1) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Fast.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(-0.4, 0.5, expression(paste('x = -1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(0.5, 1.1, expression(paste('x = -2',sigma)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=2)
+            proportionalLabel(-0.4, 0.5, expression(paste('Distribution of Fast - Slow')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
         }
         if(i == 2) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow.5 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(0.5, 1.1, expression(paste('x = -1',sigma)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=2)
             }
         if(i == 3) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.5 - Slow.5')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(0.5, 1.1, expression(paste('x = 0',sigma)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=2)
             }
         if(i == 4) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(0.5, 1.2, expression(paste('Distribution of Fast.55 - Slow.55')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(0.5, 1.1, expression(paste('x = 1',sigma)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=2)
             }
         if(i == 5) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(0.5, 1.2, expression(paste('Distribution of Slow - Fast')), xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(0.5, 1.1, expression(paste('x = 2',sigma)), xpd=NA, adj=c(0.5, 0.5), font=3, cex=2)
             }
         if(i == 6) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(-0.4, 0.5, expression(paste('x = 0',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(-0.4, 0.5, expression(paste('Distribution of Fast.5 - Fast.55')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
             }
         if(i == 11) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(-0.4, 0.5, expression(paste('x = 1',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(-0.4, 0.5, expression(paste('Distribution of Slow.5 - Slow.55')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
             }
         if(i == 16) {
             proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
-            proportionalLabel(-0.4, 0.5, expression(paste('x = 2',sigma)), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(-0.4, 0.5, expression(paste('Distribution of Fast.5 - Slow.5')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+        }
+        if(i == 21) {
+            proportionalLabel(-0.25, 0.5, expression(paste('Density')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
+            proportionalLabel(-0.4, 0.5, expression(paste('Distribution of Fast.55 - Slow.55')), srt=90, xpd=NA, adj=c(0.5, 0.5), font=3, cex=1.5)
         }
     }
 }

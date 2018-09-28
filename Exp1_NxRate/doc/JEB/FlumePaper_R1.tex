@@ -1,0 +1,560 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Preamble
+\documentclass{article}
+
+
+%Dependencies
+\usepackage[left]{lineno}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color,soul}
+\usepackage{ogonek}
+\RequirePackage[colorlinks=true, allcolors=black]{hyperref}
+
+% Force figures to be in correct section
+\usepackage{placeins}
+
+% Get rid of section counters
+\makeatletter
+\renewcommand{\@seccntformat}[1]{}
+\makeatother
+
+% Packages from Am. Nat. Template
+\usepackage[sc]{mathpazo} %Like Palatino with extensive math support
+\usepackage{fullpage}
+%\usepackage[authoryear,sectionbib,sort]{natbib}
+\usepackage{natbib} %\bibpunct{(}{)}{;}{author-year}{}{,}
+\bibliographystyle{genetics}
+\linespread{1.7}
+\usepackage{lineno}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{../output/figs}.pdf}
+% New commands: fonts
+%\newcommand{\code}{\fontfamily{pcr}\selectfont}
+%\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+ 
+
+% New math operators
+\DeclareMathOperator{\Var}{Var}
+
+% Make subsection headers italic instead of bold
+\titleformat{\subsection}
+  {\normalfont\normalsize\itshape}
+  {\thesubsection}
+  {1em}
+  {}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title Page
+
+\title{Releasing small ejaculates slowly increases per-gamete fertilization success in an external fertilizer: \textit{Galeolaria caespitosa} (Polychaeta: Serpulidae)}
+%\author{Colin Olito$^{\ast,1,2}$ and Dustin J.~Marshall$^{1}$}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+%\noindent{} $^1$Centre for Geometric Biology, School of Biological Sciences, Monash University, Victoria 3800, Australia.
+%\noindent{} $^2$Current address: Department of Biology, Section for Evolutionary Ecology, Lund University, Lund, Sweden.
+%\noindent{} $^\ast$ Corresponding author e-mail: colin.olito@gmail.com
+
+%\bigskip
+
+\noindent{} \textit{Keywords}: Sperm competition, broadcast spawning, external fertilization, reproductive phenology, natural selection, sexual selection
+\bigskip
+
+\noindent{} \textit{Running Head}: Selection on male spawning strategies
+
+\bigskip
+
+\noindent{} \textit{Manuscript category}: Short Communication
+
+\bigskip
+
+
+% Set line number options
+\linenumbers
+\modulolinenumbers[1]
+\renewcommand\linenumberfont{\normalfont\small}
+\newpage{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Text
+
+\section{Abstract}
+
+\noindent{} The idea that male reproductive strategies evolve primarily in response to sperm competition is almost axiomatic in evolutionary biology. However, externally fertilizing species, especially broadcast spawners, represent a large and taxonomically diverse group that have long challenged predictions from sperm competition theory -- broadcast spawning males often release sperm slowly, with weak resource-dependent allocation to ejaculates despite massive investment in gonads. One possible explanation for these counter-intuitive patterns is that male broadcast spawners experience strong natural selection from the external environment during sperm dispersal. Using a manipulative experiment, we examine how male reproductive success in the absence of sperm competition varies with ejaculate size and rate of sperm release, in the broadcast spawning marine invertebrate \textit{Galeolaria caespitosa} (Polychaeta: Serpulidae). We find that the benefits of fast or slow sperm release depend strongly on ejaculate size, but also that the per-gamete fertilization rate decreases precipitously with ejaculate size. Overall, these results suggest that, if males can facultatively adjust ejaculate size, they should slowly release small amounts of sperm. \hl{Interestingly, these results match recent theory for broadcast spawners, which predicts that sperm competition can select for slow release rates, suggesting that selection may favour slow sperm release whether or not males experience sperm competition.}
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+Our understanding of male reproductive biology is dominated by the idea that males compete strongly to fertilize females' eggs \citep{Bateman1948, Parker1972, Parker1982}. Sperm competition theory (SCT) is the largest and most influential body of theory explaining observed male reproductive phenotypes \citep{Parker1972, Parker1982,Wedell2002}, and the presence of sperm competition is often an implicit assumption in the fields of sexual selection and sexual conflict \citep{BirkheadMoller1998, ArnqvistRowe2005}. Moreover, classic predictions from SCT, such as increased ejaculate investment with competition among species, and facultative adjustment of ejaculate allocation within species, align well with empirical data, particularly for internally fertilizing taxa (reviewed in \citealt{Wedell2002}). 
+
+The resources available to a male for reproduction plays a critical role in determining the outcome of sperm competition. Because sperm competition involves some form of raffle competition among competing males' ejaculates \citep{Wedell2002, ArnqvistRowe2005}, producing more sperm than other competing males generally translates into greater siring success \citep{Parker1972, Parker1982, Wedell2002}. The benefits of producing more sperm have been confirmed theoretically and empirically in both plants and animals, where the interplay between male resource availability (generally estimated by age or body size) and mating system strongly influence the optimal male mating strategy (e.g., dominant vs.~'sneaker' males; \citealt{Parker1990a,Parker1990b,GageEtAl1995}), mating rate \citep{Parker1990b, BirkheadMoller1998, Wedell2002}, ejaculate/pollen allocation strategy (\citealt{FriedmanBarrett2009}; reviewed in \citealt{Wedell2002, Zhang2006}), and body size (e.g., \citealt{ArnoldWade1984}). Even sequential hermaphroditism, particularly in animals, is thought to be driven primarily by sex-specific and age-dependent fecundity (\citealt{Ghiselin1969, Warner1975, Warner1988, MundayWarner2006}).
+
+While resource availability clearly matters for males with internal fertilization, and some externally fertilizing fish species, the consequences of male resource availability are poorly understood for the archetypal external fertilizer -- broadcast spawning species. Broadcast spawners represent the ancestral mode of reproduction \citep{RouFitz1994}, \hl{and are a large and extraordinarily diverse group including seaweeds, corals, Annelid worms, sea stars, molluscs, and many fish taxa. Overall, broadcast spawners} represent more than 50\% of global marine invertebrate biodiversity \citep{MonroMarshall2015}. Furthermore, broadcast spawning excludes complicating factors common in internal fertilizers such as cryptic female choice, and has long been used as a model for SCT and the evolution of anisogamy (e.g., \citealt{Parker1972, Parker1982,Parker2017}). 
+
+There are several tantalizing lines of evidence that suggest the consequences of male reproductive investment are very different for broadcast spawners than for internal fertilizers. Superficially, broadcast spawning species appear well suited to predictions from sperm competition theory \citep{Parker2017}. Gametes are released into the water column by multiple individuals, polyandry is common, and sperm competition can be intense \citep{McEuan1988, Levitan1998,Levitan2002, Levitan2004, Marshall2002}. Moreover, interspecific patterns of sex-specific gonadosomatic index (GSI) appear consistent with predictions from recent SCT developed for broadcast spawners \citep{Parker2017}. However, broadcast spawners often exhibit spawning strategies that differ markedly from classic SCT predictions \citep{BodeMarshall2007, Olito2015, Olito2017}. Many broadcast spawning species have very long spawning times characterized by slow individual gamete release rates \citep{McEuan1988,MarshallBolton2007}. Protandry is common among broadcast spawners, with males releasing sperm earlier and longer than females do eggs \citep{McEuan1988, LotterhosLevitan2011, Levitan2005, MarshallBolton2007}. Moreover, in some species, large males do not necessarily release more sperm than small males, despite presumably having the resources available to do so \citep{Levitan1991, Styan2003}. Although these well documented patterns are counter-intuitive from the perspective of SCT, broadcast spawners often exhibit massive investment in gonad tissue relative to even the most extravagant internal fertilizers \citep{Parker2017}. For example, the mean size of gonads relative to body mass in the broadcast spawning brittle star \textit{Ophiocoma alexandri} is more than four times that of cape gerbils, who exhibit an especially large GSI for mammals ($\approx$40\% vs.~$\approx$8\% gonad mass/body mass percent; \citealt{Kenagy1986, BenitezVillalobos2012}). Classic SCT predictions do not offer a clear answer to the basic question raised by  these empirical patterns: why do broadcast spawners produce so much sperm, but release it so slowly?
+
+While some studies have considered the evolution of male broadcast spawning strategies from the perspective of sexual selection (i.e., in the presence of male competition), few have considered the consequences of natural selection from the external environment (i.e., what maximizes fertilization success in the absence of male competition) (\citealt{Levitan2005}; reviewed in \citealt{LotterhosLevitan2011}). This is an important omission -- because broadcasters release gametes into the water column during spawning, there is ample opportunity for selection from the external environment to act on male reproductive traits, whether sperm competition is present or not. The absence of sperm competition therefore represents the baseline for what an adaptive spawning strategy should be \citep{MarshallBolton2007}. For example, \citet{MarshallBolton2007} demonstrated in a flow-through flume experiment that males releasing sperm slowly enjoyed higher fertilization success at downstream egg patches than did fast-releasing males. However, they did not explore the consequences of different levels of male investment in ejaculates. In contrast, \citet{JohnsonYund2009} found rapidly diminishing returns in male gain curves for a spermcasting hermaphroditic colonial ascidian (sperm is released, but eggs are retained at spawning), but did not explore alternative spawning strategies (e.g., sperm release rates). These sparse empirical results suggest that natural selection in the absence of sperm competition may provide a simple alternative explanation for many of the well-documented spawning strategies in broadcast spawners that appear counter-intuitive from the perspective of classic SCT. 
+
+Here we use a manipulative experiment to explore the reproductive success in the absence of sperm competition associated with two important male reproductive traits in the broadcast spawning marine invertebrate \textit{Galeolaria caespitosa} \hl{Lamarck 1818 (Polychaeta: Serpulidae), a dioecious sessile polychaete worm common throughout the intertidal zone of southeast Australia. Specifically, we }examine the per-gamete fertilization succes associated with different strategies of male energetic investment in ejaculates, and the rate of sperm release. We find that the benefits of releasing sperm fast or slow depends critically on ejaculate size. We also find that the per-gamete fertilization rate for males decreases dramatically with ejaculate size -- highlighting the massive investment required by males to overcome sperm wastage. Our results indicate that if males can facultatively adjust the size of their ejaculates, they should always release very little sperm, and slowly. Crucially, this result matches recent theory developed for broadcast spawners, suggesting that well documented empirical patterns, and especially slow sperm release rates, are expected to evolve whether or not males experience strong sperm competition.
+
+%%%%%%%%%%%%%%%%%
+\section{Methods} 
+	\label{sec:methods}
+
+	\subsection*{Study species}
+	We studied spawning phenologies and the fertilization success of different male spawning strategies using \textit{Galeolaria caespitosa} \hl{Lamarck 1818, a sessile polychaete worm with separate sexes, commonly found in high density aggregations on rocky substrate and pier pilings in} the intertidal zone of southeast Australia. All individuals were collected from pier pilings at the Royal Brighton Yacht Squadron, Port Philip Bay, Victoria. For flume experiments, we used established protocols to collect gametes (e.g., \citealt{MarshallEvans2005a, MarshallEvans2005b}). Sperm for this species become active immediately upon release, and can remain viable for several hours after spawning \citep{Kupriyanova2013}. To minimize any effects of sperm aging on egg fertilization success, we ensured that all gametes had been freshly spawned no more than $45$~min before being used in experiments.
+
+	\subsection*{Estimating spawning durations}
+	\hl{Male spawning in \textit{G.~caespitosa} involves several minutes of rythmic whole-body contractions that periodically coincide with releasing a small viscous ejaculate into the males's calcareous tube. Continued contractions force ejaculate out of the tube in slow, steady, pulses.} To estimate the duration of individual spawning phenologies, we documented induced, non-traumatic, spawnings in a laboratory setting. We collected individuals from the field and stored them overnight in a controlled temperature room at the ambient temperature of Port Philip Bay ($17.5^o$C). \hl{We performed $5$ experimental runs in which we placed $8-10$ small colony fragments, a total of approximately $50-100$ individuals, in a shallow sea-water bath and induced them to spawn via heat-shock} \citep{Strathmann1987}. \hl{Of the males that spawned in a given run, approximately $5$ individuals were marked, monitored, and the duration of their spawning timed. We documented $26$ individual spawning phenologies in total}. Water in the bath was gently agitated, and spawning individuals were periodically flushed with seawater using a $1$cc syringe. Males' spawning phenologies were considered complete when no more ejaculate could be seen leaking from their tube with gentle flushing. 
+
+	\subsection*{Flume experiments}
+	We performed two flume experiments to examine the effect of male energetic investment in sperm production, and the rate at which sperm is released, on fertilization success in simulated spawning events. The first experiment manipulated only the number of sperm released down the flume, while the second experiment manipulated both the number of sperm, and the rate it was released, in a two-way factorial cross (\textit{Sperm} $\times$ \textit{Rate}). We refer to these as the \textul{Investment} and \textul{Investment $\times$ Rate} experiments hereafter. 
+
+	The flume was plexiglass, $2400 \times 960 \times 100$ mm (L$\times$W$\times$D), divided into $6$ parallel lanes, each $150$ mm wide. Filtered seawater sourced from the Mornington Peninsula, Port Philip Bay, was gravity fed from a $20$ L constant head tank into a common head for the flume which in turn fed all $6$ lanes. Water was not recycled after flowing through the flume. During experimental runs, the flume was filled to a depth of $50$ mm, with a constant flow rate of $\approx 10$ mm per second across all lanes. Laminar flow in each lane was maintained by $100$ mm collimators made of drinking straws located $250$ mm from the head of each lane \citep{YundMeidel2003}. Fragments of \textit{G.~caespitosa} colonies for both flume experiments were collected from the Royal Brighton Yacht Squadron during Austral Spring for the \textul{Investment} experiment, and Austral Autumn for \textul{Investment $\times$ Rate} experiment. Both flume experiments were conducted in a controlled temperature room maintained at $17^o$ C.
+
+	In the \textul{Investment} experiment, we examined the effect of releasing different amounts of sperm on fertilization success at a downstream patch of eggs. Prior to running the flume, we collected gametes from $12$ males and $6$ females. All eggs were pooled together and mixed thoroughly to reduce the influence of gametic incompatibilities. Eggs were then divided into $6$ aliquots that were gently released onto the bottom of the flume as a roughly circular patch (approx. 1cm diameter) of eggs 1 layer thick, in the center of each lane, $5$ cm downstream from the collimators ($25$ cm downstream from the sperm release point). \textit{Galeolaria~caespitosa} eggs are negatively buoyant, and the flow rate in the flume was low enough that eggs were not washed away. 
+
+	Sperm from all males was combined into a pooled ejaculate, and thoroughly mixed. $0.1$ mL of the pooled ejaculate was set aside for sperm enumeration using a haemocytometer. The remaining ejaculate was diluted to $10$\%, and then sub-divided into $6$ aliquots with different volumes yielding $N = 0.5$, $1$, $1.5$, $2$, $2.5$, and $3$ times the average amount of sperm released by a single male in that experimental run. Thus, the amount of sperm released for each level of $N$ was intentionally varied among experimental runs to harness natural variation in the average amount of sperm released by males in each experimental run, allowing us to sample a broader range of ejaculate sizes, while retaining the same ratios of relative male investment in sperm ($N$). \hl{This experimental design also ensures that any variation in the number (or identity) of males contributing sperm to each aliquot occurs at the level of experimental run, not at the treatment level, and can be accounted for in our analyses (see \textit{Analyses}). For simplicity we say our experiment was performed in the absence of sperm competition, but it is more accurate to say that it was done in the absence of variation in sperm competition among treatments}. Dilutions were performed immediately before initiating each experimental run to minimize sperm aging effects. Lane assignments for each ejaculate, and the order in which lanes were run, were randomized for each experimental run to account for any lane-specific, or release-order, effects on fertlization success.
+
+	During an experimental run, sperm was released from a syringe $150$ mm from the head of each lane ($100$ mm upstream from the collimators), in the center of each lane, immeditely above the bottom of the flume. Sperm was released over a period of $15$ seconds, and care was taken to \hl{depress the syringe plunger at a steady speed during the $15$ second interval to avoid sudden 'puffs' of sperm}. This technique necessarily confounded the rate of release with the total amount of sperm released -- larger ejaculates were released at faster rates. After all sperm were released, the flume was left to run uninterrupted for $10$ min before collecting eggs. Eggs were then washed with fresh filtered seawater, and left to develop in polyethelene test tubes for an additional $2$ hours. After incubation, $100$ eggs from each lane were examined under an inverted compound microscope, and scored as either unfertilized, fertilized, or polyspermic, based on the presence/absence of raised egg envelopes, regular, or irregular, patterns of cell division. The flume was drained completely and washed with fresh water between each experimental run. We performed $8$ experimental runs, yielding a total of $n=48$ observations.
+
+	In the \textul{Investment $\times$ Rate} experiment, we examined the effect of a factorial cross between the amount of sperm released, and the rate at which it was released, on fertilization success at two patches of eggs located downstream from the sperm release point. \hl{We included a second patch of eggs to examine whether the fertilization success of different sperm release rates depended on the distance to potential mates}. Wherever possible, we used identical protocols to the \textul{Investment} experiment, and describe only the relevant differences here. We collected eggs from $10$ females which were combined, and placed on the bottom of the flume in each lane in two patches located $25$ cm and $75$ cm downstream from the sperm release point. We collected sperm from $12$ males which was pooled, diluted to $10$\%, and then sub-divided into $6$ aliquots with three different volumes corresponding to $N = 1$, $2$, and $3$ times \hl{the average amount of sperm released by the individual males used in that experimental run} ($2$ aliquots per level of $N$). For each level of $N$, one replicate aliquot was released at a 'Fast' rate, corresponding to a single pulse lasting $10$ seconds. The second replicate aliquot was released at a 'Slow' rate, corresponding corresponding to $4$ pulses, each lasting $15$ seconds, spread out over $4$ minutes. \hl{As before, care was taken to depress the syringe plunger at a constant speed during the specified interval, and} lane assignments and the order of release were randomized. We performed $10$ experimental runs, yielding a total of $n=120$ observations ($10$ runs $\times~6$ lanes $\times~2$ egg patches $= 120$).
+
+	\subsection*{Analyses}
+	For both flume experiments, we modeled the number of fertilized eggs ($n$) in a given egg patch as a binomial response variable, where the number of eggs counted in each egg patch ($E$) corresponds to the number of bernoulli trials. We analyzed fertilization success using logistic regression in a Bayesian Linear Mixed Effects Regression framework, with the basic model structure 
+
+\begin{align*}
+	n_i   &\sim Bin\Big(E_i~|~logit^{-1}(\mu_i)\Big), \\
+	\mu_i &= \beta \mathbf{X} + \gamma \mathbf{Z} + \epsilon,
+\end{align*}
+\noindent{} with priors
+\begin{align*}
+	\beta           &\sim N(0,3) \\
+	\gamma          &\sim N(0,\sigma_{\gamma}) \\
+	\sigma_{\gamma} &\sim \mathit{half} \text{--}\textit{Cauchy}(0,1),
+\end{align*}
+
+	\noindent where $\beta$ and $\gamma$ are vectors of regression coefficients for 'fixed' and 'random' effects, $\mathbf{X}$ and $\mathbf{Z}$ are model matrices for the linear predictors, and $\epsilon$ is the residual error. Although there is little distinction between 'fixed' and 'random' effects in Bayesian analyses, this method allows flexible specification of hierarchical structure, and direct sampling of the posterior distributions for all parameters rather than maximum likelihood point estimates. The number of sperm released, $Sperm_i$, was treated as a continuous predictor variable for all analyses. To avoid estimating very small regression coefficients (on the order of $1 \times 10^{-9}$), and to simplify interpretation of parameter estimates, the number of sperm released was Z-transformed prior to analyses. Thus, the units for $Sperm_i$ coefficients are in standard deviations of the empirical distribution of the number of sperm released in each experiment ($7.9 \times 10^{7}$ for the \textul{Investment} experiment; $8.9 \times 10^{7}$ for the \textul{Investment $\times$ Rate} experiment). 
+
+	For the \textul{Investment} experiment, we fit a simple logistic regression of fertilization success regressed on the number of sperm released ($\mathbf{X} = Sperm_i$), with experimental run as a 'random' grouping variable. We then analyzed the full set of nested models arising from the $\mathbf{Z} = Run \times Sperm_i$ interaction (with all lower-order interactions included). \hl{This resulted in three candidate models (one with random slopes and intercepts, one with random slopes only, and one without 'Random' effects; see Appendix A for a summary of model comparisons)}. For the \textul{Investment $\times$ Rate} experiment, we treated the rate of sperm release ($Rate$, with two levels: 'Fast' or 'Slow'), and the position of the downstream egg patches ($EggPos$, with two levels: '25 cm' or '75 cm') as categorical variables, and modeled fertilization success using a linear model of the three way interaction between of the amount of sperm released, the rate it was released, and the downstream distance to the egg patches ($ \mathbf{X} = Sperm_i \times Rate \times EggPos$, including lower-order interactions). We again treated experimental run as a 'random' grouping variable, and analyzed the nested model set arising from the interaction of $Run$ with all 'fixed' effects (i.e., $\mathbf{Z} = Run \times Sperm_i \times Rate \times EggPos$, including lower-order interactions). We did not drop any of the 'fixed-effect' terms in either analysis ($\mathbf{X}$ was identical for all competing models in each analysis).
+
+	Posterior distributions of all model parameters were estimated using Markov Chain Monte Carlo (MCMC) methods implementing a NUTS sampler \citep{Stan2016}. For all models in both analyses we initiated $3$ MCMC chains of $2,000$ steps, each with a $1,000$ step warmup, yielding a total of $3,000$ samples (i.e., $(2,000 - 1,000) \times 3 = 3,000$). Chains were monitored for sampling abnormalities and considered to have converged when all parameter estimates yielded a scale reduction statistic of $\hat{R} < 1.01$ \citep{GelmanRubin1992}.
+
+	For both analyses, we implemented a fully Bayesian model selection procedure using leave-one-out cross-validation using the R package \textit{loo} v.0.1.6 (PSIS-LOO; \citealt{Vehtari2016}). For each analysis, we compared the fit of all competing models against one another (i.e., all pairwise model comparisons) using the expected log pointwise predictive density ($\widehat{\textit{elpd}}_{\textit{loo}}$), calculated by evaluating the log-likelihood at each of the posterior draws of the parameter values \citep{HootenHobbs2015,Vehtari2016}. For each pairwise model comparison, we calculated p-values for the pairwise differences in $\widehat{\textit{elpd}}_{\textit{loo}}$ using standard errors (s.e.) calculated as described in Eq(24) of \citet{Vehtari2016}, and a normal probability density function. Although this method of calculating s.e.'s is most reliable for data sets with many observations \citep{Vehtari2016}, we obtained similar results using Bayesian bootstrapping methods to estimate either the s.e.'s, or to sample directly from the distribution of pointwise $\widehat{\textit{elpd}}_{\textit{loo}}$ differences. We present results for the most parsimonious model -- the one with the fewest parameters that also returned a pairwise difference in prediction accuracy that was not significantly different from the best-fitting model ($\Pr > 0.05$). All statistical analyses were performed in R v.3.2.2 \citep{R2016}. All data and code necessary to reproduce the analyses are available at [github website omitted to retain anonymity, will be included should the manuscript be accepted for publication]. 
+	%\url{https://github.com/colin-olito/Fertilization}.
+
+\section{Results}
+
+	\subsection*{Estimating spawning durations}
+
+	The mean duration of induced male spawning phenologies was $5$:$52.20 \pm 20.0$ sec.~(mean $\pm$ s.e.). This spawning duration was longer than the time taken to release sperm in the \textit{Slow} release strategy for the \textul{Investment} experiment (4 min), suggesting that our results for \textit{Slow} sperm release strategies may be conservative relative to induced male spawning phenologies.
+
+	\subsection*{Flume experiments}
+
+	The probability of successful fertilization increased with the amount of sperm released in the \textul{Investment} experiment (Fig.~\ref{fig:fertPlots}; $\beta_{Sperm} = 0.819$, HPD interval = $[0.736,0.908]$). The maximum fertilization success achieved was $0.87$, and rates of abnormal cell cleavage indicative of polyspermy were very low for all runs ($1-2\%$). \hl{Together, the observed range of fertilization success and polyspermy indicate that the sperm concentrations experienced by eggs in our experiments were not high enough to cause a saturation effect, where fertilization success begins to decrease as more sperm is released due to higher mortality from polyspermy. Low polyspermy rates also indicate that more complex fertilization kinetics models are unnecessary to analyze the data} (e.g., \citealt{Vogel1982,MillarAnderson2003}). The most parsimonious model included only a single random intercepts term for experimental run ($\mathbf{Z} = Run$; see Supplementary Table S1 \hl{and S2 for all model comparisons and parameter estimates for the final model}). The $Run$ specific intercepts exhibited only moderate variation ($\sigma_{\gamma} = 0.765$), indicating that the flume was generating repeatable results.
+
+	The most parsimonious model from the analysis of the \textul{Investment $\times$ Rate} experiment included several interactions between experimental $Run$ and 'fixed' effects ($\mathbf{Z} = Run + Run \times Sperm_i + Run \times Rate + Run \times EggPos + Run \times Rate \times EggPos$; see supplementary Tables \hl{S3 and S4 for all model comparisons and parameter estimates for the final model, respectively}). We detected a strong $Sperm_i \times Rate$ interaction -- the increase in the probability of successful fertilization with the amount of sperm released was steeper for the \textit{Fast} release strategy than the \textit{Slow} (Fig.~\ref{fig:perGamete}A; Table~\ref{Table:ModelResults}). We also detected a marginally significant difference in the slope for the $25$ cm and $75$ cm egg patches for the \textit{Fast} release treatment, with fertilization success in the distal egg patch ($75$ cm) increasing faster with the amount of sperm released (Table~\ref{Table:ModelResults}; \hl{posterior distributions for \textit{a priori} contrasts comparing slopes of the partial regression lines for each combination of Rate $\times$ Egg Position are presented in Supplementary Figure~S2}). \hl{Thus, although males releasing small ejaculates fast suffer lower fertilization success with nearby eggs, males releasing large ejaculates fast acheive higher fertilization success with more distant eggs. As we explain below, however, this higher fertilization success with distant eggs comes at a cost.}
+
+	From the \textul{Investment $\times$ Rate} experiment results, we calcuated the per-gamete increase in the probability of successful fertilization for the \textit{Fast} and \textit{Slow} release strategies (Fig.~\ref{fig:perGamete}B). The per-gamete fertilization rate decreased dramatically with the total amount of sperm released for both strategies, but the decrease was slower for the \textit{Fast} release rate strategy (Table~\ref{Table:ModelResults}). Simple contrasts between the \textit{Fast} and \textit{Slow} strategy prediction lines showed that when small amounts of sperm are released, the per-gamete fertilization rate is significantly higher for the \textit{Slow} strategy than the \textit{Fast} strategy (\hl{posterior distributions for the difference between partial regression lines each combination of Rate $\times$ Egg Position along the $Sperm_i$ axis are presented in Supplementary Figure~S3}). Conversely, the \textit{Fast} release strategy achieves higher per-gamete fertilization rates when large amounts of sperm are released.
+
+
+\section{Discussion}
+
+Since the seminal work of \citet{Bateman1948} and the development of SCT since the 1970's, observed patterns of male reproductive investment and allocation have been interpreted almost exclusively as adaptive strategies under sperm competition \citep{Parker1972,Parker1982,Wedell2002,Parker2017}. However, broadcast spawning species have long presented a challenge to classic SCT predictions by exhibiting counter-intuitive male spawning strategies -- specifically, slow sperm release rates and weak resource-dependent allocation to ejaculates, despite massive investment in gonad tissue \citep{McEuan1988, MarshallBolton2007, Styan2003, Olito2015}. Although there is some evidence that these strategies can be adaptive in a sperm-competitive context (e.g., \citealt{BodeMarshall2007,Olito2015,Olito2017,LotterhosLevitan2011}), the potentially crucial role of natural selection from the external environment in shaping the evolution male spawning strategies has been almost entirely neglected \citep{MarshallBolton2007}. Our experimental results with \textit{G.~caespitosa} suggest that slow sperm release strategies in broadcast spawners are expected to evolve in response to natural selection from the external environment. Because there is opportunity for selection from the exernal environment whether sperm competition is present or not, explanations for observed patterns of ejaculate sizes and sperm release rates in broadcast spawners cannot be interpreted solely as adaptive sperm-competitive strategies. Two main results stand out from our study which we discuss in detail below: (1) an interaction between the amount and rate at which sperm is released, and (2) a dramatic cost, in terms of per-gamete fertilization success, of releasing large ejaculates. 
+
+We found evidence that size- or allocation-dependent sperm release strategies \hl{can increase per-gamete fertilization succes} if males are unable to facultatively adjust their ejaculate size, or if they are constrained to participate in few spawning events. Our results indicate that males releasing small ejaculates will achieve higher fertilization success if they release sperm slowly, while males releasing large ejaculates will have greater fertilization success if they release sperm quickly. \hl{From a mechanistic perspective, we interpret this result as a form of male bet-hedging against the inherent randomness in fluid dynamics and sperm diffusion. If males release sperm quickly and happen to 'miss' the eggs with the bulk of ther sperm, they have low fertilization success and no sperm to try again. In contrast, males releasing sperm slowly are more likely to hit the target, but with lower downstream sperm concentrations}. Although there is some evidence that individuals can facultatively adjust the rate of gamete release \citep{Marshall2004}, we are not aware of any definitive tests of whether male broadcast spawners adjust ejaculate sizes at spawning (but see \citealt{PetersenEtAl2001} for a potential example in bluehead wrasse). Some broadcast spawners may participate in multiple spawning events, expending a fraction of their gametic resources in single events, but again, definitive data is lacking (e.g., \citealt{Levitan1988,McEuan1988,LotterhosLevitan2011}). It is worth noting, however, that participation in multiple spawning events requires that females release eggs at the same times, a situation that may not always occur \citep{Olito2015,Olito2017}. Moreover, variable environmental conditions may constrain spawning to single events \citep{Olito2015,Olito2017}. It has been demonstrated in two species of scallop that males of different sizes release similar amounts of sperm, despite the fact that larger males could have released more \citep{Styan2003}. However, these spawnings were chemically induced, and so provide only indirect evidence for facultative adjustment of ejaculate size by large males. Given its central importance in determining optimal male mating strategies, determining the extent to which broadcasters facultatively adjust their ejaculate size represents a fundamental issue for future work.
+
+Although there appears to be potential for the evolution of size- or allocation-dependent sperm release strategies, we also found a \hl{non-linear decline in per-gamete fertilization rates as larger ejaculates are released}. The more sperm males release, the more are wasted during sperm dispersal. Moreover, this pattern was not driven by a saturation effect -- none of our experimental runs resulted in complete fertilization, and rates of polyspermy remained low even when large ejaculates were released. While the per-gamete fertilization rate should collapse under conditions resulting in very low overall fertilization success (e.g., very low or very high sperm:egg ratios), our results suggest that for most populations with moderate sex ratios (approximately $2:1$ in our experiments), and intermediate fertilization rates, it should remain high. Taken together, these results suggest that if male broadcast spawners can facultatively adjust ejaculate size, or if they can release sperm over multiple spawning events, the optimal spawning strategy will generally be to release as little sperm as possible, as slowly as possible, during the window of female spawning. 
+
+\hl{Our results suggest that selection from the external environment during sperm dispersal is likely to have a strong and consistent influence on the evolution male spawning strategies. Broadcast spawners will incur a cost, in terms of per-gamete fertilization rate, of releasing many sperm whether sperm competition is present or not. This is because broadcasters always expose gametes to the external environment during spawning. Meanwhile, selection from sperm competition is highly density-dependent} \citep{Parker1982,Levitan1998,BodeMarshall2007,Parker2017}\hl{, and so will occur under more restrictive conditions. Moreover, the large declines in per-gamete fertilization success we observed occured under extremely favourable conditions for fertilization (laminar, unidirectional flow). Releasing large ejaculates probably results in greater losses in per-gamete fertilization success when conditions are less favourable (e.g., turbulent, multidirectional flow), as often experienced by natural populations. Interestingly, recent SCT theory developed for broadcast spawners predicts that under low population densities sperm competition should select for greater synchrony and lower variance in spawning phenologies, while at high population densities reduced synchrony and greater variance should be favoured} \citep{Olito2015,Olito2017}\hl{. Thus, there may be conflicting selection on sperm release rates from the environment and sperm competition in low-density populations, while sperm competition may actually exaggerate selection for small ejaculates and slow sperm release rates in high-density populations. We caution that our experimental results cannot be used to infer the relative strength of selection from the external environment and sperm competition; however, they strongly suggest that selection from the external environment during sperm dispersal should be taken into account when seeking adaptive explanations for observed male broadcast spawning strategies.}
+
+Our results also suggest that interspecific patterns of sex-specific GSI in broadcast spawners should be evaluated from the perspective of natural selection in addition to sperm competition \citep{Parker2017}. For example, male-biased gonad expenditure, which remains problematic for recent SCT models for broadcast spawners \citep{Parker2017}, may reflect selection arising from high sperm wastage rather than sperm competition and sex-differences in the cost of gamete production. A crucial issue going forward is to determine the extent to which gonad expenditure in broadcast spawners is shaped by natural selection during gamete dispersal vs.~sperm competition. 
+
+Our findings also have interesting implications for the evolution of sequential hermaphroditism in aquatic animals. Protandry, where individuals change gender from male to female, is expected to evolve when female fecundity increases faster with size than male fecundity \citep{Ghiselin1969, Warner1975, Warner1988, MundayWarner2006}. Individuals can achieve higher life-time fitness by strategically expressing the gender with the highest reproductive success given their body size –- being male when small, female when large. Our results suggest that the dramatic cost of releasing large ejaculates may constrain male size-fecundity curves to be quite shallow in broadcast spawning species, making it more likely that the slope of the female-fecundity curve is steeper than the male. Moreover, constraints on male size-fecundity curves may be particularly strong if males are unable to facultatively adjust ejaculate size, or if they are constrained to few mating events by environmental conditions or female spawning phenologies \citep{Olito2015, Olito2017}. Hence, we would predict an evolutionary association between broadcast spawning and protandry among aquatic hermaphrodites. Empirical patterns of reproductive mode and mating system appear consistent with this prediction. Protandry has been documented, and appears common, among several large groups of broadcasting or spermcasting hermaprhoditic marine invertebrates including gastropods (e.g., Patellidae, \citealt{QuesneHawkins2006}; Calyptraeidae, \citealt{Coe1936}; corals, \citealt{LoyaSakai2008}, and echinoderms, \citealt{Sewell1994} and references therein). A formal test of this hypothesis using modern phylogenetic comparative methods would be very interesting.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Acknowledgements}
+%C.O. thanks C.~Venables and C.Y.~Chang for fruitful discussions and feedback, and the MEEG lab for assistance with the flume. C.O. and D.J.M. designed the study, C.O. performed the experiments and analyses, and wrote the manuscript with assistance from D.J.M. This work was funded by a Monash University Dean's International Postgraduate Student Scholarship to C.O., an Australian Research Council grants to D.J.M, and by the Monash University Centre for Geometric Biology. 
+
+\newpage{}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	 \section{Tables}
+	 \renewcommand{\thetable}{\arabic{table}}
+	 \setcounter{table}{0}
+
+	\begin{table}[!ht]
+	\caption{Parameter estimates and \textit{a priori} contrasts for the \textul{Investment $\times$ Rate} analyses}
+	\label{Table:ModelResults}
+	\centering
+	\begin{tabular}{l c c c c} 
+	\hline
+	Parameter & mean & 95\% H.P.D.~interval & 95\% Credible Interval \\
+	\hline
+     $\beta_{0}$                 &  $0.323$ &  $(0.245, 0.406)$ &  $(0.239, 0.399)$ \\
+     $\beta_{1,Sperm_i}$         &  $0.690$ &  $(0.604, 0.767)$ &  $(0.613, 0.774)$ \\
+     $\beta_{0,Sperm_i:Fast}$    &  $0.354$ &  $(0.267, 0.449)$ &  $(0.264, 0.444)$ \\
+     $\beta_{1,Sperm_i:Fast}$    &  $0.705$ &  $(0.623, 0.779)$ &  $(0.626, 0.781)$ \\
+     $\beta_{0,Sperm_i:Slow}$    &  $0.380$ &  $(0.261, 0.510)$ &  $(0.259, 0.505)$ \\
+     $\beta_{1,Sperm_i:Slow}$    &  $0.609$ &  $(0.515, 0.698)$ &  $(0.518, 0.699)$ \\
+     $\beta_{0,Sperm_i:Fast:25cm}$  &  $0.323$ &  $(0.245, 0.406)$ &  $(0.239, 0.399)$ \\
+     $\beta_{1,Sperm_i:Fast:25cm}$  &  $0.690$ &  $(0.604, 0.767)$ &  $(0.613, 0.774)$ \\
+     $\beta_{0,Sperm_i:Slow:25cm}$  &  $0.385$ &  $(0.274, 0.504)$ &  $(0.273, 0.501)$ \\
+     $\beta_{1,Sperm_i:Slow:25cm}$  &  $0.617$ &  $(0.525, 0.705)$ &  $(0.530, 0.710)$ \\
+     $\beta_{0,Sperm_i:Fast:75cm}$ &  $0.386$ &  $(0.272, 0.512)$ &  $(0.266, 0.505)$ \\
+     $\beta_{1,Sperm_i:Fast:75cm}$ &  $0.719$ &  $(0.638, 0.792)$ &  $(0.639, 0.793)$ \\
+     $\beta_{0,Sperm_i:Slow:75cm}$ &  $0.376$ &  $(0.241, 0.533)$ &  $(0.231, 0.519)$ \\
+     $\beta_{1,Sperm_i:Slow:75cm}$ &  $0.600$ &  $(0.496, 0.695)$ &  $(0.502, 0.701)$ \\
+	\hline
+	\textit{a priori} contrast & mean & 95\% H.P.D.~interval & $\Pr > 0$ & \\
+	\hline
+	$\beta_{1,Sperm_i:Fast}      - \beta_{1,Sperm_i:Slow}$      & $ 0.096$ & $( 0.059,0.133)$ & $\mathbf{1.000}$  \\
+	$\beta_{1,Sperm_i:Fast:25cm} - \beta_{1,Sperm_i:Fast:75cm}$ & $-0.029$ & $(-0.067,0.004)$ & $0.056^{\dagger}$ \\
+	$\beta_{1,Sperm_i:Slow:25cm} - \beta_{1,Sperm_i:Slow:75cm}$ & $ 0.017$ & $(0.034,0.076)$  & $0.743$           \\
+	$\beta_{1,Sperm_i:Fast:25cm} - \beta_{1,Sperm_i:Slow:25cm}$ & $ 0.073$ & $(0.035,0.106)$  & $\mathbf{1.000}$  \\
+	$\beta_{1,Sperm_i:Fast:75cm} - \beta_{1,Sperm_i:Slow:75cm}$ & $ 0.119$ & $(0.050,0.192)$  & $\mathbf{1.000}$  \\
+	\hline
+	\end{tabular}
+	\smallskip{} \\
+		{\footnotesize Note: Here we present the back-transformed (inverse logit) parameter estimates for the intercepts and slopes of the overall and partial regressions fit by the Bayesian mixed effects binomial regression model. Full model results, including 'random' parameter estimates ($\gamma$ terms) are presented in Appendix A of the supplementary material. Subscripts of $0$ and $1$ indicate partial regression intercepts and slopes respectively.}
+	\end{table}
+
+
+\FloatBarrier
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Figures}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=0.7]{../../output/figs/N_invest_RegressionCOLS}
+\caption{Fertilization success as a function of the number of sperm released in the \textul{Investment} experiment. Results are shown for the most parsimonious model, which included random intercepts for each experimental run ($\mathbf{m2}:~\mathbf{Z} = Run$), which exhibited only moderate variation ($\sigma_{\gamma} = 0.765$). Color-coded predicted lines are shown for each experimental run (see legend) in addition to the overall regression (black line). Note that the increase in fertilization success is monotonic, with a maximum of $0.87$, and low rates of abnormal cell cleavage were observed for all runs ($1-2\%$), indicating that the models adequately approximate the probability of successful fertilization for these data. Credibility intervals have been omitted for clarity.}
+\label{fig:fertPlots}
+\end{figure}
+\newpage{}
+
+
+\begin{figure}[!ht] 
+\centering
+\includegraphics[scale=0.46]{../../output/figs/NxRateFig}
+\caption{Results from the \textul{Investment $\times$ Rate} experiment showing adjusted fertilization success as a function of the number of sperm released (panel A), compared with adjusted per-gamete fertilization success (panel B), for the Fast and Slow treatments. Slow release rates result in higher fertilization success when ejaculates are small (panel A, red line), but releasing a large ejaculate Fast resulted in the highest overall fertilization success rate. In contrast, per-gamete fertilization success is highest when small ejaculates are released slowly, and decreases quickly as more sperm are released regardless of whether they are released Fast or Slow. Partial regression lines are plotted for the Fast and Slow release treatments (solid lines) with $80\%$ credibility intervals (transparent bands) for the most parsimonious model; data points are adjusted to remove among-run variation by adding run-specific residuals to the predicted values \hl{for the 'Fast' and 'Slow' partial regression lines}.}
+\label{fig:perGamete}
+\end{figure}
+
+\FloatBarrier
+
+\newpage{}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{thebibliography}{}
+
+\bibitem[{Arnold and Wade(1984)Arnold and Wade}]{ArnoldWade1984}
+Arnold, G., Wade, L. 1984.
+\newblock On the measurement of natural and sexual selection: applications.
+\newblock \textit{Evolution} \textbf{38}: 720--734.
+
+\bibitem[{Arnqvist and Rowe(2005)Arnqvist and Rowe}]{ArnqvistRowe2005}
+Arnqvist, G. and Rowe, L. 2005.
+\newblock Sexual conflict.
+\newblock Princeton University Press, Princeton, NJ, USA.
+
+\bibitem[{Bateman(1948)Bateman}]{Bateman1948}
+Bateman, D. 1948.
+\newblock Intra-sexual selection in \textit{Drosophila}.
+\newblock \textit{Heredity} \textbf{2}: 349--368.
+
+\bibitem[{Ben\'{i}tez-Villalobos et al.(2012)Ben\'{i}tez-Villalobos et al.}]{BenitezVillalobos2012}
+Ben\'{i}tez-Villalobos, F., Aguilar-Duarte, C., Avila-Poveda, O.~H. 2012.
+\newblock Reproductive biology of \textit{Opiocoma aethiops} and \textit{O. alexandri} (Echinodermata: Ophiuroidea) from Estacahuite Bay, Oaxaca, Mexico.
+\newblock \textit{Aquat.~Biol.} \textbf{17}: 119--128.
+
+\bibitem[{Birkhead and M{\o}ller(1998)Birkhead and M{\o}ller}]{BirkheadMoller1998}
+Birkhead, G. M{\o}ller, L. 1998.
+\newblock Sperm competition and sexual selection.
+\newblock Academic Press, San Diego, CA, USA.
+
+\bibitem[{Bode and Marshall(2007)Bode and Marshall}]{BodeMarshall2007}
+Bode, M., Marshall, D.~J. 2007.
+\newblock The quick and the dead? sperm competition and sexual conflict in the sea.
+\newblock \textit{Evolution} \textbf{61}: 2693--2700.
+
+\bibitem[{Coe(1936)Coe}]{Coe1936}
+Coe, D. 1936.
+\newblock Sexual phases in \textit{Crepidula}.
+\newblock \textit{J.~Exp.~Zool.} \textbf{72}: 455--477.
+
+\bibitem[{Denny and Shibata(1989)Denny and Shibata}]{DennyShib1989}
+Denny, M.~W., Shibata, M.~F. 1989.
+\newblock Consequences of surf-zone turbulence for settlement and external fertilization.
+\newblock \textit{Am. Nat.} \textbf{134}: 859--889.
+
+\bibitem[{Friedman and Barrett(2009)Friedman and Barrett}]{FriedmanBarrett2009}
+Friedman, J., Barrett, S.~C.~H. 2009.
+\newblock Wind of change: new insights on the ecology and evolution of pollination and mating in wind-pollinated plants.
+\newblock \textit{Ann. Bot.} \textbf{103}: 1515--1527.
+
+\bibitem[{Gage et~al.(1995)Gage et~al.}]{GageEtAl1995}
+Gage, M.~J.~G., Stockley, P., Parker, G.~A. 1995.
+\newblock Effects of alternative male mating strategies on characteristics of sperm production in Atlantic salmon (\textit{Salmo salar}): theoretical and empirical investigations.
+\newblock \textit{Phil.~Trans.~Roy.~Soc.~Lond.~B} \textbf{350}: 391--399.
+
+\bibitem[{Gelman and Rubin(1992)Gelman and Rubin}]{GelmanRubin1992}
+Gelman, A, Rubin, D.~B. 1992.
+\newblock Inference from iterative simulation using multiple sequences.
+\newblock \textit{Statistical Science} \textbf{7}: 457--472.
+
+\bibitem[{Ghiselin(1969)Ghiselin}]{Ghiselin1969}
+Ghiselin, M. 1969.
+\newblock The evolution of hermaphroditism among animals.
+\newblock \textit{Q.~Rev.~Biol.} \textbf{44}: 189--208.
+
+\bibitem[{Hooten and Hobbs(2015)Hooten and Hobbs}]{HootenHobbs2015}
+Hooten, M.~B, Hobbs, N.~T. 2015.
+\newblock A guide to Bayesian model selection for ecologists.
+\newblock \textit{Ecol.~Monog.} \textbf{85}: 3--28.
+
+\bibitem[{Johnson and Yund(2009)Johnson and Yund}]{JohnsonYund2009}
+Johnson, G.~J, Yund, P.~O. 2009.
+\newblock Effects of fertilization distance on male gain curves in a free-spawning marine invertebrate: a combined empirical and theoretical approach.
+\newblock \textit{Evolution} \textbf{63}: 3114--3123.
+
+\bibitem[{Kenagy and Trombulak(1986)Kenagy and Trombulak}]{Kenagy1986}
+Kenagy, G.~J, Trombulak, S.~C. 1986.
+\newblock Size and function of mammalian testes in relation to body size.
+\newblock \textit{J.~Mammal.} \textbf{67}: 1--22.
+
+\bibitem[{Kupriyanova and Havenhand(2013)Kupriyanova and Havenhand}]{Kupriyanova2013}
+Kupriyanova, E.~K, Havenhand, J.~N. 2013.
+\newblock Effects of temperature on sperm swimming behaviour, respiration, and fertilization success in the serpulid polychaete, \textit{Galeolaria caespitosa} (Annelida: Serpulidae).
+\newblock \textit{Inv.~Repro.~Devel.} \textbf{48}: 7--17.
+
+\bibitem[{Levitan(1988)Levitan}]{Levitan1988}
+Levitan, D. 1988.
+\newblock Asynchronous spawning and aggregative behavior in the sea urchin \textit{Diadema antillarum} (Philippi).
+\newblock In: \textit{Echinoderm Biology} (Burke et.~al., eds). Balkema, Rotterdam, NL.
+
+\bibitem[{Levitan(1991)Levitan}]{Levitan1991}
+Levitan, D. 1991.
+\newblock Influence of body size and population density on fertilization success and reproductive output in a free-spawning invertebrate.
+\newblock \textit{Biol. Bull.} \textbf{181}: 261--268.
+
+\bibitem[{Levitan(1998)Levitan}]{Levitan1998}
+Levitan, D. 1998.
+\newblock Does Bateman's principle apply to broadcast-spawning organisms? Egg traits influence in situ fertilization rates among congeneric sea urchins.
+\newblock \textit{Evolution} \textbf{52}: 1043--1056.
+
+\bibitem[{Levitan(2002)Levitan}]{Levitan2002}
+Levitan, D. 2002.
+\newblock Density-dependent selection on gamete traits in three congeneric sea urchins.
+\newblock \textit{Ecology} \textbf{83}: 464--479.
+
+\bibitem[{Levitan(2004)Levitan}]{Levitan2004}
+Levitan, D. 2004.
+\newblock Density-dependent sexual selection in external fertilizers: variances in male and female fertilization success along the continuum from sperm limitation to sexual conflict in the sea urchin \textit{Strongylocentrotus franciscanus}.
+\newblock \textit{Am. Nat.} \textbf{164}: 298--309.
+
+\bibitem[{Levitan(2005)Levitan}]{Levitan2005}
+Levitan, D. 2005.
+\newblock Sex-specific spawning behaviour and its consequences in an external fertilizer.
+\newblock \textit{Am. Nat.} \textbf{165}: 682--694.
+
+\bibitem[{Lotterhos and Levitan(2011)Lotterhos and Levitan}]{LotterhosLevitan2011}
+Lotterhos, K.~E, Levitan, D. 2011.
+\newblock Gamete release and spawning behaviour in broadcast spawning marine invertebrates.
+\newblock In: \textit{The evolution of primary sexual characters in animals} (J.~L. Leonard and A. C\'{o}rdoba-Aguilar, eds), pp. 99--120. Oxford University Press, Oxford, UK.
+
+\bibitem[{Loya and Sakai(2008)Loya and Sakai}]{LoyaSakai2008}
+Loya, Y, Sakai, K. 2008.
+\newblock Bidirectional sex change in mushroom stony corals.
+\newblock \textit{Proc.~Roy.~Soc.~B} \textbf{275}: 2335--2343.
+
+\bibitem[{Marshall(2002)Marshall}]{Marshall2002}
+Marshall, D.~J. 2002.
+\newblock \textit{In situ} measures of spawning synchrony and fertilization success in an intertidal, free-spawning invertebrate.
+\newblock \textit{Mar.~Ecol.~Prog.~Ser.} \textbf{236}: 113-119.
+
+\bibitem[{Marshall and Bolton(2007)Marshall and Bolton}]{MarshallBolton2007}
+Marshall, D.~J., Bolton, T.~F. 2007.
+\newblock Sperm release strategies in marine broadcast spawners: the costs of releasing sperm quickly.
+\newblock \textit{J.~Exp.~Biol.} \textbf{210}: 3720--3727.
+
+\bibitem[{Marshall and Evans(2005a)Marshall and Evans}]{MarshallEvans2005a}
+Marshall, D.~J, Evans, J.~P. 2005.
+\newblock The benefits of polyandry in the free-spawning polychaete \textit{Galeolaria caespitosa}.
+\newblock \textit{J.~Evol.~Biol.} \textbf{18}: 735--741.
+
+\bibitem[{Marshall and Evans(2005b)Marshall and Evans}]{MarshallEvans2005b}
+Marshall, D.~J, Evans, J.~P. 2005.
+\newblock Does egg competition occur in marine broadcast spawners? 
+\newblock \textit{J.~Evol.~Biol.} \textbf{18}: 1244-1252.
+
+\bibitem[{Marshall et al.(2004)Marshall et al.}]{Marshall2004}
+Marshall, D.~J., Semmens, D., Cook, C. 2004.
+\newblock Consequences of spawning at low tide: limited gamete dispersal for a rockpool anemone.
+\newblock \textit{Mar.~Ecol.~Prog.~Ser.} \textbf{266}: 135--142.
+
+\bibitem[{McEuan(1988)McEuan}]{McEuan1988}
+McEuan, F.~S. 1988.
+\newblock Spawning behaviors of northeast Pacific sea cucumbers (Holothuroidea: Ecinodermata).
+\newblock \textit{Mar. Biol.} \textbf{98}: 565--585.
+
+\bibitem[{Millar and Anderson.(2003)Millar and Anderson}]{MillarAnderson2003}
+Millar, R.~B., Anderson, M.~J. 2003.
+\newblock The kinetics of monospermic and polyspermic fertilization in free-spawning marine invertebrates.
+\newblock \textit{J.~Theor.~Biol.} \textbf{224}: 79--85.
+
+\bibitem[{Monro and Marshall(2015)Monro and Marshall}]{MonroMarshall2015}
+Monro, K, Marshall, D.~J. 2015.
+\newblock The biogeography of fertilisation mode in the sea.
+\newblock \textit{Global Ecol. Biogeog.}, doi: 10.1111/geb.12358.
+
+\bibitem[{Munday et al.(2006)Munday et al.}]{MundayWarner2006}
+Munday, P.~L., Buston, P.~M., Warner, R.~R. 2006.
+\newblock Diversity and flexibility of sex-change strategies in animals.
+\newblock \textit{TREE} \textbf{21}: 89--95.
+
+\bibitem[{Olito et~al.(2015)Olito et~al.}]{Olito2015}
+Olito, C., Bode, M., Marshall, D.~J. 2015.
+\newblock Evolutionary consequences of fertilization mode for reproductive phenology and asynchrony.
+\newblock \textit{Mar.~Ecol.~Prog.~Ser.} \textbf{537}: 23--38.
+
+\bibitem[{Olito et~al.(2017)Olito et~al.}]{Olito2017}
+Olito, C., Marshall, D.~J., Connallon, T. 2017.
+\newblock The Evolution of Reproductive Phenology in Broadcast Spawners and the Maintenance of Sexually Antagonistic Polymorphism.
+\newblock \textit{Am. Nat.} \textbf{189}: 153--169.
+
+\bibitem[{Parker(1982)Parker}]{Parker1982}
+Parker, G.~A. 1982.
+\newblock Why are there so many tiny sperm? sperm competition and the maintenance of two sexes.
+\newblock \textit{J.~Theor.~Biol.} \textbf{96}: 281--294.
+
+\bibitem[{Parker(1990a)Parker}]{Parker1990a}
+Parker, G.~A. 1990a.
+\newblock Sperm competition games: raffles and roles.
+\newblock \textit{Proc.~Roy.~Soc.~B} \textbf{242}: 120--126.
+
+\bibitem[{Parker(1990b)Parker}]{Parker1990b}
+Parker, G.~A. 1990b.
+\newblock Sperm competition Games: sneaks and extra-pair copulations.
+\newblock \textit{Proc.~Roy.~Soc.~B} \textbf{242}: 127--133.
+
+\bibitem[{Parker et~al.(1972)Parker, Baker, and Smith}]{Parker1972}
+Parker, G.~A., Baker, R.~R., Smith, V.~G.~F. 1972.
+\newblock The origin and evolution of gamete dimorphism and the male-female phenomenon.
+\newblock \textit{J.~Theor.~Biol.} \textbf{36}: 529--553.
+
+\bibitem[{Parker et~al.(2017)Parker et~al.}]{Parker2017}
+Parker, G.~A., Ramm, S.~A., Lehtonen, J., Henshaw, J.~M. 2017.
+\newblock The evolution of gonad expenditure and gonadosomatic index (GSI) in male and female broadcast-spawning invertebrates.
+\newblock \textit{Biol.~Rev.} doi:10.1111/brv.12363.
+
+\bibitem[{Petersen et~al.(2001)Petersen et~al.}]{PetersenEtAl2001}
+Petersen, C.~W., Warner, R.~R., Shapiro, D.~Y., Marconato, A. 2001.
+\newblock Components of fertilization success in the bluehead wrasse, \textit{Thalassoma bifasciatum}.
+\newblock \textit{Behav.~Ecol.} \textbf{12}: 237--245.
+
+\bibitem[{Quesne and Hawkins(2006)Quesne and Hawkins}]{QuesneHawkins2006}
+Quesne, W.~J.~F, Hawkins, S.~J. 2006.
+\newblock Direct observations of protandrous sex change in the patellid limpet \textit{Patella vulgata}.
+\newblock \textit{J.~Mar.~Biol.~Ass.~U.K.} \textbf{86}: 161--162.
+
+\bibitem[{R~Core~Team(2016)R~Core~Team}]{R2016}
+R Core Team. 2016.
+\newblock R: A language and environment for statistical computing. 
+\newblock R Foundation for Statistical Computing, Vienna, Austria. URL https://R-project.org/.
+
+\bibitem[{Rouse and Fitzhugh(1994)Rouse and Fitzhugh}]{RouFitz1994}
+Rouse, G., Fitzhugh, K. 1994.
+\newblock Broadcasting fables: is external fertilization really primitive? Sex, size, and larvae in sabellid polychaetes.
+\newblock \textit{Zool.~Scripta} \textbf{23}: 271--312.
+
+\bibitem[{Rstan(2016)Rstan}]{Stan2016}
+Stan Development Team. 2016.
+\newblock RStan: the R interface to Stan.
+\newblock R package version 2.14.1. URL http://mc-stan.org
+
+\bibitem[{Sewell(1994)Sewell}]{Sewell1994}
+Sewell, D. 1994.
+\newblock Small size, brooding, and protandry in the Apodid sea cucumber \textit{Leptosynapta clarki}.
+\newblock \textit{Biol.~Bull.} \textbf{187}: 112--123.
+
+\bibitem[{Strathmann(1987)Strathmann}]{Strathmann1987}
+Strathmann, M.~F. 1987.
+\newblock Reproduction and development of marine invertebrates of the northern Pacific coast. \textit{Data and methods for the study of eggs, embryos, and larvae}. University of Washington Press, Washington, USA.
+
+\bibitem[{Styan and Butler(2003)Styan and Butler}]{Styan2003}
+Styan, C.~A, Butler, A.~J. 2003.
+\newblock Scallop size does not predict amount or rate of induced sperm release.
+\newblock \textit{Mar.~Fresh.~Behav.~Phys.} \textbf{36}: 59--65.
+
+\bibitem[{Vehtari et~al.(2016)Vehtari et~al.}]{Vehtari2016}
+Vehtari, A., Gelman, A., Gabry, J. 2016.
+\newblock Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC.
+\newblock \textit{Statistical Computing}, doi: 10.1007/s11222-016-9696-4.
+
+\bibitem[{Vogel et~al.(1982)Vogel et~al.}]{Vogel1982}
+Vogel, H., Czihak, G., Chang, P., Wolf, W. 1982.
+\newblock Fertilization kinetics of sea urchin eggs.
+\newblock \textit{Mathematical Biosciences}, \textbf{58}: 189--216.
+
+\bibitem[{Warner(1975)Warner}]{Warner1975}
+Warner, R.~R. 1975.
+\newblock The adaptive significance of sequential hermaphroditism in animals.
+\newblock \textit{Am.~Nat.} \textbf{109}: 61--82.
+
+\bibitem[{Warner(1988)Warner}]{Warner1988}
+Warner, R.~R. 1988.
+\newblock Sex change and the size advantage model.
+\newblock \textit{TREE} \textbf{3}: 133--136.
+
+\bibitem[{Wedell et~al.(2002)Wedell et~al.}]{Wedell2002}
+Wedell, N., Gage, M.~J.~G., Parker, G.~A. 2002.
+\newblock Sperm competition, male prudence, and sperm-limited females.
+\newblock \textit{TREE} \textbf{17}: 313--320.
+
+\bibitem[{Yund and Meidel(2003)Yund and Meidel}]{YundMeidel2003}
+Yund, P.~O, Meidel, S.~K. 2003.
+\newblock Sea urchin spawning in benthic boundary layers: are eggs fertilized before advecting away from females?
+\newblock \textit{Limnol.~Oceanog.} \textbf{48}: 795-801.
+
+\bibitem[{Zhang(2006)Zhang}]{Zhang2006}
+Zhang, D. 2006.
+\newblock Evolutionarily stable reproductive investment and sex allocation in plants.
+\newblock In: \textit{Ecology and evolution of flowers} (L.~D. Harder \& S.~C.~H. Barrett, eds.),pp.~41--60. Oxford University Press, Oxford, UK.
+
+
+\end{thebibliography}
+
+
+
+
+
+
+\end{document}

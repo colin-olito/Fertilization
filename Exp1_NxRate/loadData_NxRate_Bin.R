@@ -225,79 +225,79 @@ close(pb)
 ################################################
 print('Extracting stanfits into data frames, etc.')
 pb <- txtProgressBar(min=0,max=25, style=3)
-m1.df     <-  as.data.frame(extract(m1))  [,-1]
+m1.df     <-  as.data.frame(extract(m1))#[,-1]
 m1.summ   <-  plyr:::adply(as.matrix(m1.df),2,MCMCsum)
 setTxtProgressBar(pb, 1)
-m2.df     <-  as.data.frame(extract(m2))[,-1]
+m2.df     <-  as.data.frame(extract(m2))#[,-1]
 m2.summ   <-  plyr:::adply(as.matrix(m2.df),2,MCMCsum)
 setTxtProgressBar(pb, 2)
-m3.df     <-  as.data.frame(extract(m3))[,-1]
+m3.df     <-  as.data.frame(extract(m3))#[,-1]
 m3.summ   <-  plyr:::adply(as.matrix(m3.df),2,MCMCsum)
 setTxtProgressBar(pb, 3)
-m4.df     <-  as.data.frame(extract(m4))[,-1]
+m4.df     <-  as.data.frame(extract(m4))#[,-1]
 m4.summ   <-  plyr:::adply(as.matrix(m4.df),2,MCMCsum)
 setTxtProgressBar(pb, 4)
-m5.df     <-  as.data.frame(extract(m5))[,-1]
+m5.df     <-  as.data.frame(extract(m5))#[,-1]
 m5.summ   <-  plyr:::adply(as.matrix(m5.df),2,MCMCsum)
 setTxtProgressBar(pb, 5)
-m6.df     <-  as.data.frame(extract(m6))[,-1]
+m6.df     <-  as.data.frame(extract(m6))#[,-1]
 m6.summ   <-  plyr:::adply(as.matrix(m6.df),2,MCMCsum)
 setTxtProgressBar(pb, 6)
-m7.df     <-  as.data.frame(extract(m7))[,-1]
+m7.df     <-  as.data.frame(extract(m7))#[,-1]
 m7.summ   <-  plyr:::adply(as.matrix(m7.df),2,MCMCsum)
 setTxtProgressBar(pb, 7)
-m8.df     <-  as.data.frame(extract(m8))[,-1]
+m8.df     <-  as.data.frame(extract(m8))#[,-1]
 m8.summ   <-  plyr:::adply(as.matrix(m8.df),2,MCMCsum)
 setTxtProgressBar(pb, 8)
-m9.df     <-  as.data.frame(extract(m9))[,-1]
+m9.df     <-  as.data.frame(extract(m9))#[,-1]
 m9.summ   <-  plyr:::adply(as.matrix(m9.df),2,MCMCsum)
 setTxtProgressBar(pb, 9)
-m10.df    <-  as.data.frame(extract(m10))[,-1]
+m10.df    <-  as.data.frame(extract(m10))#[,-1]
 m10.summ  <-  plyr:::adply(as.matrix(m10.df),2,MCMCsum)
 setTxtProgressBar(pb, 10)
-m11.df    <-  as.data.frame(extract(m11))[,-1]
+m11.df    <-  as.data.frame(extract(m11))#[,-1]
 m11.summ  <-  plyr:::adply(as.matrix(m11.df),2,MCMCsum)
 setTxtProgressBar(pb, 11)
-m12.df    <-  as.data.frame(extract(m12))[,-1]
+m12.df    <-  as.data.frame(extract(m12))#[,-1]
 m12.summ  <-  plyr:::adply(as.matrix(m12.df),2,MCMCsum)
 setTxtProgressBar(pb, 12)
-m13.df    <-  as.data.frame(extract(m13))[,-1]
+m13.df    <-  as.data.frame(extract(m13))#[,-1]
 m13.summ  <-  plyr:::adply(as.matrix(m13.df),2,MCMCsum)
 setTxtProgressBar(pb, 13)
-m14.df    <-  as.data.frame(extract(m14))[,-1]
+m14.df    <-  as.data.frame(extract(m14))#[,-1]
 m14.summ  <-  plyr:::adply(as.matrix(m14.df),2,MCMCsum)
 setTxtProgressBar(pb, 14)
-m15.df    <-  as.data.frame(extract(m15))[,-1]
+m15.df    <-  as.data.frame(extract(m15))#[,-1]
 m15.summ  <-  plyr:::adply(as.matrix(m15.df),2,MCMCsum)
 setTxtProgressBar(pb, 15)
-m16.df    <-  as.data.frame(extract(m16))[,-1]
+m16.df    <-  as.data.frame(extract(m16))#[,-1]
 m16.summ  <-  plyr:::adply(as.matrix(m16.df),2,MCMCsum)
 setTxtProgressBar(pb, 16)
-m17.df    <-  as.data.frame(extract(m17))[,-1]
+m17.df    <-  as.data.frame(extract(m17))#[,-1]
 m17.summ  <-  plyr:::adply(as.matrix(m17.df),2,MCMCsum)
 setTxtProgressBar(pb, 17)
-m18.df    <-  as.data.frame(extract(m18))[,-1]
+m18.df    <-  as.data.frame(extract(m18))#[,-1]
 m18.summ  <-  plyr:::adply(as.matrix(m18.df),2,MCMCsum)
 setTxtProgressBar(pb, 18)
-m19.df    <-  as.data.frame(extract(m19))[,-1]
+m19.df    <-  as.data.frame(extract(m19))#[,-1]
 m19.summ  <-  plyr:::adply(as.matrix(m19.df),2,MCMCsum)
 setTxtProgressBar(pb, 19)
-m20.df    <-  as.data.frame(extract(m20))[,-1]
+m20.df    <-  as.data.frame(extract(m20))#[,-1]
 m20.summ  <-  plyr:::adply(as.matrix(m20.df),2,MCMCsum)
 setTxtProgressBar(pb, 20)
-m21.df    <-  as.data.frame(extract(m21))[,-1]
+m21.df    <-  as.data.frame(extract(m21))#[,-1]
 m21.summ  <-  plyr:::adply(as.matrix(m21.df),2,MCMCsum)
 setTxtProgressBar(pb, 21)
-m22.df    <-  as.data.frame(extract(m22))[,-1]
+m22.df    <-  as.data.frame(extract(m22))#[,-1]
 m22.summ  <-  plyr:::adply(as.matrix(m22.df),2,MCMCsum)
 setTxtProgressBar(pb, 22)
-m23.df    <-  as.data.frame(extract(m23))[,-1]
+m23.df    <-  as.data.frame(extract(m23))#[,-1]
 m23.summ  <-  plyr:::adply(as.matrix(m23.df),2,MCMCsum)
 setTxtProgressBar(pb, 23)
-m24.df    <-  as.data.frame(extract(m24))[,-1]
+m24.df    <-  as.data.frame(extract(m24))#[,-1]
 m24.summ  <-  plyr:::adply(as.matrix(m24.df),2,MCMCsum)
 setTxtProgressBar(pb, 24)
-m25.df    <-  as.data.frame(extract(m25))[,-1]
+m25.df    <-  as.data.frame(extract(m25))#[,-1]
 m25.summ  <-  plyr:::adply(as.matrix(m25.df),2,MCMCsum)
 setTxtProgressBar(pb, 25)
 close(pb)
