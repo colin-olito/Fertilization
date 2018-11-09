@@ -1,0 +1,333 @@
+% Preamble
+\documentclass{article}
+
+%Dependencies
+\usepackage[left]{lineno}
+%\usepackage{indentfirst}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color,soul}
+%\usepackage{times}
+\usepackage[sc]{mathpazo} %Like Palatino with extensive math support
+\usepackage[authoryear,sectionbib,sort]{natbib}
+\usepackage[hidelinks]{hyperref}
+\linespread{1.25}
+% Default margins are too wide all the way around. I reset them here
+\usepackage{fullpage}
+
+% Running headers
+\usepackage{fancyhdr}
+\setlength{\headheight}{28pt}
+
+% Graphics package
+\usepackage{graphicx}
+\graphicspath{{../output/figs/}.pdf}
+
+% New commands: fonts
+\newcommand{\code}{\fontfamily{pcr}\selectfont}
+%\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+%% Other Options
+
+% Change subsection numbering
+\renewcommand\thesubsection{\arabic{subsection})}
+\renewcommand\thesubsubsection{}
+
+% Subsubsection Title Formatting
+\titleformat{\subsubsection}    
+{\normalfont\fontsize{12pt}{17}\itshape}{\thesubsubsection}{12pt}{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Supporting Information (Appendices A \& B) for: Releasing small ejaculates slowly increases per-gamete fertilization success in an external fertilizer: \textit{Galeolaria caespitosa} (Polychaeta: Serpulidae). \textit{J.~Evol.~Biol.}}
+
+\author{Colin Olito$^{\ast}$ and Dustin J.~Marshall}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\noindent{} Centre for Geometric Biology, School of Biological Sciences, Monash University, Victoria 3800, Australia.
+\bigskip
+
+\noindent{} $^\ast$ Corresponding author e-mail: \url{colin.olito@gmail.com}
+\bigskip
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Appendix A: Model selection results}
+\renewcommand{\theequation}{S\arabic{equation}}
+\setcounter{equation}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+\setcounter{table}{0}
+
+
+Model selection for the analysis of the \textul{Investment} experiment required a comparison between 3 candidate models with the following 'random effect' $\mathbf{Z}$ matrices:
+
+\begin{align*}
+	\mathbf{Z_{m1}} = &Run + Run \times Sperm_i \\
+	\mathbf{Z_{m2}} = &Run \\
+	\mathbf{Z_{m3}} = &\text{N/A} \\
+\end{align*}
+
+\noindent{} which yielded the following results: 
+
+\begin{table}[!ht]
+\caption{Model Selection for \textul{Investment} analysis}
+\label{Table:InvestModComp}
+\centering
+\begin{tabular}{l c c c } \hline
+Comparison & $\Delta~\widehat{\textit{elpd}}_{\textit{loo}}$ & $s.e.~(\Delta~\widehat{\textit{elpd}}_{\textit{loo}})$ & $\Pr(\Delta~\widehat{\textit{elpd}}_{\textit{loo}} > 0)$ \\
+\hline
+m1 v.~ \textbf{m2}  & 1.485   & 6.655  & 0.823 \\
+m1 v.~ m3 & 134.224 & 30.675 & 0.00  \\
+m2 v.~ m3 & 132.739 & 31.572 & 0.00  \\
+\hline
+\end{tabular}
+\bigskip{}
+\end{table}
+\bigskip
+
+The posteriors for the final model, \textbf{m2}, were:
+
+\begin{table}[!ht]
+\caption{Summary of posteriors for the final model, \textbf{m2}, in the \textul{Investment} analysis}
+\label{Table:InvestFinalModel}
+\centering
+\begin{tabular}{l c c c c c c} \hline
+Parameter & Mean & $SE$ & $95$\% H.P.D interval & $\hat{R}$\\
+\hline
+$\beta_1$ (Intercept)             & $-0.68 $ & $0.02$  & $(-1.14,-0.21)$ & $1.00$ \\
+$\beta_2$ (Slope)                 & $ 0.82 $ & $0.00$  & $( 0.75, 0.89)$ & $1.00$ \\
+$\gamma_1$ (Run 1 Intercept)      & $-0.66 $ & $0.02$  & $(-1.15,-0.18)$ & $1.00$ \\
+$\gamma_2$ (Run 2 Intercept)      & $-0.60 $ & $0.01$  & $(-1.10,-0.11)$ & $1.00$ \\
+$\gamma_3$ (Run 3 Intercept)      & $-0.34 $ & $0.01$  & $(-0.83, 0.16)$ & $1.00$ \\
+$\gamma_4$ (Run 4 Intercept)      & $ 0.04 $ & $0.02$  & $(-0.45, 0.54)$ & $1.00$ \\
+$\gamma_5$ (Run 5 Intercept)      & $-0.28 $ & $0.01$  & $(-0.77, 0.19)$ & $1.00$ \\
+$\gamma_6$ (Run 6 Intercept)      & $ 0.03 $ & $0.02$  & $(-0.45, 0.51)$ & $1.00$ \\
+$\gamma_7$ (Run 7 Intercept)      & $ 1.14 $ & $0.02$  & $( 0.67, 1.63)$ & $1.00$ \\
+$\gamma_8$ (Run 8 Intercept)      & $ 0.60 $ & $0.01$  & $( 0.13, 1.08)$ & $1.00$ \\
+$\sigma_{\gamma}$ (Run Variance)  & $ 0.76 $ & $0.01$  & $( 0.45, 1.27)$ & $1.00$ \\
+\hline
+\end{tabular}
+\bigskip{}
+\end{table}
+\bigskip
+
+\newpage{}
+
+\noindent Model selection for the \textul{Rate} experiment analysis required a comparison between 25 candidate models (m1 through m25, in order of decreasing $\mathbf{Z}$ matrix complexity; see Supplementary R code for specification of all 'random effect' model matrices $\mathbf{Z_{m1}}$ through $\mathbf{Z_{m25}}$). Here, we present the pairwise comparisons between the best-fitting model (according to $\widehat{\textit{elpd}}_{\textit{loo}}$), and all other candidate models. The most parsimonious model -- the one with the fewest terms whose fit to the data is not significantly different from the best-fitting model -- is highlighted in bold.
+
+
+\begin{table}[!ht]
+\caption{Model Selection results for the \textul{Rate} experiment}
+\label{Table:Exp2ModComp}
+\centering
+\begin{tabular}{l c c c c} \hline
+Comparison & $\Delta~\widehat{\textit{elpd}}_{\textit{loo}}$ & $s.e.~(\Delta~\widehat{\textit{elpd}}_{\textit{loo}})$ & $\Pr(\Delta~\widehat{\textit{elpd}}_{\textit{loo}} > 0)$ \\
+\hline
+m2 v.~ m1  & 0.605   & 2.256  & 0.789 \\
+m2 v.~ m3  & 5.643   & 4.260  & 0.185 \\
+m2 v.~ \textbf{m12} & 6.045   & 10.612 & \textbf{0.569} \\
+m2 v.~ m6  & 6.518   & 7.802  & 0.404 \\
+m2 v.~ m4  & 7.750   & 4.292  & 0.071 \\
+m2 v.~ m9  & 8.692   & 7.579  & 0.251 \\
+m2 v.~ m7  & 9.455   & 7.871  & 0.230 \\
+m2 v.~ m10$^\dagger$ & 15.727  & 8.257  & 0.057 \\
+m2 v.~ m17 & 36.786  & 14.180 & 0.009 \\
+m2 v.~ m11 & 38.400  & 12.588 & 0.002 \\
+m2 v.~ m5  & 38.548  & 11.773 & 0.001 \\
+m2 v.~ m14 & 38.800  & 12.712 & 0.002 \\
+m2 v.~ m8  & 42.059  & 11.996 & 0.000 \\
+m2 v.~ m13 & 42.276  & 12.818 & 0.001 \\
+m2 v.~ m16 & 43.129  & 13.303 & 0.001 \\
+m2 v.~ m19 & 51.253  & 20.688 & 0.013 \\
+m2 v.~ m18 & 68.478  & 23.460 & 0.004 \\
+m2 v.~ m21 & 78.187  & 27.890 & 0.005 \\
+m2 v.~ m15 & 99.122  & 23.416 & 0.000 \\
+m2 v.~ m20 & 118.226 & 26.488 & 0.000 \\
+m2 v.~ m22 & 121.954 & 28.257 & 0.000 \\
+m2 v.~ m23 & 139.700 & 28.561 & 0.000 \\
+m2 v.~ m24 & 140.445 & 29.481 & 0.000 \\
+m2 v.~ m25 & 322.533 & 68.962 & 0.000 \\
+\hline
+\end{tabular}
+\smallskip{} \\
+{\footnotesize Note: Bold indicates the most parsimonious model selected, while daggers \\indicate other competitive candidate models with a similar fit to the data, \\but more parameters.}
+\end{table}
+\newpage
+
+
+The posteriors for the final model, \textbf{m12}, were:
+
+\begin{table}[!ht]
+\caption{Summary of posteriors for the final model, \textbf{m12}, in the \textul{N $\times$ Rate} analysis}
+\label{Table:NxRateFinalModel}
+\centering
+\begin{tabular}{l c c c c c c} \hline
+Parameter & Mean & $SE$ & $95$\% H.P.D interval & $\hat{R}$\\
+\hline
+$\beta_{0}$ (Intercept)      & $-0.75$ & $0.01$ & $(-1.04,-0.44)$ & $1.00$ \\
+$\beta_{1,nSperm_z}$         & $ 0.81$ & $0.01$ & $( 0.49, 1.13)$ & $1.01$ \\
+$\beta_{0,Slow}$             & $ 0.27$ & $0.01$ & $(-0.03, 0.58)$ & $1.00$ \\
+$\beta_{0,55cm}$             & $ 0.28$ & $0.01$ & $(-0.04, 0.60)$ & $1.00$ \\
+$\beta_{1,nSperm_z:Slow}$    & $-0.33$ & $0.00$ & $(-0.46,-0.19)$ & $1.00$ \\
+$\beta_{1,nSperm_z:55cm}$    & $ 0.14$ & $0.00$ & $( 0.00, 0.28)$ & $1.00$ \\
+$\beta_{0,Slow:55cm}$        & $-0.05$ & $0.01$ & $(-0.38, 0.30)$ & $1.00$ \\
+$\beta_{1,nSperm_z:Slow:}$   & $-0.07$ & $0.00$ & $(-0.27, 0.13)$ & $1.00$ \\
+$\gamma_{0,Run1 Int.}$       & $ 0.13$ & $0.01$ & $(-0.30, 0.55)$ & $1.00$ \\
+$\gamma_{0,Run2 Int.}$       & $-0.31$ & $0.01$ & $(-0.75, 0.13)$ & $1.00$ \\
+$\gamma_{0,Run3 Int.}$       & $-0.04$ & $0.01$ & $(-0.40, 0.31)$ & $1.00$ \\
+$\gamma_{0,Run4 Int.}$       & $ 0.75$ & $0.01$ & $( 0.30, 1.19)$ & $1.00$ \\
+$\gamma_{0,Run5 Int.}$       & $-0.12$ & $0.01$ & $(-0.52, 0.28)$ & $1.00$ \\
+$\gamma_{0,Run6 Int.}$       & $-0.61$ & $0.01$ & $(-0.98,-0.23)$ & $1.00$ \\
+$\gamma_{0,Run7 Int.}$       & $ 0.23$ & $0.01$ & $(-0.15, 0.62)$ & $1.00$ \\
+$\gamma_{0,Run8 Int.}$       & $-0.88$ & $0.01$ & $(-1.25,-0.52)$ & $1.00$ \\
+$\gamma_{0,Run9 Int.}$       & $ 0.75$ & $0.01$ & $( 0.36, 1.13)$ & $1.00$ \\
+$\gamma_{0,Run10 Int.}$      & $ 0.13$ & $0.01$ & $(-0.23, 0.46)$ & $1.00$ \\
+$\gamma_{1,Run1:nSperm_z}$   & $ 0.06$ & $0.01$ & $(-0.40, 0.52)$ & $1.00$ \\
+$\gamma_{1,Run2:nSperm_z}$   & $-0.58$ & $0.01$ & $(-1.01,-0.14)$ & $1.00$ \\
+$\gamma_{1,Run3:nSperm_z}$   & $-0.08$ & $0.01$ & $(-0.40, 0.25)$ & $1.01$ \\
+$\gamma_{1,Run4:nSperm_z}$   & $ 0.82$ & $0.01$ & $( 0.36, 1.29)$ & $1.00$ \\
+$\gamma_{1,Run5:nSperm_z}$   & $-0.06$ & $0.01$ & $(-0.41, 0.29)$ & $1.00$ \\
+$\gamma_{1,Run6:nSperm_z}$   & $-0.10$ & $0.01$ & $(-0.46, 0.27)$ & $1.00$ \\
+$\gamma_{1,Run7:nSperm_z}$   & $ 0.92$ & $0.01$ & $( 0.52, 1.33)$ & $1.00$ \\
+$\gamma_{1,Run8:nSperm_z}$   & $ 0.10$ & $0.01$ & $(-0.26, 0.45)$ & $1.00$ \\
+$\gamma_{1,Run9:nSperm_z}$   & $-0.40$ & $0.01$ & $(-0.73,-0.08)$ & $1.01$ \\
+$\gamma_{1,Run10:nSperm_z}$  & $-0.72$ & $0.01$ & $(-1.05,-0.40)$ & $1.01$ \\
+\end{tabular}
+\end{table}
+\newpage
+
+\setcounter{table}{3}
+\begin{table}[!ht]
+\caption{Continued}
+\label{Table:NxRateFinalModel2}
+\centering
+\begin{tabular}{l c c c c c c} \hline
+$\gamma_{0,Run1:Slow}$        & $-0.15$ & $0.01$ & $(-0.62, 0.33)$ & $1.00$ \\
+$\gamma_{0,Run2:Slow}$        & $-0.63$ & $0.01$ & $(-1.03,-0.20)$ & $1.00$ \\
+$\gamma_{0,Run3:Slow}$        & $ 0.03$ & $0.01$ & $(-0.35, 0.43)$ & $1.00$ \\
+$\gamma_{0,Run4:Slow}$        & $ 0.03$ & $0.01$ & $(-0.38, 0.45)$ & $1.00$ \\
+$\gamma_{0,Run5:Slow}$        & $ 0.14$ & $0.01$ & $(-0.30, 0.58)$ & $1.00$ \\
+$\gamma_{0,Run6:Slow}$        & $-0.28$ & $0.01$ & $(-0.72, 0.13)$ & $1.00$ \\
+$\gamma_{0,Run7:Slow}$        & $ 0.14$ & $0.01$ & $(-0.27, 0.55)$ & $1.00$ \\
+$\gamma_{0,Run8:Slow}$        & $ 0.27$ & $0.01$ & $(-0.15, 0.68)$ & $1.00$ \\
+$\gamma_{0,Run9:Slow}$        & $ 0.06$ & $0.01$ & $(-0.35, 0.47)$ & $1.00$ \\
+$\gamma_{0,Run10:Slow}$       & $ 0.41$ & $0.01$ & $( 0.04, 0.79)$ & $1.00$ \\
+$\gamma_{0,Run1:55cm}$        & $ 0.56$ & $0.01$ & $( 0.10, 1.05)$ & $1.00$ \\
+$\gamma_{0,Run2:55cm}$        & $ 0.51$ & $0.01$ & $( 0.09, 0.92)$ & $1.00$ \\
+$\gamma_{0,Run3:55cm}$        & $ 0.38$ & $0.01$ & $(-0.04, 0.80)$ & $1.00$ \\
+$\gamma_{0,Run4:55cm}$        & $-0.45$ & $0.01$ & $(-0.89,-0.02)$ & $1.00$ \\
+$\gamma_{0,Run5:55cm}$        & $-0.87$ & $0.01$ & $(-1.35,-0.41)$ & $1.00$ \\
+$\gamma_{0,Run6:55cm}$        & $-0.14$ & $0.01$ & $(-0.57, 0.29)$ & $1.00$ \\
+$\gamma_{0,Run7:55cm}$        & $ 0.35$ & $0.01$ & $(-0.07, 0.77)$ & $1.00$ \\
+$\gamma_{0,Run8:55cm}$        & $-1.04$ & $0.01$ & $(-1.50,-0.61)$ & $1.00$ \\
+$\gamma_{0,Run9:55cm}$        & $-0.12$ & $0.01$ & $(-0.56, 0.28)$ & $1.00$ \\
+$\gamma_{0,Run10:55cm}$       & $ 0.75$ & $0.01$ & $( 0.37, 1.16)$ & $1.00$ \\
+$\gamma_{0,Run1:Slow:55cm}$   & $-0.11$ & $0.01$ & $(-0.70, 0.47)$ & $1.00$ \\
+$\gamma_{0,Run2:Slow:55cm}$   & $-0.44$ & $0.01$ & $(-0.94, 0.05)$ & $1.00$ \\
+$\gamma_{0,Run3:Slow:55cm}$   & $-0.09$ & $0.01$ & $(-0.57, 0.40)$ & $1.00$ \\
+$\gamma_{0,Run4:Slow:55cm}$   & $ 0.30$ & $0.01$ & $(-0.21, 0.81)$ & $1.00$ \\
+$\gamma_{0,Run5:Slow:55cm}$   & $-0.15$ & $0.01$ & $(-0.69, 0.39)$ & $1.00$ \\
+$\gamma_{0,Run6:Slow:55cm}$   & $ 0.32$ & $0.01$ & $(-0.21, 0.83)$ & $1.00$ \\
+$\gamma_{0,Run7:Slow:55cm}$   & $-0.26$ & $0.01$ & $(-0.74, 0.22)$ & $1.00$ \\
+$\gamma_{0,Run8:Slow:55cm}$   & $ 0.85$ & $0.01$ & $( 0.35, 1.37)$ & $1.00$ \\
+$\gamma_{0,Run9:Slow:55cm}$   & $ 0.63$ & $0.01$ & $( 0.15, 1.13)$ & $1.00$ \\
+$\gamma_{0,Run10:Slow:55cm}$  & $-0.99$ & $0.01$ & $(-1.44,-0.53)$ & $1.00$ \\
+$\sigma_{\gamma}$             & $ 0.56$ & $0.00$ & $( 0.45, 0.69)$ & $1.00$ \\
+\hline
+\end{tabular}
+\smallskip{} \\
+{\footnotesize Note: Here we present the \textit{raw} parameter estimates (i.e., still in logit-space, following default corner-point parameterization implemented by the model.matrix(~) function in R) for all effects included in the Bayesian mixed effects binomial regression model. As in the main text, subscripts of $0$ and $1$ indicate partial regression intercepts and slopes respectively.\\Inference for Stan model: $3$ chains, each with iter$=2000$; warmup $ = 1000$; thin $= 1$; post-warmup draws per chain $= 1000$, total post-warmup draws $= 3000$. $\hat{R}$ is the potential scale reduction factor on split chains (at convergence, $\hat{R} = 1$). $nSperm_z$ refers to the Z-transformed number of sperm. Note that parameter subscripts }
+\end{table}
+\bigskip
+
+
+
+
+
+
+
+
+\newpage{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Appendix B: Supplementary figures}
+\renewcommand{\theequation}{S\arabic{equation}}
+\setcounter{equation}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
+
+
+\begin{figure}[!ht]
+\includegraphics[width=\textwidth]{../../output/figs/NxRate_coefContrasts}
+\caption{Density plots showing the posterior distributions for \textit{a priori} contrasts of the regression coefficients from the analysis of the \textul{Investment $\times$ Rate} experiment. The contrasts illustrate that the difference in the slopes of the partial regression lines for the 'Fast' and 'Slow' treatments were consistently different, both as main effects, and at each of the two downstream egg patches. However, there were no differences between the slopes of the partial regression lines for the two egg patches when the release rate was the same (the middle two panels in the top row). Contrasts were performed by calculating the difference between the indicated coefficients for each of the posterior draws, resulting in the posterior distributions of the differences displayed above. Bayesian 'p-values' in the upper-right corner indicate the proportion of the contrast posterior draws that are less than $0$, which is also benchmarked in each panel by a vertical red line.}
+\label{fig:coefContr}
+\end{figure}
+\newpage{}
+
+
+
+\begin{figure}[!ht]
+\includegraphics[width=\textwidth]{../../output/figs/NxRate_simpleContrasts}
+\caption{Density plots showing the posterior distributions for simple contrasts of the predicted difference in fertilization success for the \textit{Fast} and \textit{Slow} release strategies at different values of the $Sperm_i$. These contrasts illustrate the differences in the predicted distribution of fertilization success for each combination of Rate treatment (\textit{Fast} or \textit{Slow}) and Egg Position (\textit{25} or \textit{75}) as you move along the $nSperm_i$ axis (from the leftmost column to the right). Contrasts are calculated at values of $Sperm_i$ corresponding to $-2 \sigma$, $-\sigma$, the mean ($0$), $\sigma$, and $2 \sigma$, where $\sigma$ is the empirical standard deviation of the Z-transformed number of sperm released, $Sperm_i$, from the \textul{Investment $\times$ Rate} experiment ($8.9 \times 10^{7}$). Contrasts were performed by calculating the difference between the indicated coefficients for each of the posterior draws, resulting in the posterior distributions of the differences displayed above. Bayesian 'p-values' in the upper-right corner indicate the proportion of the contrast posterior draws that are greater than $0$, which is also benchmarked in each panel by a vertical red line.}
+\label{fig:simpContr}
+\end{figure}
+\newpage{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection*{Supplementary R code}
+%\renewcommand{\theequation}{S\arabic{equation}}
+%\setcounter{equation}{0}
+%\renewcommand{\thefigure}{S\arabic{figure}}
+%\setcounter{figure}{0}
+%\renewcommand{\thetable}{S\arabic{table}}
+%\setcounter{table}{0}
+%
+%See online supplementary material files {\code N\_invest\_FitModels.R}, and {\code NxRate\_FitModels\_Bin.R}.
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{thebibliography}{}
+%
+%
+%\bibitem[{Caballero and Hill(1992)Caballero and Hill}]{CaballeroHill1992}
+%Caballero, A. and W.~G. Hill. 1992.
+%\newblock Effects of partial inbreeding on fixation rates and variation of mutant genes.
+%\newblock Genetics 131:493--507.
+%
+%\bibitem[{Holden(1979)Holden}]{Holden1979}
+%Holden, L.~R. 1979.
+%\newblock New properties of the two-locus partial selfing model with selection.
+%\newblock Genetics 93:217--236.
+%
+%\bibitem[{Jordan and Connallon(2014)Jordan and Connallon}]{JordanConn2014}
+%Jordan, C.~Y. and T. Connallon. 2014.
+%\newblock Sexually antagonistic polymorphism in simultaneous hermaphrod-\\ites.
+%\newblock Evolution 68:3555--3569.
+%
+%\bibitem[{Otto and Day(2007)Otto and Day}]{OttoDay2007}
+%Otto, S.~P. and T. Day. 2007.
+%\newblock A biologist's guide to mathematical modeling in ecology and evolution.
+%\newblock Princeton University Press, Princeton, New Jersey, USA.
+%
+%
+%\end{thebibliography}
+
+\end{document}
