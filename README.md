@@ -2,17 +2,17 @@
 
 ## Overview
 
-This is the GitHub repository for the development of an empirical study of male spawning strategies in broadcast spawning species. The resulting paper has been been published at *EVOLUTION???*, and is [available through the publisher](LINK). You can also contact me directly if you would like a reprint. Here you can find all of the necessary code to reproduce the analyses and the pre-publication manuscript. 
+This is the GitHub repository for the development of an empirical study of male spawning strategies in broadcast spawning species. The resulting paper has been been published as a short communication in the *Journal of Evolutionary Biology*, and is available through the publisher [here](https://onlinelibrary.wiley.com/doi/abs/10.1111/jeb.13403). You can also contact me directly if you would like a reprint. Here you can find all of the data used in the study, as well as all necessary code to reproduce the analyses and the pre-publication manuscript. 
 
 
 ## Citing information
 
-Citing information for the resulting paper will be made available as soon as possible.
+Olito, C. and D.J. Marshall. (2018). Releasing small ejaculates slowly increases per‐gamete fertilization success in an external fertilizer: *Galeolaria caespitosa* (Polychaeta: Serpulidae). J. Evol. Biol. doi: 10.1111/jeb.13403. 
 
 
-## Reproducing the manuscript
+## Reproducing the analyses and manuscript
 
-The easiest way to reproduce the manuscript is to clone the repo, run `createFigs.R`, and then compile the manuscript file `Exp1_NxRate/doc/NxRate_v1.tex` using whatever default LaTeX editor/engine you have. 
+To reproduce the analyses you need to first run the relevant `loadData_*.R` scripts, followed by the `*_Analyses.R` and `*_FitModels_*.R` scripts. Note that loading the data and fitting the models can take some time. To reproduce the figures for the manuscript, first run the `loadFigData.R` and `makeFigs.R` scripts. Finally, to reproduce the submitted draft of the manuscript, compile the manuscript file `Exp1_NxRate/doc/JEB/FlumePaper_Final.tex` using your default LaTeX editor/engine. 
 
 
 ## Contact & bug reporting
